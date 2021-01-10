@@ -116,6 +116,7 @@ func Ingest(ctx *cli.Context) error {
 			fmt.Println("Success!")
 			return nil
 		case reSkip.MatchString(in):
+			i++
 		case reHelp.MatchString(in):
 		case reAccAcc.MatchString(in):
 			blocks := strings.Split(in, " ")

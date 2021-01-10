@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/pkg/pb";
+
+import "proto/amount.proto";
+
+message Posting {
+	string id = 1;
+	string account = 2;
+	string transaction = 3;
+	Amount units = 4;
+	Amount cost = 5;
+	Amount price = 6;
+}
+
+message Postings {
+	repeated Posting data = 1;
+	map<string, int32> by_id = 2;
+}
+
+message PostingsQuery {
+	message Fields {
+		bool account = 1;
+		bool transaction = 2;
+		bool units = 3;
+		bool cost = 4;
+		bool price = 5;
+	}
+	Fields fields = 1;
+	string from = 2;
+	string to = 3;
+	string account = 4;
+	string account_name = 5;
+	string transaction = 6;
+}

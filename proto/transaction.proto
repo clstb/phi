@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/pkg/pb";
+
+import "proto/posting.proto";
+
+message Transaction {
+	string id = 1;
+	string date = 2;
+	string entity = 3;
+	string reference = 4;
+	Postings postings = 5;
+}
+
+message Transactions {
+	repeated Transaction data = 1;
+	map<string, int32> by_id = 2;
+}
+
+message TransactionsQuery {
+	message Fields {
+		bool date = 1;
+		bool entity = 2;
+		bool reference = 3;
+		bool postings = 4;
+	}
+	Fields fields = 1;
+	string from = 2;
+	string to = 3;
+}

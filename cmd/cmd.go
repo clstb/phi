@@ -4,8 +4,22 @@ import (
 	"strings"
 
 	"github.com/clstb/phi/pkg/fin"
+	"github.com/clstb/phi/pkg/pb"
+	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
+	"google.golang.org/grpc"
 )
+
+func getClient(ctx *cli.Context) (pb.CoreClient, error) {
+	apiHost := ctx.String("api-host")
+
+	conn, err := grpc.Dial(apiHost, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	return pb.NewCoreClient(conn), nil
+}
 
 func renderTree(
 	tree treeprint.Tree,

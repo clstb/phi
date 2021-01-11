@@ -12,10 +12,14 @@ import (
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
-	"google.golang.org/grpc"
 )
 
 func Ingest(ctx *cli.Context) error {
+	client, err := getClient(ctx)
+	if err != nil {
+		return err
+	}
+
 	fp := ctx.Path("file")
 	f, err := os.OpenFile(fp, os.O_RDONLY, os.ModePerm)
 	if err != nil {
@@ -28,13 +32,6 @@ func Ingest(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
-	if err != nil {
-		return err
-	}
-
-	client := pb.NewCoreClient(conn)
 
 	accounts, err := client.GetAccounts(
 		ctx.Context,

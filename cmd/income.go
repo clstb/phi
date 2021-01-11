@@ -10,18 +10,15 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
-	"google.golang.org/grpc"
 )
 
 func Income(ctx *cli.Context) error {
-	from, to := ctx.String("from"), ctx.String("to")
-
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	client, err := getClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	client := pb.NewCoreClient(conn)
+	from, to := ctx.String("from"), ctx.String("to")
 
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,

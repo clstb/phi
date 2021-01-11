@@ -123,7 +123,13 @@ func main() {
 				Action:      cmd.Journal,
 			},
 		},
-	}
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "api-host",
+				Usage: "phi server host",
+				Value: "localhost:9000",
+			},
+		}}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)

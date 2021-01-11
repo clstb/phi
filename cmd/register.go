@@ -5,16 +5,13 @@ import (
 
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
-	"google.golang.org/grpc"
 )
 
 func Register(ctx *cli.Context) error {
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	client, err := getClient(ctx)
 	if err != nil {
 		return err
 	}
-
-	client := pb.NewCoreClient(conn)
 
 	accounts := []string{
 		"Equity:OpeningBalances",

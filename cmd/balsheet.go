@@ -10,18 +10,15 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
-	"google.golang.org/grpc"
 )
 
 func BalSheet(ctx *cli.Context) error {
-	date := ctx.String("date")
-
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	client, err := getClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	client := pb.NewCoreClient(conn)
+	date := ctx.String("date")
 
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,

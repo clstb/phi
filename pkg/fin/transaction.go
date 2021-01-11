@@ -11,14 +11,18 @@ type Transaction struct {
 	Date      string
 	Entity    string
 	Reference string
-	Postings  *Postings
+	Postings  Postings
 }
 
 func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
-func (t *Transaction) Balanced() bool {
+func (t Transaction) Sum() Sum {
+	return t.Postings.Sum()
+}
+
+func (t Transaction) Balanced() bool {
 	sum := t.Postings.Sum().ByCurrency()
 	for _, amount := range sum {
 		if !amount.IsZero() {
@@ -29,22 +33,22 @@ func (t *Transaction) Balanced() bool {
 	return true
 }
 
-func (t *Transaction) FromPB(pb *pb.Transaction) error {
-	postings := NewPostings()
-	if err := postings.FromPB(pb.Postings); err != nil {
-		return fmt.Errorf("postings: %w", err)
+func TransactionFromPB(pb *pb.Transaction) (Transaction, error) {
+	postings, err := PostingsFromPB(pb.Postings)
+	if err != nil {
+		return Transaction{}, fmt.Errorf("transaction: %w", err)
 	}
 
-	t.Id = pb.Id
-	t.Date = pb.Date
-	t.Entity = pb.Entity
-	t.Reference = pb.Reference
-	t.Postings = postings
-
-	return nil
+	return Transaction{
+		Id:        pb.Id,
+		Date:      pb.Date,
+		Entity:    pb.Entity,
+		Reference: pb.Reference,
+		Postings:  postings,
+	}, nil
 }
 
-func (t *Transaction) PB() (*pb.Transaction, error) {
+func (t Transaction) PB() (*pb.Transaction, error) {
 	postings, err := t.Postings.PB()
 	if err != nil {
 		return nil, err

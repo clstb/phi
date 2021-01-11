@@ -5,12 +5,10 @@ option go_package = "github.com/clstb/phi/pkg/pb";
 
 import "proto/account.proto";
 import "proto/transaction.proto";
-import "proto/posting.proto";
 
 service Core {
 	rpc CreateAccount(Account) returns (Account);
 	rpc GetAccounts(AccountsQuery) returns (Accounts);
 	rpc CreateTransaction(Transaction) returns (Transaction);
 	rpc GetTransactions(TransactionsQuery) returns (Transactions);
-	rpc GetPostings(PostingsQuery) returns (Postings);
 }

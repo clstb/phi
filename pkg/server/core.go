@@ -137,16 +137,9 @@ func (s *core) CreateTransaction(
 			record := goqu.Record{
 				"account":     posting.Account,
 				"transaction": req.Id,
-				"units":       posting.Units.Value,
-				"units_cur":   posting.Units.Currency,
-			}
-			if posting.Cost != nil {
-				record["cost"] = posting.Cost.Value
-				record["cost_cur"] = posting.Cost.Currency
-			}
-			if posting.Price != nil {
-				record["price"] = posting.Price.Value
-				record["price_cur"] = posting.Price.Currency
+				"units":       posting.Units,
+				"cost":        posting.Cost,
+				"price":       posting.Price,
 			}
 			postings = append(postings, record)
 		}
@@ -174,15 +167,15 @@ func (s *core) GetTransactions(
 	req *pb.TransactionsQuery,
 ) (*pb.Transactions, error) {
 	fields := func() []interface{} {
-		fields := []interface{}{"id"}
+		fields := []interface{}{"transactions.id"}
 		if req.Fields.Date {
-			fields = append(fields, "date")
+			fields = append(fields, "transactions.date")
 		}
 		if req.Fields.Entity {
-			fields = append(fields, "entity")
+			fields = append(fields, "transactions.entity")
 		}
 		if req.Fields.Reference {
-			fields = append(fields, "reference")
+			fields = append(fields, "transactions.reference")
 		}
 		return fields
 	}
@@ -209,8 +202,17 @@ func (s *core) GetTransactions(
 
 	rows, err := s.db.From(
 		"transactions",
-	).Select(
+	).SelectDistinct(
 		fields()...,
+	).Join(
+		goqu.T("postings"),
+		goqu.On(goqu.Ex{"transactions.id": goqu.I("postings.transaction")}),
+	).Join(
+		goqu.T("accounts"),
+		goqu.On(
+			goqu.Ex{"accounts.id": goqu.I("postings.account")},
+			goqu.I("accounts.name").RegexpLike(req.AccountName),
+		),
 	).Where(
 		goqu.C("date").Between(
 			goqu.Range(req.From, req.To),
@@ -234,153 +236,57 @@ func (s *core) GetTransactions(
 		i++
 	}
 
-	if req.Fields.Postings {
-		for _, v := range data {
-			postings, err := s.GetPostings(
-				ctx,
-				&pb.PostingsQuery{
-					Fields: &pb.PostingsQuery_Fields{
-						Account:     true,
-						Transaction: true,
-						Units:       true,
-						Cost:        true,
-						Price:       true,
-					},
-					Transaction: v.Id,
-				},
-			)
-			if err != nil {
-				return nil, err
-			}
-			v.Postings = postings
-		}
+	if !req.Fields.Postings {
+		return &pb.Transactions{
+			Data: data,
+			ById: byId,
+		}, nil
 	}
 
-	return &pb.Transactions{
-		Data: data,
-		ById: byId,
-	}, nil
-}
-
-func (s *core) GetPostings(
-	ctx context.Context,
-	req *pb.PostingsQuery,
-) (*pb.Postings, error) {
-	fields := func() []interface{} {
-		fields := []interface{}{"id"}
-		add := func(i interface{}) {
-			fields = append(fields, i)
-		}
-		if req.Fields.Account {
-			add("account")
-		}
-		if req.Fields.Transaction {
-			add("transaction")
-		}
-		if req.Fields.Units {
-			add("units")
-			add("units_cur")
-		}
-		if req.Fields.Cost {
-			add("cost")
-			add("cost_cur")
-		}
-		if req.Fields.Price {
-			add("price")
-			add("price_cur")
-		}
-
-		return fields
-	}
-	scan := func(rows *sql.Rows) (*pb.Posting, error) {
-		posting := &pb.Posting{}
-		toScan := []interface{}{&posting.Id}
-		add := func(i interface{}) {
-			toScan = append(toScan, i)
-		}
-
-		if req.Fields.Account {
-			add(&posting.Account)
-		}
-		if req.Fields.Transaction {
-			add(&posting.Transaction)
-		}
-		if req.Fields.Units {
-			units := &pb.Amount{}
-			add(&units.Value)
-			add(&units.Currency)
-			posting.Units = units
-		}
-		if req.Fields.Cost {
-			add(&posting.Cost.Value)
-			add(&posting.Cost.Currency)
-		}
-		if req.Fields.Price {
-			add(&posting.Price.Value)
-			add(&posting.Price.Currency)
-		}
-
-		if err := rows.Scan(toScan...); err != nil {
-			return nil, err
-		}
-
-		return posting, nil
-	}
-	filter := func() []goqu.Expression {
-		var filter []goqu.Expression
-		add := func(e goqu.Expression) {
-			filter = append(filter, e)
-		}
-
-		if req.Account != "" {
-			add(goqu.C("account").Eq(req.Account))
-		}
-		if req.AccountName != "" {
-			add(goqu.C("account_name").RegexpLike(req.AccountName))
-		}
-		if req.Transaction != "" {
-			add(goqu.C("transaction").Eq(req.Transaction))
-		}
-
-		from := "-infinity"
-		if req.From != "" {
-			from = req.From
-		}
-		to := "+infinity"
-		if req.To != "" {
-			to = req.To
-		}
-
-		add(goqu.C("date").Between(goqu.Range(from, to)))
-
-		return filter
-	}
-
-	rows, err := s.db.From(
-		"postings_joined",
-	).Select(
-		fields()...,
-	).Where(
-		filter()...,
-	).Executor().Query()
-	if err != nil {
-		return nil, err
-	}
-
-	var data []*pb.Posting
-	byId := make(map[string]int32)
-	var i int32
-	for rows.Next() {
-		posting, err := scan(rows)
+	for _, v := range data {
+		rows, err := s.db.From(
+			"postings",
+		).Select(
+			"id",
+			"account",
+			"units",
+			"cost",
+			"price",
+		).Where(
+			goqu.C("transaction").Eq(v.Id),
+		).Executor().Query()
 		if err != nil {
 			return nil, err
 		}
 
-		data = append(data, posting)
-		byId[posting.Id] = i
+		var dataPostings []*pb.Posting
+		byIdPostings := make(map[string]int32)
+		i = 0
+		for rows.Next() {
+			posting := &pb.Posting{
+				Transaction: v.Id,
+			}
+			if err := rows.Scan(
+				&posting.Id,
+				&posting.Account,
+				&posting.Units,
+				&posting.Cost,
+				&posting.Price,
+			); err != nil {
+				return nil, err
+			}
+
+			dataPostings = append(dataPostings, posting)
+			byIdPostings[posting.Id] = i
+			i++
+		}
+		v.Postings = &pb.Postings{
+			Data: dataPostings,
+			ById: byIdPostings,
+		}
 	}
 
-	return &pb.Postings{
+	return &pb.Transactions{
 		Data: data,
 		ById: byId,
 	}, nil

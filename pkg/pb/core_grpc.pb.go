@@ -21,7 +21,6 @@ type CoreClient interface {
 	GetAccounts(ctx context.Context, in *AccountsQuery, opts ...grpc.CallOption) (*Accounts, error)
 	CreateTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error)
 	GetTransactions(ctx context.Context, in *TransactionsQuery, opts ...grpc.CallOption) (*Transactions, error)
-	GetPostings(ctx context.Context, in *PostingsQuery, opts ...grpc.CallOption) (*Postings, error)
 }
 
 type coreClient struct {
@@ -68,15 +67,6 @@ func (c *coreClient) GetTransactions(ctx context.Context, in *TransactionsQuery,
 	return out, nil
 }
 
-func (c *coreClient) GetPostings(ctx context.Context, in *PostingsQuery, opts ...grpc.CallOption) (*Postings, error) {
-	out := new(Postings)
-	err := c.cc.Invoke(ctx, "/pb.Core/GetPostings", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // CoreServer is the server API for Core service.
 // All implementations must embed UnimplementedCoreServer
 // for forward compatibility
@@ -85,7 +75,6 @@ type CoreServer interface {
 	GetAccounts(context.Context, *AccountsQuery) (*Accounts, error)
 	CreateTransaction(context.Context, *Transaction) (*Transaction, error)
 	GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error)
-	GetPostings(context.Context, *PostingsQuery) (*Postings, error)
 	mustEmbedUnimplementedCoreServer()
 }
 
@@ -104,9 +93,6 @@ func (UnimplementedCoreServer) CreateTransaction(context.Context, *Transaction) 
 }
 func (UnimplementedCoreServer) GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactions not implemented")
-}
-func (UnimplementedCoreServer) GetPostings(context.Context, *PostingsQuery) (*Postings, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPostings not implemented")
 }
 func (UnimplementedCoreServer) mustEmbedUnimplementedCoreServer() {}
 
@@ -193,24 +179,6 @@ func _Core_GetTransactions_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Core_GetPostings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PostingsQuery)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CoreServer).GetPostings(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.Core/GetPostings",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).GetPostings(ctx, req.(*PostingsQuery))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Core_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.Core",
 	HandlerType: (*CoreServer)(nil),
@@ -230,10 +198,6 @@ var _Core_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTransactions",
 			Handler:    _Core_GetTransactions_Handler,
-		},
-		{
-			MethodName: "GetPostings",
-			Handler:    _Core_GetPostings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

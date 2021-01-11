@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"text/tabwriter"
 
 	"github.com/clstb/phi/pkg/fin"
@@ -22,7 +23,7 @@ func Income(ctx *cli.Context) error {
 
 	client := pb.NewCoreClient(conn)
 
-	accounts, err := client.GetAccounts(
+	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
 			Fields: &pb.AccountsQuery_Fields{
@@ -34,13 +35,14 @@ func Income(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	accounts := fin.AccountsFromPB(accountsPB)
 
-	postingsPB, err := client.GetPostings(
+	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
-		&pb.PostingsQuery{
-			Fields: &pb.PostingsQuery_Fields{
-				Account: true,
-				Units:   true,
+		&pb.TransactionsQuery{
+			Fields: &pb.TransactionsQuery_Fields{
+				Date:     true,
+				Postings: true,
 			},
 			From:        from,
 			To:          to,
@@ -51,12 +53,13 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
-	postings := fin.NewPostings()
-	if err := postings.FromPB(postingsPB); err != nil {
+	transactions, err := fin.TransactionsFromPB(transactionsPB)
+	if err != nil {
 		return err
 	}
 
-	sum := postings.Sum()
+	sum := transactions.Sum()
+
 	sumByCurrency := sum.ByCurrency()
 
 	tree := treeprint.New()
@@ -73,9 +76,21 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
+	re := regexp.MustCompile("^(Income|Expenses)")
+	ni := make(fin.SumCurrency)
+	for accountId, amounts := range sum {
+		account, ok := accounts.ById(accountId)
+		if !ok {
+			continue
+		}
+		if re.MatchString(account.Name) {
+			ni = ni.Add(amounts)
+		}
+	}
+
 	var s string
-	for _, amount := range sumByCurrency {
-		s += "\t" + amount.String()
+	for _, amount := range ni {
+		s += "\t" + amount.StringRaw()
 	}
 	fmt.Fprintf(w, "\t\nNet Income:%s\n", s)
 

@@ -3,15 +3,13 @@ syntax = "proto3";
 package pb;
 option go_package = "github.com/clstb/phi/pkg/pb";
 
-import "proto/amount.proto";
-
 message Posting {
 	string id = 1;
 	string account = 2;
 	string transaction = 3;
-	Amount units = 4;
-	Amount cost = 5;
-	Amount price = 6;
+	string units = 4;
+	string cost = 5;
+	string price = 6;
 }
 
 message Postings {

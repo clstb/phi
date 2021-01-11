@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/clstb/phi/pkg/pb"
 	"github.com/shopspring/decimal"
 )
 
@@ -13,93 +12,77 @@ type Amount struct {
 	Currency string
 }
 
-func NewAmount() *Amount {
-	return &Amount{}
-}
-
-func (a *Amount) String() string {
+func (a Amount) StringRaw() string {
 	return a.Value.String()
 }
 
-func (a *Amount) IsZero() bool {
+func (a Amount) String() string {
+	return fmt.Sprintf(
+		"%s %s",
+		a.Value.String(),
+		a.Currency,
+	)
+}
+
+func (a Amount) IsZero() bool {
 	return a.Value.IsZero()
 }
 
-func (a *Amount) Abs() *Amount {
-	return &Amount{
+func (a Amount) Abs() Amount {
+	return Amount{
 		Value:    a.Value.Abs(),
 		Currency: a.Currency,
 	}
 }
 
-func (a *Amount) Neg() *Amount {
-	return &Amount{
+func (a Amount) Neg() Amount {
+	return Amount{
 		Value:    a.Value.Neg(),
 		Currency: a.Currency,
 	}
 }
 
-func (a *Amount) Add(amount *Amount) *Amount {
+func (a Amount) Add(amount Amount) Amount {
 	value := a.Value.Add(amount.Value)
 
-	return &Amount{
+	return Amount{
 		Value:    value,
 		Currency: amount.Currency,
 	}
 }
 
-func (a *Amount) Mul(amount *Amount) *Amount {
+func (a Amount) Mul(amount Amount) Amount {
 	value := a.Value.Mul(amount.Value)
 
-	return &Amount{
+	return Amount{
 		Value:    value,
 		Currency: amount.Currency,
 	}
 }
 
-func (a *Amount) FromString(s string, fmts ...AmountFormatter) error {
+func AmountFromString(s string, fmts ...AmountFormatter) (Amount, error) {
 	if s == "" {
-		return nil
-	}
-
-	for _, fmt := range fmts {
-		s = fmt(s)
+		return Amount{}, nil
 	}
 
 	blocks := strings.Split(s, " ")
 	if len(blocks) != 2 {
-		return fmt.Errorf("invalid format: expected \"<decimal> <currency>\"")
+		return Amount{}, fmt.Errorf("invalid format: expected \"<decimal> <currency>\"")
+	}
+
+	for _, fmt := range fmts {
+		blocks[0] = fmt(blocks[0])
 	}
 
 	value, err := decimal.NewFromString(blocks[0])
 	if err != nil {
-		return fmt.Errorf("parsing decimal: %w", err)
+		return Amount{}, fmt.Errorf("parsing decimal: %w", err)
 	}
 
-	a.Value = value
-	a.Currency = blocks[1]
-
-	return nil
-}
-
-func (a *Amount) FromPB(pb *pb.Amount) error {
-	value := decimal.Zero
-	value, err := decimal.NewFromString(pb.Value)
-	if err != nil {
-		return fmt.Errorf("unmarshalling decimal from bytes: %w", err)
-	}
-
-	a.Value = value
-	a.Currency = pb.Currency
-
-	return nil
-}
-
-func (a *Amount) PB() *pb.Amount {
-	return &pb.Amount{
-		Value:    a.Value.String(),
-		Currency: a.Currency,
-	}
+	return Amount{
+		Value:    value,
+		Currency: blocks[1],
+	}, nil
 }
 
 type AmountFormatter func(string) string

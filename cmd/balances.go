@@ -21,7 +21,7 @@ func Balances(ctx *cli.Context) error {
 
 	client := pb.NewCoreClient(conn)
 
-	accounts, err := client.GetAccounts(
+	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
 			Fields: &pb.AccountsQuery_Fields{
@@ -32,27 +32,30 @@ func Balances(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	accounts := fin.AccountsFromPB(accountsPB)
 
-	postingsPB, err := client.GetPostings(
+	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
-		&pb.PostingsQuery{
-			Fields: &pb.PostingsQuery_Fields{
-				Account: true,
-				Units:   true,
+		&pb.TransactionsQuery{
+			Fields: &pb.TransactionsQuery_Fields{
+				Date:     true,
+				Postings: true,
 			},
-			To: date,
+			From: "-infinity",
+			To:   date,
 		},
 	)
 	if err != nil {
 		return err
 	}
 
-	postings := fin.NewPostings()
-	if err := postings.FromPB(postingsPB); err != nil {
+	transactions, err := fin.TransactionsFromPB(transactionsPB)
+	if err != nil {
 		return err
 	}
 
-	sum := postings.Sum()
+	sum := transactions.Sum()
+
 	sumByCurrency := sum.ByCurrency()
 
 	tree := treeprint.New()

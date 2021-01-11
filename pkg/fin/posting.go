@@ -10,71 +10,62 @@ type Posting struct {
 	Id          string
 	Account     string
 	Transaction string
-	Units       *Amount
-	Cost        *Amount
-	Price       *Amount
+	Units       Amount
+	Cost        Amount
+	Price       Amount
 }
 
-func NewPosting() *Posting {
-	return &Posting{}
-}
-
-func (p *Posting) Weight() *Amount {
-	if p.Cost != nil {
+func (p *Posting) Weight() Amount {
+	if !p.Cost.IsZero() {
 		return p.Units.Mul(p.Cost)
 	}
-	if p.Price != nil {
+	if !p.Price.IsZero() {
 		return p.Units.Mul(p.Price)
 	}
 
 	return p.Units
 }
 
-func (p *Posting) FromPB(pb *pb.Posting) error {
-	units := NewAmount()
-	if err := units.FromPB(pb.Units); err != nil {
-		return fmt.Errorf("units: %w", err)
-	}
-	p.Units = units
-
-	if pb.Cost != nil {
-		cost := NewAmount()
-		if err := cost.FromPB(pb.Cost); err != nil {
-			return fmt.Errorf("cost: %w", err)
-		}
-		p.Cost = cost
+func PostingFromPB(pb *pb.Posting) (Posting, error) {
+	units, err := AmountFromString(pb.Units)
+	if err != nil {
+		return Posting{}, fmt.Errorf("units: %w", err)
 	}
 
-	if pb.Price != nil {
-		price := NewAmount()
-		if err := price.FromPB(pb.Price); err != nil {
-			return fmt.Errorf("price: %w", err)
-
-		}
-		p.Price = price
+	cost, err := AmountFromString(pb.Cost)
+	if err != nil {
+		return Posting{}, fmt.Errorf("cost: %w", err)
 	}
 
-	p.Id = pb.Id
-	p.Account = pb.Account
-	p.Transaction = pb.Transaction
+	price, err := AmountFromString(pb.Price)
+	if err != nil {
+		return Posting{}, fmt.Errorf("price: %w", err)
+	}
 
-	return nil
+	return Posting{
+		Id:          pb.Id,
+		Account:     pb.Account,
+		Transaction: pb.Transaction,
+		Units:       units,
+		Cost:        cost,
+		Price:       price,
+	}, nil
 }
 
-func (p *Posting) PB() (*pb.Posting, error) {
+func (p Posting) PB() (*pb.Posting, error) {
 	pb := &pb.Posting{
 		Id:          p.Id,
 		Account:     p.Account,
 		Transaction: p.Transaction,
-		Units:       p.Units.PB(),
+		Units:       p.Units.String(),
 	}
 
-	if p.Cost != nil {
-		pb.Cost = p.Cost.PB()
+	if !p.Cost.IsZero() {
+		pb.Cost = p.Cost.String()
 	}
 
-	if p.Price != nil {
-		pb.Price = p.Price.PB()
+	if !p.Price.IsZero() {
+		pb.Price = p.Price.String()
 	}
 
 	return pb, nil

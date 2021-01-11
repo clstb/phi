@@ -7,8 +7,8 @@ import (
 )
 
 type Postings struct {
-	Data []*Posting
-	ById map[string]int32
+	Data []Posting
+	byId map[string]int32
 }
 
 func NewPostings() *Postings {
@@ -18,44 +18,34 @@ func NewPostings() *Postings {
 func (p *Postings) Sum() Sum {
 	sum := make(Sum)
 	for _, posting := range p.Data {
-		account, ok := sum[posting.Account]
-		if !ok {
-			sum[posting.Account] = make(map[string]*Amount)
-			account = sum[posting.Account]
-		}
-
 		weight := posting.Weight()
-		sum, ok := account[weight.Currency]
-		if !ok {
-			account[weight.Currency] = weight
-		} else {
-			account[weight.Currency] = weight.Add(sum)
-		}
+		m := Sum{posting.Account: SumCurrency{weight.Currency: weight}}
+		sum = sum.Add(m)
 	}
 
 	return sum
 }
 
-func (p *Postings) FromPB(pb *pb.Postings) error {
-	var data []*Posting
+func PostingsFromPB(pb *pb.Postings) (Postings, error) {
+	var data []Posting
 	byId := make(map[string]int32)
 	var i int32
 	for _, v := range pb.Data {
-		posting := NewPosting()
-		if err := posting.FromPB(v); err != nil {
-			return fmt.Errorf("data: %w", err)
+		posting, err := PostingFromPB(v)
+		if err != nil {
+			return Postings{}, fmt.Errorf("data: %w", err)
 		}
 		data = append(data, posting)
 		byId[posting.Id] = i
 	}
 
-	p.Data = data
-	p.ById = byId
-
-	return nil
+	return Postings{
+		Data: data,
+		byId: byId,
+	}, nil
 }
 
-func (p *Postings) PB() (*pb.Postings, error) {
+func (p Postings) PB() (*pb.Postings, error) {
 	var data []*pb.Posting
 	byId := make(map[string]int32)
 	var i int32

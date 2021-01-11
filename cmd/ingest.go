@@ -123,11 +123,11 @@ func Ingest(ctx *cli.Context) error {
 			from := accounts.Data[accounts.ByName[blocks[0]]]
 			to := accounts.Data[accounts.ByName[blocks[1]]]
 
-			amount := fin.NewAmount()
-			if err := amount.FromString(
+			amount, err := fin.AmountFromString(
 				record[7]+" "+record[8],
 				fin.AmountEU,
-			); err != nil {
+			)
+			if err != nil {
 				return err
 			}
 
@@ -136,8 +136,8 @@ func Ingest(ctx *cli.Context) error {
 				return err
 			}
 
-			postings := &fin.Postings{
-				Data: []*fin.Posting{
+			postings := fin.Postings{
+				Data: []fin.Posting{
 					{
 						Account: from.Id,
 						Units:   amount.Abs().Neg(),

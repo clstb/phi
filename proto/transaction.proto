@@ -28,4 +28,5 @@ message TransactionsQuery {
 	Fields fields = 1;
 	string from = 2;
 	string to = 3;
+	string account_name = 4;
 }

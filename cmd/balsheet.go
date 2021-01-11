@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"text/tabwriter"
 
 	"github.com/clstb/phi/pkg/fin"
@@ -21,7 +23,7 @@ func BalSheet(ctx *cli.Context) error {
 
 	client := pb.NewCoreClient(conn)
 
-	accounts, err := client.GetAccounts(
+	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
 			Fields: &pb.AccountsQuery_Fields{
@@ -32,68 +34,35 @@ func BalSheet(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	accounts := fin.AccountsFromPB(accountsPB)
 
-	postingsPB, err := client.GetPostings(
+	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
-		&pb.PostingsQuery{
-			Fields: &pb.PostingsQuery_Fields{
-				Account: true,
-				Units:   true,
+		&pb.TransactionsQuery{
+			Fields: &pb.TransactionsQuery_Fields{
+				Date:     true,
+				Postings: true,
 			},
-			To: date,
+			From: "-infinity",
+			To:   date,
 		},
 	)
+
+	transactions, err := fin.TransactionsFromPB(transactionsPB)
 	if err != nil {
 		return err
 	}
 
-	postings := fin.NewPostings()
-	if err := postings.FromPB(postingsPB); err != nil {
+	cleared, err := transactions.Clear(accounts)
+	if err != nil {
 		return err
 	}
 
-	sum := postings.Sum()
+	sum := cleared.Sum()
 	sumByCurrency := sum.ByCurrency()
 
-	/*
-		postings := fin.NewPostings()
-		if err := postings.FromPB(postingsPB); err != nil {
-			return err
-		}
-
-		parsedAccounts := &pb.Accounts{
-			Data: []*pb.Account{
-				{
-					Id:       "CE",
-					Name:     "CurrentEarnings",
-					Fullname: "Equity:CurrentEarnings",
-				},
-			},
-		}
-		r := regexp.MustCompile("^(Income|Expenses)")
-		for _, account := range accounts.Data {
-			if r.MatchString(account.Fullname) {
-				sums.Data["CE"] += sums.Data[account.Id]
-			} else {
-				parsedAccounts.Data = append(
-					parsedAccounts.Data,
-					account,
-				)
-			}
-		}
-
-		parsedSums := parseSums(parsedAccounts, sums)
-
-		var net int64
-		for _, account := range parsedAccounts.Data {
-			if strings.HasPrefix(account.Fullname, "Equity") {
-				net += sums.Data[account.Id]
-			}
-		}
-	*/
-
 	tree := treeprint.New()
-	tree.SetMetaValue("Net Worth")
+	tree.SetMetaValue("Balance Sheet")
 
 	w := tabwriter.NewWriter(os.Stdout, 8, 8, 0, '\t', 0)
 	_, err = w.Write(renderTree(
@@ -106,5 +75,23 @@ func BalSheet(ctx *cli.Context) error {
 		return err
 	}
 
-	return nil
+	re := regexp.MustCompile("^Equity")
+	nw := make(fin.SumCurrency)
+	for accountId, amounts := range sum {
+		account, ok := accounts.ById(accountId)
+		if !ok {
+			continue
+		}
+		if re.MatchString(account.Name) {
+			nw = nw.Add(amounts)
+		}
+	}
+
+	var s string
+	for _, amount := range nw {
+		s += "\t" + amount.StringRaw()
+	}
+	fmt.Fprintf(w, "\t\nNet Worth:%s\n", s)
+
+	return w.Flush()
 }

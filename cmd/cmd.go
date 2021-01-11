@@ -4,18 +4,17 @@ import (
 	"strings"
 
 	"github.com/clstb/phi/pkg/fin"
-	"github.com/clstb/phi/pkg/pb"
 	"github.com/xlab/treeprint"
 )
 
 func renderTree(
 	tree treeprint.Tree,
-	accounts *pb.Accounts,
+	accounts fin.Accounts,
 	sum fin.Sum,
-	sumByCurrency map[string]*fin.Amount,
+	sumByCurrency fin.SumCurrency,
 ) []byte {
 	s := ""
-	for currency, _ := range sumByCurrency {
+	for currency := range sumByCurrency {
 		s += "\t" + currency
 
 	}
@@ -35,12 +34,12 @@ func renderTree(
 			m[s] = branch
 		}
 		s := ""
-		for currency, _ := range sumByCurrency {
+		for currency := range sumByCurrency {
 			amount, ok := sum[account.Id][currency]
 			if !ok {
 				s += "\t0"
 			} else {
-				s += "\t" + amount.String()
+				s += "\t" + amount.StringRaw()
 			}
 		}
 		branch.SetValue(s)

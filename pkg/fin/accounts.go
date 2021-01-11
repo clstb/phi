@@ -1,6 +1,10 @@
 package fin
 
-import "github.com/clstb/phi/pkg/pb"
+import (
+	"regexp"
+
+	"github.com/clstb/phi/pkg/pb"
+)
 
 type Accounts struct {
 	Data   []Account
@@ -62,4 +66,27 @@ func (a Accounts) ByName(name string) (Account, bool) {
 		return Account{}, false
 	}
 	return a.Data[i], true
+}
+
+func (a Accounts) FilterName(re *regexp.Regexp) Accounts {
+	var data []Account
+	byId := make(map[string]int32)
+	byName := make(map[string]int32)
+
+	var i int32
+	for _, account := range a.Data {
+		if !re.MatchString(account.Name) {
+			continue
+		}
+		data = append(data, account)
+		byId[account.Id] = i
+		byName[account.Name] = i
+		i++
+	}
+
+	return Accounts{
+		Data:   data,
+		byId:   byId,
+		byName: byName,
+	}
 }

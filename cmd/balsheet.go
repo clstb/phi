@@ -64,10 +64,11 @@ func BalSheet(ctx *cli.Context) error {
 	tree := treeprint.New()
 	tree.SetMetaValue("Balance Sheet")
 
+	re := regexp.MustCompile("^(Equity|Liabilities|Assets)")
 	w := tabwriter.NewWriter(os.Stdout, 8, 8, 0, '\t', 0)
 	_, err = w.Write(renderTree(
 		tree,
-		accounts,
+		accounts.FilterName(re),
 		sum,
 		sumByCurrency,
 	))
@@ -75,7 +76,7 @@ func BalSheet(ctx *cli.Context) error {
 		return err
 	}
 
-	re := regexp.MustCompile("^Equity")
+	re = regexp.MustCompile("^Equity")
 	nw := make(fin.SumCurrency)
 	for accountId, amounts := range sum {
 		account, ok := accounts.ById(accountId)

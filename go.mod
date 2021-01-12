@@ -2,8 +2,6 @@ module github.com/clstb/phi
 
 go 1.15
 
-replace github.com/clstb/phi-server => /Users/clstb/clstb/phi-server
-
 require (
 	github.com/DiSiqueira/GoTree v1.0.0
 	github.com/c-bata/go-prompt v0.2.5

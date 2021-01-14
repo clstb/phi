@@ -11,6 +11,7 @@ type Transaction struct {
 	Date      string
 	Entity    string
 	Reference string
+	Hash      string
 	Postings  Postings
 }
 
@@ -44,6 +45,7 @@ func TransactionFromPB(pb *pb.Transaction) (Transaction, error) {
 		Date:      pb.Date,
 		Entity:    pb.Entity,
 		Reference: pb.Reference,
+		Hash:      pb.Hash,
 		Postings:  postings,
 	}, nil
 }
@@ -59,6 +61,7 @@ func (t Transaction) PB() (*pb.Transaction, error) {
 		Date:      t.Date,
 		Entity:    t.Entity,
 		Reference: t.Reference,
+		Hash:      t.Hash,
 		Postings:  postings,
 	}, nil
 }

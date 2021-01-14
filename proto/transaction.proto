@@ -10,7 +10,8 @@ message Transaction {
 	string date = 2;
 	string entity = 3;
 	string reference = 4;
-	Postings postings = 5;
+	string hash = 5;
+	Postings postings = 6;
 }
 
 message Transactions {
@@ -24,6 +25,7 @@ message TransactionsQuery {
 		bool entity = 2;
 		bool reference = 3;
 		bool postings = 4;
+		bool hash = 5;
 	}
 	Fields fields = 1;
 	string from = 2;

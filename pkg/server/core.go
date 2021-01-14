@@ -121,6 +121,7 @@ func (s *core) CreateTransaction(
 				"date":      req.Date,
 				"entity":    req.Entity,
 				"reference": req.Reference,
+				"hash":      req.Hash,
 			},
 		).Executor().Query()
 		if err != nil {
@@ -177,25 +178,37 @@ func (s *core) GetTransactions(
 		if req.Fields.Reference {
 			fields = append(fields, "transactions.reference")
 		}
+		if req.Fields.Hash {
+			fields = append(fields, "hash")
+		}
 		return fields
 	}
 	scan := func(rows *sql.Rows) (*pb.Transaction, error) {
 		transaction := &pb.Transaction{}
 		toScan := []interface{}{&transaction.Id}
 
+		var entity, reference, hash sql.NullString
+
 		if req.Fields.Date {
 			toScan = append(toScan, &transaction.Date)
 		}
 		if req.Fields.Entity {
-			toScan = append(toScan, &transaction.Entity)
+			toScan = append(toScan, &entity)
 		}
 		if req.Fields.Reference {
-			toScan = append(toScan, &transaction.Reference)
+			toScan = append(toScan, &reference)
+		}
+		if req.Fields.Hash {
+			toScan = append(toScan, &hash)
 		}
 
 		if err := rows.Scan(toScan...); err != nil {
 			return nil, err
 		}
+
+		transaction.Entity = entity.String
+		transaction.Reference = reference.String
+		transaction.Hash = hash.String
 
 		return transaction, nil
 	}

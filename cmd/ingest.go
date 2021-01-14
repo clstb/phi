@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"crypto/sha256"
 	"encoding/csv"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -28,9 +31,67 @@ func Ingest(ctx *cli.Context) error {
 
 	r := csv.NewReader(f)
 	r.Comma = ';'
-	records, err := r.ReadAll()
+
+	var transactions []fin.Transaction
+	var amounts []fin.Amount
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		amount, err := fin.AmountFromString(
+			record[7]+" "+record[8],
+			fin.AmountEU,
+		)
+		if err != nil {
+			return err
+		}
+
+		date, err := time.Parse("02.01.2006", record[1])
+		if err != nil {
+			return err
+		}
+
+		hash := sha256.New()
+		_, err = hash.Write([]byte(strings.Join(record, "")))
+		if err != nil {
+			return err
+		}
+		hashStr := hex.EncodeToString(hash.Sum(nil))
+
+		transactions = append(
+			transactions,
+			fin.Transaction{
+				Date:      date.Format("2006-01-02"),
+				Entity:    record[2],
+				Reference: record[4],
+				Hash:      hashStr,
+			},
+		)
+		amounts = append(amounts, amount)
+	}
+
+	transactionsPB, err := client.GetTransactions(
+		ctx.Context,
+		&pb.TransactionsQuery{
+			Fields: &pb.TransactionsQuery_Fields{
+				Hash: true,
+			},
+			From: "-infinity",
+			To:   "+infinity",
+		},
+	)
 	if err != nil {
 		return err
+	}
+
+	hashes := make(map[string]struct{})
+	for _, transaction := range transactionsPB.Data {
+		hashes[transaction.Hash] = struct{}{}
 	}
 
 	accounts, err := client.GetAccounts(
@@ -44,7 +105,6 @@ func Ingest(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(accounts)
 
 	suggestions := []prompt.Suggest{
 		{Text: "exit", Description: "Exit without saving"},
@@ -81,11 +141,26 @@ func Ingest(ctx *cli.Context) error {
 	}
 	p := prompt.New(nil, completer)
 
-	var transactions []*fin.Transaction
-	i := 0
-	for i < len(records) {
-		record := records[i]
-		fmt.Println(record)
+	skipDuplicates := ctx.Bool("skip-duplicates")
+	var toPush []fin.Transaction
+	for i := 0; i < len(transactions); {
+		transaction := transactions[i]
+		amount := amounts[i]
+
+		fmt.Printf(
+			"Date:\t%s\nEntity:\t%s\nReference:\t%s\nAmount:\t%s\n\n",
+			transaction.Date,
+			transaction.Entity,
+			transaction.Reference,
+			amount.String(),
+		)
+
+		_, ok := hashes[transaction.Hash]
+		if ok && skipDuplicates {
+			fmt.Println("Found duplicate hash. Skipping...")
+			i++
+			continue
+		}
 
 		in := p.Input()
 		in = strings.TrimSpace(in)
@@ -96,7 +171,7 @@ func Ingest(ctx *cli.Context) error {
 			return nil
 		case reDone.MatchString(in):
 			fmt.Println("Uploading transactions...")
-			for _, transaction := range transactions {
+			for _, transaction := range toPush {
 				pb, err := transaction.PB()
 				if err != nil {
 					return err
@@ -120,38 +195,20 @@ func Ingest(ctx *cli.Context) error {
 			from := accounts.Data[accounts.ByName[blocks[0]]]
 			to := accounts.Data[accounts.ByName[blocks[1]]]
 
-			amount, err := fin.AmountFromString(
-				record[7]+" "+record[8],
-				fin.AmountEU,
-			)
-			if err != nil {
-				return err
-			}
-
-			date, err := time.Parse("02.01.2006", record[1])
-			if err != nil {
-				return err
-			}
-
 			postings := fin.Postings{
 				Data: []fin.Posting{
 					{
 						Account: from.Id,
-						Units:   amount.Abs().Neg(),
+						Units:   amounts[i].Abs().Neg(),
 					},
 					{
 						Account: to.Id,
-						Units:   amount.Abs(),
+						Units:   amounts[i].Abs(),
 					},
 				},
 			}
-
-			transactions = append(transactions, &fin.Transaction{
-				Date:      date.Format("2006-01-02"),
-				Entity:    record[2],
-				Reference: record[4],
-				Postings:  postings,
-			})
+			transaction.Postings = postings
+			toPush = append(toPush, transaction)
 			i++
 		default:
 			fmt.Println("Invalid command.")

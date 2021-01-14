@@ -43,6 +43,11 @@ func main() {
 						Required:  true,
 						TakesFile: true,
 					},
+					&cli.BoolFlag{
+						Name:  "skip-duplicates",
+						Usage: "skips duplicates based on matching hash values",
+						Value: true,
+					},
 				},
 			},
 			{

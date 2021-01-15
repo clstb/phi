@@ -41,7 +41,7 @@ func Server(ctx *cli.Context) error {
 		return err
 	}
 	defer db.Close()
-	if db.Ping() != nil { // TODO: this doesnt seem to work
+	if err := db.Ping(); err != nil {
 		return err
 	}
 

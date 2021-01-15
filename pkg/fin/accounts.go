@@ -3,90 +3,77 @@ package fin
 import (
 	"regexp"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
 )
 
-type Accounts struct {
-	Data   []Account
-	byId   map[string]int32
-	byName map[string]int32
+type Accounts []Account
+
+func NewAccounts(accountsDB ...db.Account) Accounts {
+	var accounts Accounts
+	for _, a := range accountsDB {
+		accounts = append(accounts, NewAccount(a))
+	}
+
+	return accounts
 }
 
-func AccountsFromPB(pb *pb.Accounts) Accounts {
-	var data []Account
-	byId := make(map[string]int32)
-	byName := make(map[string]int32)
-	var i int32
+func AccountsFromPB(pb *pb.Accounts) (Accounts, error) {
+	var accounts Accounts
 	for _, v := range pb.Data {
-		account := AccountFromPB(v)
-		data = append(data, account)
-		byId[account.Id] = i
-		byName[account.Name] = i
-		i++
+		accounts = append(accounts, AccountFromPB(v))
 	}
 
-	return Accounts{
-		Data:   data,
-		byId:   byId,
-		byName: byName,
-	}
+	return accounts, nil
 }
 
 func (a Accounts) PB() *pb.Accounts {
 	var data []*pb.Account
-	byId := make(map[string]int32)
-	byName := make(map[string]int32)
-	var i int32
-	for _, account := range a.Data {
-		pb := account.PB()
-		data = append(data, pb)
-		byId[account.Id] = i
-		byName[account.Name] = i
-		i++
+	for _, account := range a {
+		data = append(data, account.PB())
 	}
 
 	return &pb.Accounts{
-		Data:   data,
-		ById:   byId,
-		ByName: byName,
+		Data: data,
 	}
 }
 
 func (a Accounts) ById(id string) (Account, bool) {
-	i, ok := a.byId[id]
-	if !ok {
-		return Account{}, false
+	for _, account := range a {
+		if account.ID.String() == id {
+			return account, true
+		}
 	}
-	return a.Data[i], true
+	return Account{}, false
 }
 
 func (a Accounts) ByName(name string) (Account, bool) {
-	i, ok := a.byName[name]
-	if !ok {
-		return Account{}, false
+	for _, account := range a {
+		if account.Name == name {
+			return account, true
+		}
 	}
-	return a.Data[i], true
+	return Account{}, false
+}
+
+func (a Accounts) Names() []string {
+	var names []string
+	for _, account := range a {
+		names = append(names, account.Name)
+	}
+
+	return names
 }
 
 func (a Accounts) FilterName(re *regexp.Regexp) Accounts {
-	var data []Account
-	byId := make(map[string]int32)
-	byName := make(map[string]int32)
+	var accounts Accounts
 
-	var i int32
-	for _, account := range a.Data {
+	for _, account := range a {
 		if !re.MatchString(account.Name) {
 			continue
 		}
-		data = append(data, account)
-		byId[account.Id] = i
-		byName[account.Name] = i
-		i++
+		accounts = append(accounts, account)
 	}
 
-	return Accounts{
-		Data:   data,
-		byId:   byId,
-		byName: byName,
-	}
+	return accounts
 }

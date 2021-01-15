@@ -8,16 +8,15 @@ message Account {
 	string name = 2;
 }
 
+message AccountFields {
+	bool name = 1;
+}
+
 message Accounts {
 	repeated Account data = 1;
-	map<string, int32> by_id = 2;
-	map<string, int32> by_name = 3;
 }
 
 message AccountsQuery {
-	message Fields {
-		bool name = 1;
-	}
-	Fields fields = 1;
+	AccountFields fields = 1;
 	string name = 2;
 }

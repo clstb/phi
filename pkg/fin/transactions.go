@@ -4,39 +4,43 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/gofrs/uuid"
 )
 
-type Transactions struct {
-	Data []Transaction
-	byId map[string]int32
-}
+type Transactions []Transaction
 
-func NewTransactions() *Transactions {
-	return &Transactions{}
-}
-
-func (t Transactions) Sum() Sum {
-	sum := make(Sum)
-	for _, transaction := range t.Data {
-		m := transaction.Sum()
-		sum = sum.Add(m)
+func (t Transactions) Sum() map[string]db.Amounts {
+	sums := make(map[string]db.Amounts)
+	for _, transaction := range t {
+		for accountId, amounts := range transaction.Postings.Sum() {
+			sum, ok := sums[accountId]
+			if !ok {
+				sum = amounts
+			} else {
+				sum = append(sum, amounts...)
+			}
+			sums[accountId] = sum
+		}
+	}
+	for k, v := range sums {
+		sums[k] = v.Sum()
 	}
 
-	return sum
+	return sums
 }
 
 func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
-	sum := t.Sum()
-
 	ec, ok := accounts.ByName("Equity:Earnings:Current")
 	if !ok {
 		return Transactions{}, fmt.Errorf("couldn't find account by name: Equity:Expenses:Current")
 	}
 
 	re := regexp.MustCompile("^(Income|Expenses)")
-	var clears []Transaction
-	for accountId, amounts := range sum {
+
+	var transactions Transactions
+	for accountId, amounts := range t.Sum() {
 		account, ok := accounts.ById(accountId)
 		if !ok {
 			return Transactions{}, fmt.Errorf("couldn't find account by id: %s", accountId)
@@ -44,66 +48,52 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 		if !re.MatchString(account.Name) {
 			continue
 		}
+
 		for _, amount := range amounts {
-			a := amount
-			transaction := Transaction{
-				Postings: Postings{
-					Data: []Posting{
-						{
-							Account: ec.Id,
-							Units:   a,
-						},
-						{
-							Account: account.Id,
-							Units:   a.Neg(),
-						},
-					},
+			transactions = append(transactions, Transaction{
+				Postings: []Posting{
+					NewPosting(db.Posting{
+						Account: ec.ID,
+						Units:   amount,
+					}),
+					NewPosting(db.Posting{
+						Account: uuid.FromStringOrNil(accountId), // TODO: this can break
+						Units:   amount.Neg(),
+					}),
 				},
-			}
-			clears = append(clears, transaction)
+			})
+
 		}
+
 	}
 
-	return Transactions{
-		Data: append(t.Data, clears...),
-	}, nil
+	return append(transactions, t...), nil
 }
 
 func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
-	var data []Transaction
-	byId := make(map[string]int32)
-	var i int32
+	var transactions Transactions
 	for _, v := range pb.Data {
 		transaction, err := TransactionFromPB(v)
 		if err != nil {
 			return Transactions{}, fmt.Errorf("data: %w", err)
 		}
-		data = append(data, transaction)
-		byId[transaction.Id] = i
+		transactions = append(transactions, transaction)
 	}
 
-	return Transactions{
-		Data: data,
-		byId: byId,
-	}, nil
+	return transactions, nil
 }
 
 func (t Transactions) PB() (*pb.Transactions, error) {
 	var data []*pb.Transaction
-	byId := make(map[string]int32)
-	var i int32
-	for _, transaction := range t.Data {
+	for _, transaction := range t {
 		pb, err := transaction.PB()
 		if err != nil {
 			return nil, err
 		}
-
 		data = append(data, pb)
-		byId[pb.Id] = i
 	}
 
 	return &pb.Transactions{
 		Data: data,
-		ById: byId,
 	}, nil
 }

@@ -1,0 +1,25 @@
+version: "1"
+packages:
+  - name: "db"
+    path: "pkg/db"
+    queries: "./sql/query/"
+    schema: "./sql/schema/"
+    engine: "postgresql"
+    emit_json_tags: true
+    emit_prepared_queries: true
+    emit_interface: true
+    emit_exact_table_names: false
+    emit_empty_slices: false
+overrides:
+  - go_type: "github.com/gofrs/uuid.UUID"
+    db_type: "uuid"
+    nullable: true
+  - column: "postings.units"
+    go_type:
+      type: "Amount"
+  - column: "postings.price"
+    go_type:
+      type: "Amount"
+  - column: "postings.cost"
+    go_type:
+      type: "Amount"

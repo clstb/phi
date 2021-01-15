@@ -4,31 +4,32 @@ package pb;
 option go_package = "github.com/clstb/phi/pkg/pb";
 
 import "proto/posting.proto";
+import "google/protobuf/timestamp.proto";
 
 message Transaction {
 	string id = 1;
-	string date = 2;
+	google.protobuf.Timestamp date = 2;
 	string entity = 3;
 	string reference = 4;
 	string hash = 5;
-	Postings postings = 6;
+	repeated Posting postings = 6;
+}
+
+message TransactionFields {
+	bool date = 1;
+	bool entity = 2;
+	bool reference = 3;
+	bool postings = 4;
+	bool hash = 5;	
 }
 
 message Transactions {
 	repeated Transaction data = 1;
-	map<string, int32> by_id = 2;
 }
 
 message TransactionsQuery {
-	message Fields {
-		bool date = 1;
-		bool entity = 2;
-		bool reference = 3;
-		bool postings = 4;
-		bool hash = 5;
-	}
-	Fields fields = 1;
-	string from = 2;
-	string to = 3;
+	TransactionFields fields = 1;
+	google.protobuf.Timestamp from = 2;
+	google.protobuf.Timestamp to = 3;
 	string account_name = 4;
 }

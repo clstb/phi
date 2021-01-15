@@ -1,6 +1,7 @@
-package fin
+package db
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"strings"
 
@@ -8,54 +9,74 @@ import (
 )
 
 type Amount struct {
-	Value    decimal.Decimal
+	Decimal  decimal.Decimal
 	Currency string
 }
 
+func (a Amount) Value() (driver.Value, error) {
+	return a.String(), nil
+}
+
+func (a *Amount) Scan(src interface{}) error {
+	s, ok := src.(string)
+	if !ok {
+		return fmt.Errorf("incompatible type for Amount")
+	}
+
+	amount, err := AmountFromString(s)
+	if err != nil {
+		return fmt.Errorf("parsing string for Amount failed")
+	}
+
+	a.Decimal = amount.Decimal
+	a.Currency = amount.Currency
+	return nil
+}
+
 func (a Amount) StringRaw() string {
-	return a.Value.String()
+	return a.Decimal.String()
 }
 
 func (a Amount) String() string {
 	return fmt.Sprintf(
 		"%s %s",
-		a.Value.String(),
+		a.Decimal.String(),
 		a.Currency,
 	)
 }
 
 func (a Amount) IsZero() bool {
-	return a.Value.IsZero()
+	return a.Decimal.IsZero()
 }
 
 func (a Amount) Abs() Amount {
 	return Amount{
-		Value:    a.Value.Abs(),
+		Decimal:  a.Decimal.Abs(),
 		Currency: a.Currency,
 	}
 }
 
 func (a Amount) Neg() Amount {
 	return Amount{
-		Value:    a.Value.Neg(),
+		Decimal:  a.Decimal.Neg(),
 		Currency: a.Currency,
 	}
 }
 
 func (a Amount) Add(amount Amount) Amount {
-	value := a.Value.Add(amount.Value)
+	value := a.Decimal.Add(amount.Decimal)
 
 	return Amount{
-		Value:    value,
+		Decimal:  value,
 		Currency: amount.Currency,
 	}
 }
 
 func (a Amount) Mul(amount Amount) Amount {
-	value := a.Value.Mul(amount.Value)
+	value := a.Decimal.Mul(amount.Decimal)
 
 	return Amount{
-		Value:    value,
+		Decimal:  value,
 		Currency: amount.Currency,
 	}
 }
@@ -80,7 +101,7 @@ func AmountFromString(s string, fmts ...AmountFormatter) (Amount, error) {
 	}
 
 	return Amount{
-		Value:    value,
+		Decimal:  value,
 		Currency: blocks[1],
 	}, nil
 }

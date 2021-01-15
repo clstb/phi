@@ -2,19 +2,15 @@ package server
 
 import (
 	"database/sql"
-	"log"
-	"os"
-
-	"github.com/doug-martin/goqu/v9"
-	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
+	"fmt"
 )
 
 type Server struct {
 	Core *core
-	db   *goqu.Database
+	db   *sql.DB
 }
 
-func NewServer(opts ...ServerOpt) *Server {
+func NewServer(opts ...ServerOpt) (*Server, error) {
 	s := &Server{}
 	internalOpts := []ServerOpt{
 		withCore(),
@@ -28,7 +24,11 @@ func NewServer(opts ...ServerOpt) *Server {
 		opt(s)
 	}
 
-	return s
+	if s.db == nil {
+		return nil, fmt.Errorf("no database configured")
+	}
+
+	return s, nil
 }
 
 type ServerOpt func(*Server)
@@ -37,8 +37,7 @@ type ServerOpt func(*Server)
 
 func WithDB(db *sql.DB) ServerOpt {
 	return func(s *Server) {
-		s.db = goqu.New("postgres", db)
-		s.db.Logger(log.New(os.Stdout, "DB:", 0))
+		s.db = db
 	}
 }
 

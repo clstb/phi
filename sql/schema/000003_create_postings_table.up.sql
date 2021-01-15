@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS postings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  transaction UUID NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
+  units STRING NOT NULL,
+  cost STRING NOT NULL, 
+  price STRING NOT NULL
+);

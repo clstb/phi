@@ -14,21 +14,4 @@ message Posting {
 
 message Postings {
 	repeated Posting data = 1;
-	map<string, int32> by_id = 2;
-}
-
-message PostingsQuery {
-	message Fields {
-		bool account = 1;
-		bool transaction = 2;
-		bool units = 3;
-		bool cost = 4;
-		bool price = 5;
-	}
-	Fields fields = 1;
-	string from = 2;
-	string to = 3;
-	string account = 4;
-	string account_name = 5;
-	string transaction = 6;
 }

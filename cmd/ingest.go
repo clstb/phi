@@ -12,8 +12,11 @@ import (
 	"time"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/urfave/cli/v2"
 )
 
@@ -32,8 +35,8 @@ func Ingest(ctx *cli.Context) error {
 	r := csv.NewReader(f)
 	r.Comma = ';'
 
-	var transactions []fin.Transaction
-	var amounts []fin.Amount
+	var transactions fin.Transactions
+	var amounts db.Amounts
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -43,9 +46,9 @@ func Ingest(ctx *cli.Context) error {
 			return err
 		}
 
-		amount, err := fin.AmountFromString(
+		amount, err := db.AmountFromString(
 			record[7]+" "+record[8],
-			fin.AmountEU,
+			db.AmountEU,
 		)
 		if err != nil {
 			return err
@@ -65,12 +68,12 @@ func Ingest(ctx *cli.Context) error {
 
 		transactions = append(
 			transactions,
-			fin.Transaction{
-				Date:      date.Format("2006-01-02"),
+			fin.NewTransaction(db.Transaction{
+				Date:      date,
 				Entity:    record[2],
 				Reference: record[4],
 				Hash:      hashStr,
-			},
+			}, nil),
 		)
 		amounts = append(amounts, amount)
 	}
@@ -78,11 +81,11 @@ func Ingest(ctx *cli.Context) error {
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionsQuery_Fields{
+			Fields: &pb.TransactionFields{
 				Hash: true,
 			},
-			From: "-infinity",
-			To:   "+infinity",
+			From: &timestamp.Timestamp{Seconds: 0, Nanos: 0},
+			To:   ptypes.TimestampNow(),
 		},
 	)
 	if err != nil {
@@ -94,10 +97,10 @@ func Ingest(ctx *cli.Context) error {
 		hashes[transaction.Hash] = struct{}{}
 	}
 
-	accounts, err := client.GetAccounts(
+	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
-			Fields: &pb.AccountsQuery_Fields{
+			Fields: &pb.AccountFields{
 				Name: true,
 			},
 		},
@@ -105,6 +108,12 @@ func Ingest(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	accounts, err := fin.AccountsFromPB(accountsPB)
+	if err != nil {
+		return err
+	}
+	fmt.Println(accounts)
+	accountNames := accounts.Names()
 
 	suggestions := []prompt.Suggest{
 		{Text: "exit", Description: "Exit without saving"},
@@ -112,16 +121,10 @@ func Ingest(ctx *cli.Context) error {
 		{Text: "skip", Description: "Skip this transaction"},
 		{Text: "help", Description: "Print help text"},
 	}
-	var accountNames []string
-	for _, account := range accounts.Data {
-		suggestions = append(
-			suggestions,
-			prompt.Suggest{
-				Text:        account.Name,
-				Description: "Account",
-			},
-		)
-		accountNames = append(accountNames, account.Name)
+	for _, s := range accountNames {
+		suggestions = append(suggestions, prompt.Suggest{
+			Text: s, Description: "Account",
+		})
 	}
 
 	accountsRe := "(" + strings.Join(accountNames, "|") + ")"
@@ -170,16 +173,16 @@ func Ingest(ctx *cli.Context) error {
 			fmt.Println("Bye!")
 			return nil
 		case reDone.MatchString(in):
+			fmt.Println(toPush)
 			fmt.Println("Uploading transactions...")
 			for _, transaction := range toPush {
-				pb, err := transaction.PB()
+				req, err := transaction.PB()
 				if err != nil {
 					return err
 				}
-
 				_, err = client.CreateTransaction(
 					ctx.Context,
-					pb,
+					req,
 				)
 				if err != nil {
 					return err
@@ -192,20 +195,27 @@ func Ingest(ctx *cli.Context) error {
 		case reHelp.MatchString(in):
 		case reAccAcc.MatchString(in):
 			blocks := strings.Split(in, " ")
-			from := accounts.Data[accounts.ByName[blocks[0]]]
-			to := accounts.Data[accounts.ByName[blocks[1]]]
+			from, ok := accounts.ByName(blocks[0])
+			if !ok {
+				fmt.Printf("Invalid account: %s\n", blocks[0])
+				continue
+			}
+
+			to, ok := accounts.ByName(blocks[1])
+			if !ok {
+				fmt.Printf("Invalid account: %s\n", blocks[1])
+				continue
+			}
 
 			postings := fin.Postings{
-				Data: []fin.Posting{
-					{
-						Account: from.Id,
-						Units:   amounts[i].Abs().Neg(),
-					},
-					{
-						Account: to.Id,
-						Units:   amounts[i].Abs(),
-					},
-				},
+				fin.NewPosting(db.Posting{
+					Account: from.ID,
+					Units:   amounts[i].Abs().Neg(),
+				}),
+				fin.NewPosting(db.Posting{
+					Account: to.ID,
+					Units:   amounts[i].Abs(),
+				}),
 			}
 			transaction.Postings = postings
 			toPush = append(toPush, transaction)

@@ -1,21 +1,20 @@
 package fin
 
 import (
-	"fmt"
-
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/gofrs/uuid"
 )
 
 type Posting struct {
-	Id          string
-	Account     string
-	Transaction string
-	Units       Amount
-	Cost        Amount
-	Price       Amount
+	db.Posting
 }
 
-func (p *Posting) Weight() Amount {
+func NewPosting(p db.Posting) Posting {
+	return Posting{p}
+}
+
+func (p Posting) Weight() db.Amount {
 	if !p.Cost.IsZero() {
 		return p.Units.Mul(p.Cost)
 	}
@@ -26,47 +25,51 @@ func (p *Posting) Weight() Amount {
 	return p.Units
 }
 
+func (p Posting) PB() *pb.Posting {
+	return &pb.Posting{
+		Id:          p.ID.String(),
+		Account:     p.Account.String(),
+		Transaction: p.Transaction.String(),
+		Units:       p.Units.String(),
+		Cost:        p.Cost.String(),
+		Price:       p.Price.String(),
+	}
+}
+
 func PostingFromPB(pb *pb.Posting) (Posting, error) {
-	units, err := AmountFromString(pb.Units)
+	id, err := uuid.FromString(pb.Id)
 	if err != nil {
-		return Posting{}, fmt.Errorf("units: %w", err)
+		return Posting{}, err
+	}
+	account, err := uuid.FromString(pb.Account)
+	if err != nil {
+		return Posting{}, err
+	}
+	transaction, err := uuid.FromString(pb.Transaction)
+	if err != nil {
+		return Posting{}, err
+	}
+	units, err := db.AmountFromString(pb.Units)
+	if err != nil {
+		return Posting{}, err
+	}
+	cost, err := db.AmountFromString(pb.Cost)
+	if err != nil {
+		return Posting{}, err
+	}
+	price, err := db.AmountFromString(pb.Price)
+	if err != nil {
+		return Posting{}, err
 	}
 
-	cost, err := AmountFromString(pb.Cost)
-	if err != nil {
-		return Posting{}, fmt.Errorf("cost: %w", err)
-	}
-
-	price, err := AmountFromString(pb.Price)
-	if err != nil {
-		return Posting{}, fmt.Errorf("price: %w", err)
-	}
-
-	return Posting{
-		Id:          pb.Id,
-		Account:     pb.Account,
-		Transaction: pb.Transaction,
+	posting := db.Posting{
+		ID:          id,
+		Account:     account,
+		Transaction: transaction,
 		Units:       units,
 		Cost:        cost,
 		Price:       price,
-	}, nil
-}
-
-func (p Posting) PB() (*pb.Posting, error) {
-	pb := &pb.Posting{
-		Id:          p.Id,
-		Account:     p.Account,
-		Transaction: p.Transaction,
-		Units:       p.Units.String(),
 	}
 
-	if !p.Cost.IsZero() {
-		pb.Cost = p.Cost.String()
-	}
-
-	if !p.Price.IsZero() {
-		pb.Price = p.Price.String()
-	}
-
-	return pb, nil
+	return NewPosting(posting), nil
 }

@@ -11,7 +11,7 @@ func Migrate(ctx *cli.Context) error {
 	down := ctx.Bool("down")
 
 	m, err := migrate.New(
-		"file://migrations",
+		"file://sql/schema",
 		"cockroachdb://phi@localhost:26257/phi?sslmode=disable",
 	)
 	if err != nil {

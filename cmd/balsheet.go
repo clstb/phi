@@ -5,9 +5,13 @@ import (
 	"os"
 	"regexp"
 	"text/tabwriter"
+	"time"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
@@ -18,12 +22,10 @@ func BalSheet(ctx *cli.Context) error {
 		return err
 	}
 
-	date := ctx.String("date")
-
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
-			Fields: &pb.AccountsQuery_Fields{
+			Fields: &pb.AccountFields{
 				Name: true,
 			},
 		},
@@ -31,17 +33,29 @@ func BalSheet(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	accounts := fin.AccountsFromPB(accountsPB)
+	accounts, err := fin.AccountsFromPB(accountsPB)
+	if err != nil {
+		return err
+	}
+
+	date, err := time.Parse("2006-01-02", ctx.String("date"))
+	if err != nil {
+		return err
+	}
+	dateProto, err := ptypes.TimestampProto(date)
+	if err != nil {
+		return err
+	}
 
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionsQuery_Fields{
+			Fields: &pb.TransactionFields{
 				Date:     true,
 				Postings: true,
 			},
-			From: "-infinity",
-			To:   date,
+			From: &timestamp.Timestamp{Seconds: 0, Nanos: 0},
+			To:   dateProto,
 		},
 	)
 
@@ -56,7 +70,6 @@ func BalSheet(ctx *cli.Context) error {
 	}
 
 	sum := cleared.Sum()
-	sumByCurrency := sum.ByCurrency()
 
 	tree := treeprint.New()
 	tree.SetMetaValue("Balance Sheet")
@@ -67,24 +80,25 @@ func BalSheet(ctx *cli.Context) error {
 		tree,
 		accounts.FilterName(re),
 		sum,
-		sumByCurrency,
 	))
 	if err != nil {
 		return err
 	}
 
 	re = regexp.MustCompile("^Equity")
-	nw := make(fin.SumCurrency)
-	for accountId, amounts := range sum {
+	var amounts db.Amounts
+	for accountId, v := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {
 			continue
 		}
-		if re.MatchString(account.Name) {
-			nw = nw.Add(amounts)
+		if !re.MatchString(account.Name) {
+			continue
 		}
+		amounts = append(amounts, v...)
 	}
 
+	nw := amounts.Sum()
 	var s string
 	for _, amount := range nw {
 		s += "\t" + amount.StringRaw()

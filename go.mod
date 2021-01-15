@@ -6,13 +6,17 @@ require (
 	github.com/DiSiqueira/GoTree v1.0.0
 	github.com/c-bata/go-prompt v0.2.5
 	github.com/doug-martin/goqu/v9 v9.10.0
+	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/golang/protobuf v1.4.3
+	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/jackc/pgconn v1.8.0 // indirect
 	github.com/lib/pq v1.8.0
+	github.com/matryer/is v1.4.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/shopspring/decimal v1.2.0
+	github.com/soroushj/sqlt v1.0.1
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/xlab/treeprint v1.0.0

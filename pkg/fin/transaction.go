@@ -3,29 +3,33 @@ package fin
 import (
 	"fmt"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/gofrs/uuid"
+	"github.com/golang/protobuf/ptypes"
 )
 
 type Transaction struct {
-	Id        string
-	Date      string
-	Entity    string
-	Reference string
-	Hash      string
-	Postings  Postings
+	db.Transaction
+	Postings Postings
 }
 
-func NewTransaction() *Transaction {
-	return &Transaction{}
+func NewTransaction(
+	t db.Transaction,
+	postings Postings,
+) Transaction {
+	return Transaction{t, postings}
 }
 
-func (t Transaction) Sum() Sum {
-	return t.Postings.Sum()
-}
+func (t Transaction) Balanced(postings Postings) bool {
+	var amounts db.Amounts
+	for _, v := range postings.Sum() {
+		amounts = append(amounts, v...)
+	}
 
-func (t Transaction) Balanced() bool {
-	sum := t.Postings.Sum().ByCurrency()
-	for _, amount := range sum {
+	amounts = amounts.Sum()
+
+	for _, amount := range amounts {
 		if !amount.IsZero() {
 			return false
 		}
@@ -34,34 +38,47 @@ func (t Transaction) Balanced() bool {
 	return true
 }
 
-func TransactionFromPB(pb *pb.Transaction) (Transaction, error) {
-	postings, err := PostingsFromPB(pb.Postings)
+func (t Transaction) PB() (*pb.Transaction, error) {
+	date, err := ptypes.TimestampProto(t.Date)
+	if err != nil {
+
+	}
+
+	return &pb.Transaction{
+		Id:        t.ID.String(),
+		Date:      date,
+		Entity:    t.Entity,
+		Reference: t.Reference,
+		Hash:      t.Hash,
+		Postings:  t.Postings.PB(),
+	}, nil
+}
+
+func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
+	postings, err := PostingsFromPB(&pb.Postings{
+		Data: t.Postings,
+	})
 	if err != nil {
 		return Transaction{}, fmt.Errorf("transaction: %w", err)
 	}
 
-	return Transaction{
-		Id:        pb.Id,
-		Date:      pb.Date,
-		Entity:    pb.Entity,
-		Reference: pb.Reference,
-		Hash:      pb.Hash,
-		Postings:  postings,
-	}, nil
-}
-
-func (t Transaction) PB() (*pb.Transaction, error) {
-	postings, err := t.Postings.PB()
+	id, err := uuid.FromString(t.Id)
 	if err != nil {
-		return nil, err
+		return Transaction{}, err
 	}
 
-	return &pb.Transaction{
-		Id:        t.Id,
-		Date:      t.Date,
+	date, err := ptypes.Timestamp(t.Date)
+	if err != nil {
+		return Transaction{}, err
+	}
+
+	transaction := db.Transaction{
+		ID:        id,
+		Date:      date,
 		Entity:    t.Entity,
 		Reference: t.Reference,
 		Hash:      t.Hash,
-		Postings:  postings,
-	}, nil
+	}
+
+	return NewTransaction(transaction, postings), nil
 }

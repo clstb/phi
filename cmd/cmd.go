@@ -3,6 +3,7 @@ package cmd
 import (
 	"strings"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -24,18 +25,22 @@ func getClient(ctx *cli.Context) (pb.CoreClient, error) {
 func renderTree(
 	tree treeprint.Tree,
 	accounts fin.Accounts,
-	sum fin.Sum,
-	sumByCurrency fin.SumCurrency,
+	sum map[string]db.Amounts,
 ) []byte {
-	s := ""
-	for currency := range sumByCurrency {
-		s += "\t" + currency
+	var amounts db.Amounts
+	for _, v := range sum {
+		amounts = append(amounts, v...)
+	}
+	currencies := amounts.Sum().Currencies()
 
+	s := ""
+	for _, currency := range currencies {
+		s += "\t" + currency
 	}
 	tree.SetValue(s)
 
 	m := make(map[string]treeprint.Tree)
-	for _, account := range accounts.Data {
+	for _, account := range accounts {
 		path := strings.Split(account.Name, ":")
 		branch := tree
 		for _, s := range path {
@@ -48,13 +53,9 @@ func renderTree(
 			m[s] = branch
 		}
 		s := ""
-		for currency := range sumByCurrency {
-			amount, ok := sum[account.Id][currency]
-			if !ok {
-				s += "\t0"
-			} else {
-				s += "\t" + amount.StringRaw()
-			}
+		for _, currency := range currencies {
+			amount := sum[account.ID.String()].ByCurrency(currency)
+			s += "\t" + amount.StringRaw()
 		}
 		branch.SetValue(s)
 	}

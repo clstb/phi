@@ -7,7 +7,6 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/clstb/phi/pkg/server"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
@@ -42,14 +41,17 @@ func Server(ctx *cli.Context) error {
 		return err
 	}
 	defer db.Close()
-	if db.Ping() != nil {
+	if db.Ping() != nil { // TODO: this doesnt seem to work
 		return err
 	}
 
 	// create / register server implementation
-	server := server.NewServer(
+	server, err := server.NewServer(
 		server.WithDB(db),
 	)
+	if err != nil {
+		return err
+	}
 	pb.RegisterCoreServer(s, server.Core)
 
 	// listen and serve

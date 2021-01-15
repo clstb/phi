@@ -5,9 +5,12 @@ import (
 	"os"
 	"regexp"
 	"text/tabwriter"
+	"time"
 
+	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
@@ -18,12 +21,10 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
-	from, to := ctx.String("from"), ctx.String("to")
-
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
-			Fields: &pb.AccountsQuery_Fields{
+			Fields: &pb.AccountFields{
 				Name: true,
 			},
 			Name: "^(Income|Expenses)",
@@ -32,17 +33,37 @@ func Income(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	accounts := fin.AccountsFromPB(accountsPB)
+	accounts, err := fin.AccountsFromPB(accountsPB)
+	if err != nil {
+		return err
+	}
+
+	from, err := time.Parse("2006-01-02", ctx.String("from"))
+	if err != nil {
+		return err
+	}
+	fromProto, err := ptypes.TimestampProto(from)
+	if err != nil {
+		return err
+	}
+	to, err := time.Parse("2006-01-02", ctx.String("to"))
+	if err != nil {
+		return err
+	}
+	toProto, err := ptypes.TimestampProto(to)
+	if err != nil {
+		return err
+	}
 
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionsQuery_Fields{
+			Fields: &pb.TransactionFields{
 				Date:     true,
 				Postings: true,
 			},
-			From:        from,
-			To:          to,
+			From:        fromProto,
+			To:          toProto,
 			AccountName: "^(Income|Expenses)",
 		},
 	)
@@ -57,8 +78,6 @@ func Income(ctx *cli.Context) error {
 
 	sum := transactions.Sum()
 
-	sumByCurrency := sum.ByCurrency()
-
 	tree := treeprint.New()
 	tree.SetMetaValue("Income Statement")
 
@@ -67,24 +86,25 @@ func Income(ctx *cli.Context) error {
 		tree,
 		accounts,
 		sum,
-		sumByCurrency,
 	))
 	if err != nil {
 		return err
 	}
 
 	re := regexp.MustCompile("^(Income|Expenses)")
-	ni := make(fin.SumCurrency)
-	for accountId, amounts := range sum {
+	var amounts db.Amounts
+	for accountId, v := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {
 			continue
 		}
-		if re.MatchString(account.Name) {
-			ni = ni.Add(amounts)
+		if !re.MatchString(account.Name) {
+			continue
 		}
+		amounts = append(amounts, v...)
 	}
 
+	ni := amounts.Sum()
 	var s string
 	for _, amount := range ni {
 		s += "\t" + amount.StringRaw()

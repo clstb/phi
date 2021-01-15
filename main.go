@@ -99,7 +99,7 @@ func main() {
 						Name:    "from",
 						Aliases: []string{"f"},
 						Usage:   "Period start",
-						Value:   "-infinity",
+						Value:   "0001-01-01",
 					},
 					&cli.StringFlag{
 						Name:    "to",

@@ -105,7 +105,6 @@ func Ingest(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(accounts)
 	accountNames := accounts.Names()
 
 	suggestions := []prompt.Suggest{

@@ -83,7 +83,7 @@ func (a Amount) Mul(amount Amount) Amount {
 
 func AmountFromString(s string, fmts ...AmountFormatter) (Amount, error) {
 	if s == "" {
-		return Amount{}, nil
+		return Amount{Decimal: decimal.Zero}, nil
 	}
 
 	blocks := strings.Split(s, " ")

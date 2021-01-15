@@ -81,9 +81,6 @@ func Ingest(ctx *cli.Context) error {
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionFields{
-				Hash: true,
-			},
 			From: &timestamp.Timestamp{Seconds: 0, Nanos: 0},
 			To:   ptypes.TimestampNow(),
 		},
@@ -99,11 +96,7 @@ func Ingest(ctx *cli.Context) error {
 
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,
-		&pb.AccountsQuery{
-			Fields: &pb.AccountFields{
-				Name: true,
-			},
-		},
+		&pb.AccountsQuery{},
 	)
 	if err != nil {
 		return err

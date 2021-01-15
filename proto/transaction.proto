@@ -15,21 +15,12 @@ message Transaction {
 	repeated Posting postings = 6;
 }
 
-message TransactionFields {
-	bool date = 1;
-	bool entity = 2;
-	bool reference = 3;
-	bool postings = 4;
-	bool hash = 5;	
-}
-
 message Transactions {
 	repeated Transaction data = 1;
 }
 
 message TransactionsQuery {
-	TransactionFields fields = 1;
-	google.protobuf.Timestamp from = 2;
-	google.protobuf.Timestamp to = 3;
-	string account_name = 4;
+	google.protobuf.Timestamp from = 1;
+	google.protobuf.Timestamp to = 2;
+	string account_name = 3;
 }

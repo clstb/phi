@@ -24,9 +24,6 @@ func Income(ctx *cli.Context) error {
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
-			Fields: &pb.AccountFields{
-				Name: true,
-			},
 			Name: "^(Income|Expenses)",
 		},
 	)
@@ -58,10 +55,6 @@ func Income(ctx *cli.Context) error {
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionFields{
-				Date:     true,
-				Postings: true,
-			},
 			From:        fromProto,
 			To:          toProto,
 			AccountName: "^(Income|Expenses)",

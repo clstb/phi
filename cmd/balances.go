@@ -30,11 +30,7 @@ func Balances(ctx *cli.Context) error {
 
 	accountsPB, err := client.GetAccounts(
 		ctx.Context,
-		&pb.AccountsQuery{
-			Fields: &pb.AccountFields{
-				Name: true,
-			},
-		},
+		&pb.AccountsQuery{},
 	)
 	if err != nil {
 		return err
@@ -47,10 +43,6 @@ func Balances(ctx *cli.Context) error {
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			Fields: &pb.TransactionFields{
-				Date:     true,
-				Postings: true,
-			},
 			From: &timestamppb.Timestamp{Seconds: 0, Nanos: 0},
 			To:   dateProto,
 		},

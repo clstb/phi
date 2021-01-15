@@ -8,15 +8,10 @@ message Account {
 	string name = 2;
 }
 
-message AccountFields {
-	bool name = 1;
-}
-
 message Accounts {
 	repeated Account data = 1;
 }
 
 message AccountsQuery {
-	AccountFields fields = 1;
-	string name = 2;
+	string name = 1;
 }

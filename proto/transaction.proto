@@ -4,11 +4,10 @@ package pb;
 option go_package = "github.com/clstb/phi/pkg/pb";
 
 import "proto/posting.proto";
-import "google/protobuf/timestamp.proto";
 
 message Transaction {
 	string id = 1;
-	google.protobuf.Timestamp date = 2;
+	string date = 2;
 	string entity = 3;
 	string reference = 4;
 	string hash = 5;
@@ -20,7 +19,7 @@ message Transactions {
 }
 
 message TransactionsQuery {
-	google.protobuf.Timestamp from = 1;
-	google.protobuf.Timestamp to = 2;
+	string from = 1;
+	string to = 2;
 	string account_name = 3;
 }

@@ -83,17 +83,13 @@ func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
 	return transactions, nil
 }
 
-func (t Transactions) PB() (*pb.Transactions, error) {
+func (t Transactions) PB() *pb.Transactions {
 	var data []*pb.Transaction
 	for _, transaction := range t {
-		pb, err := transaction.PB()
-		if err != nil {
-			return nil, err
-		}
-		data = append(data, pb)
+		data = append(data, transaction.PB())
 	}
 
 	return &pb.Transactions{
 		Data: data,
-	}, nil
+	}
 }

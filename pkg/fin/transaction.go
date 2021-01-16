@@ -2,11 +2,11 @@ package fin
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
-	"github.com/golang/protobuf/ptypes"
 )
 
 type Transaction struct {
@@ -38,20 +38,15 @@ func (t Transaction) Balanced(postings Postings) bool {
 	return true
 }
 
-func (t Transaction) PB() (*pb.Transaction, error) {
-	date, err := ptypes.TimestampProto(t.Date)
-	if err != nil {
-
-	}
-
+func (t Transaction) PB() *pb.Transaction {
 	return &pb.Transaction{
 		Id:        t.ID.String(),
-		Date:      date,
+		Date:      t.Date.Format("2006-01-02"),
 		Entity:    t.Entity,
 		Reference: t.Reference,
 		Hash:      t.Hash,
 		Postings:  t.Postings.PB(),
-	}, nil
+	}
 }
 
 func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
@@ -62,7 +57,7 @@ func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
 		return Transaction{}, fmt.Errorf("transaction: %w", err)
 	}
 
-	date, err := ptypes.Timestamp(t.Date)
+	date, err := time.Parse("2006-01-02", t.Date)
 	if err != nil {
 		return Transaction{}, err
 	}

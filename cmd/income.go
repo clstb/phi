@@ -5,12 +5,10 @@ import (
 	"os"
 	"regexp"
 	"text/tabwriter"
-	"time"
 
 	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
@@ -35,28 +33,12 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
-	from, err := time.Parse("2006-01-02", ctx.String("from"))
-	if err != nil {
-		return err
-	}
-	fromProto, err := ptypes.TimestampProto(from)
-	if err != nil {
-		return err
-	}
-	to, err := time.Parse("2006-01-02", ctx.String("to"))
-	if err != nil {
-		return err
-	}
-	toProto, err := ptypes.TimestampProto(to)
-	if err != nil {
-		return err
-	}
-
+	from, to := ctx.String("from"), ctx.String("to")
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			From:        fromProto,
-			To:          toProto,
+			From:        from,
+			To:          to,
 			AccountName: "^(Income|Expenses)",
 		},
 	)

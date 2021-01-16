@@ -5,13 +5,10 @@ import (
 	"os"
 	"regexp"
 	"text/tabwriter"
-	"time"
 
 	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 )
@@ -34,20 +31,11 @@ func BalSheet(ctx *cli.Context) error {
 		return err
 	}
 
-	date, err := time.Parse("2006-01-02", ctx.String("date"))
-	if err != nil {
-		return err
-	}
-	dateProto, err := ptypes.TimestampProto(date)
-	if err != nil {
-		return err
-	}
-
+	date := ctx.String("date")
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			From: &timestamp.Timestamp{Seconds: 0, Nanos: 0},
-			To:   dateProto,
+			To: date,
 		},
 	)
 

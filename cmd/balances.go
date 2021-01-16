@@ -3,27 +3,15 @@ package cmd
 import (
 	"os"
 	"text/tabwriter"
-	"time"
 
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Balances(ctx *cli.Context) error {
 	client, err := getClient(ctx)
-	if err != nil {
-		return err
-	}
-
-	date, err := time.Parse("2006-01-02", ctx.String("date"))
-	if err != nil {
-		return err
-	}
-	dateProto, err := ptypes.TimestampProto(date)
 	if err != nil {
 		return err
 	}
@@ -40,11 +28,11 @@ func Balances(ctx *cli.Context) error {
 		return err
 	}
 
+	date := ctx.String("date")
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
-			From: &timestamppb.Timestamp{Seconds: 0, Nanos: 0},
-			To:   dateProto,
+			To: date,
 		},
 	)
 	if err != nil {

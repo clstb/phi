@@ -15,8 +15,6 @@ import (
 	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/urfave/cli/v2"
 )
 
@@ -80,10 +78,7 @@ func Ingest(ctx *cli.Context) error {
 
 	transactionsPB, err := client.GetTransactions(
 		ctx.Context,
-		&pb.TransactionsQuery{
-			From: &timestamp.Timestamp{Seconds: 0, Nanos: 0},
-			To:   ptypes.TimestampNow(),
-		},
+		&pb.TransactionsQuery{},
 	)
 	if err != nil {
 		return err
@@ -168,13 +163,9 @@ func Ingest(ctx *cli.Context) error {
 			fmt.Println(toPush)
 			fmt.Println("Uploading transactions...")
 			for _, transaction := range toPush {
-				req, err := transaction.PB()
-				if err != nil {
-					return err
-				}
 				_, err = client.CreateTransaction(
 					ctx.Context,
-					req,
+					transaction.PB(),
 				)
 				if err != nil {
 					return err

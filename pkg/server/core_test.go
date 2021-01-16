@@ -83,6 +83,10 @@ func TestGetAccounts(t *testing.T) {
 			is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(a.Data[0].Id)))
 		},
 	})
+
+	for _, t := range tests {
+		t.check(t.do())
+	}
 }
 
 func TestCreateTransaction(t *testing.T) {
@@ -106,7 +110,9 @@ func TestCreateTransaction(t *testing.T) {
 		},
 	)
 	is.NoErr(err)
-	defer is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(account.Id)))
+	defer func() {
+		is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(account.Id)))
+	}()
 
 	add(test{
 		do: func() (*pb.Transaction, error) {
@@ -132,4 +138,8 @@ func TestCreateTransaction(t *testing.T) {
 			is.NoErr(db.DeleteTransaction(ctx, uuid.FromStringOrNil(t.Id)))
 		},
 	})
+
+	for _, t := range tests {
+		t.check(t.do())
+	}
 }

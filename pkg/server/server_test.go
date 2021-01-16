@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	phidb "github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/clstb/phi/pkg/server"
 	_ "github.com/lib/pq"
@@ -18,29 +19,30 @@ import (
 const bufSize = 1024 * 1024
 
 var conn *grpc.ClientConn
-var db *sql.DB
+var db *phidb.Queries
 
 func coreClient() pb.CoreClient {
 	return pb.NewCoreClient(conn)
 }
 
 func TestMain(m *testing.M) {
-	db, err := sql.Open(
+	sqlDB, err := sql.Open(
 		"postgres",
 		"postgres://phi@127.0.0.1:26257/phi?sslmode=disable",
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
-	if err := db.Ping(); err != nil {
+	defer sqlDB.Close()
+	if err := sqlDB.Ping(); err != nil {
 		log.Fatal(err)
 	}
+	db = phidb.New(sqlDB)
 
 	lis := bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 	server, err := server.NewServer(
-		server.WithDB(db),
+		server.WithDB(sqlDB),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/matryer/is"
 )
 
@@ -80,6 +81,55 @@ func TestGetAccounts(t *testing.T) {
 			is.NoErr(e)
 			is.Equal(a.Data[0].Name, "account-test")
 			is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(a.Data[0].Id)))
+		},
+	})
+}
+
+func TestCreateTransaction(t *testing.T) {
+	is := is.New(t)
+	ctx := context.Background()
+
+	client := coreClient()
+	type test struct {
+		do    func() (*pb.Transaction, error)
+		check func(*pb.Transaction, error)
+	}
+	var tests []test
+	add := func(t test) {
+		tests = append(tests, t)
+	}
+
+	account, err := client.CreateAccount(
+		ctx,
+		&pb.Account{
+			Name: "account-test",
+		},
+	)
+	is.NoErr(err)
+	defer is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(account.Id)))
+
+	add(test{
+		do: func() (*pb.Transaction, error) {
+			return client.CreateTransaction(
+				ctx,
+				&pb.Transaction{
+					Date: ptypes.TimestampNow(),
+					Postings: []*pb.Posting{
+						{
+							Account: account.Id,
+							Units:   "1 EUR",
+						},
+						{
+							Account: account.Id,
+							Units:   "-1 EUR",
+						},
+					},
+				},
+			)
+		},
+		check: func(t *pb.Transaction, e error) {
+			is.NoErr(e)
+			is.NoErr(db.DeleteTransaction(ctx, uuid.FromStringOrNil(t.Id)))
 		},
 	})
 }

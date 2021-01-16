@@ -62,18 +62,13 @@ func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
 		return Transaction{}, fmt.Errorf("transaction: %w", err)
 	}
 
-	id, err := uuid.FromString(t.Id)
-	if err != nil {
-		return Transaction{}, err
-	}
-
 	date, err := ptypes.Timestamp(t.Date)
 	if err != nil {
 		return Transaction{}, err
 	}
 
 	transaction := db.Transaction{
-		ID:        id,
+		ID:        uuid.FromStringOrNil(t.Id),
 		Date:      date,
 		Entity:    t.Entity,
 		Reference: t.Reference,

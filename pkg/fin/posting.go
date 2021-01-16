@@ -37,18 +37,6 @@ func (p Posting) PB() *pb.Posting {
 }
 
 func PostingFromPB(pb *pb.Posting) (Posting, error) {
-	id, err := uuid.FromString(pb.Id)
-	if err != nil {
-		return Posting{}, err
-	}
-	account, err := uuid.FromString(pb.Account)
-	if err != nil {
-		return Posting{}, err
-	}
-	transaction, err := uuid.FromString(pb.Transaction)
-	if err != nil {
-		return Posting{}, err
-	}
 	units, err := db.AmountFromString(pb.Units)
 	if err != nil {
 		return Posting{}, err
@@ -63,9 +51,9 @@ func PostingFromPB(pb *pb.Posting) (Posting, error) {
 	}
 
 	posting := db.Posting{
-		ID:          id,
-		Account:     account,
-		Transaction: transaction,
+		ID:          uuid.FromStringOrNil(pb.Id),
+		Account:     uuid.FromStringOrNil(pb.Account),
+		Transaction: uuid.FromStringOrNil(pb.Transaction),
 		Units:       units,
 		Cost:        cost,
 		Price:       price,

@@ -19,3 +19,7 @@ FROM
   postings
 WHERE
   transaction = $1;
+-- name: DeletePosting :exec
+DELETE FROM
+  postings
+WHERE id = $1;

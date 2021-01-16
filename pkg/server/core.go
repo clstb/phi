@@ -3,11 +3,12 @@ package server
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
 
 	"github.com/clstb/phi/pkg/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/golang/protobuf/ptypes"
 )
 
 type core struct {
@@ -103,26 +104,30 @@ func (s *core) CreateTransaction(
 	}
 
 	transaction = fin.NewTransaction(transactionDB, postings)
-	res, err := transaction.PB()
-	if err != nil {
-		return nil, err
-	}
 
-	return res, nil
+	return transaction.PB(), nil
 }
 
 func (s *core) GetTransactions(
 	ctx context.Context,
 	req *pb.TransactionsQuery,
 ) (*pb.Transactions, error) {
-	from, err := ptypes.Timestamp(req.From)
+	from, err := time.Parse("2006-01-02", req.From)
 	if err != nil {
-		return nil, err
+		if req.From != "" {
+			return nil, err
+		}
+		from = time.Unix(0, 0)
 	}
-	to, err := ptypes.Timestamp(req.To)
+	to, err := time.Parse("2006-01-02", req.To)
 	if err != nil {
-		return nil, err
+		if req.To != "" {
+			return nil, err
+		}
+		to = time.Now()
 	}
+	fmt.Println(from)
+	fmt.Println(to)
 
 	q := db.New(s.db)
 	transactionsDB, err := q.GetTransactions(ctx, db.GetTransactionsParams{
@@ -130,6 +135,7 @@ func (s *core) GetTransactions(
 		FromDate:    from,
 		ToDate:      to,
 	})
+	fmt.Println(transactionsDB)
 
 	var transactions fin.Transactions
 	for _, transaction := range transactionsDB {
@@ -145,10 +151,5 @@ func (s *core) GetTransactions(
 		)
 	}
 
-	res, err := transactions.PB()
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+	return transactions.PB(), nil
 }

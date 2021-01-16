@@ -6,6 +6,8 @@ package db
 import (
 	"context"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 const createTransaction = `-- name: CreateTransaction :one
@@ -45,6 +47,17 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.Hash,
 	)
 	return i, err
+}
+
+const deleteTransaction = `-- name: DeleteTransaction :exec
+DELETE FROM
+  transactions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
+	_, err := q.exec(ctx, q.deleteTransactionStmt, deleteTransaction, id)
+	return err
 }
 
 const getTransactions = `-- name: GetTransactions :many

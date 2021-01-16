@@ -12,6 +12,9 @@ type Querier interface {
 	CreateAccount(ctx context.Context, name string) (Account, error)
 	CreatePosting(ctx context.Context, arg CreatePostingParams) (Posting, error)
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
+	DeleteAccount(ctx context.Context, id uuid.UUID) error
+	DeletePosting(ctx context.Context, id uuid.UUID) error
+	DeleteTransaction(ctx context.Context, id uuid.UUID) error
 	GetAccounts(ctx context.Context, name string) ([]Account, error)
 	GetPostings(ctx context.Context, transaction uuid.UUID) ([]Posting, error)
 	GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]Transaction, error)

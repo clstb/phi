@@ -11,3 +11,7 @@ FROM
   accounts
 WHERE
   name ~ $1;
+-- name: DeleteAccount :exec
+DELETE FROM
+  accounts
+WHERE id = $1;

@@ -31,4 +31,7 @@ AND
   accounts.name ~ @account_name::text
 WHERE
   date BETWEEN @from_date::date AND @to_date::date;
-
+-- name: DeleteTransaction :exec
+DELETE FROM
+  transactions
+WHERE id = $1;

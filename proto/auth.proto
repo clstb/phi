@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/pkg/pb";
+
+service Auth {
+	rpc Register(User) returns (JWT);
+	rpc Login(User) returns (JWT);
+	rpc Verify(JWT) returns (Claims);
+}
+
+message User {
+	string id = 1;
+	string name = 2;
+	string password = 3;
+}
+
+message JWT {
+	string access_token = 1;
+}
+
+message Claims {
+	string audience = 1;
+	int64 expires_at = 2;
+	string id = 3;
+	int64 issued_at = 4;
+	string issuer = 5;
+	int64 not_before = 6;
+	string subject = 7;
+	string user_id = 8;
+	string user_name = 9;
+}

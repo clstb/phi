@@ -8,10 +8,29 @@ import (
 )
 
 func Register(ctx *cli.Context) error {
-	client, err := getClient(ctx)
+	core, err := Core(ctx)
 	if err != nil {
 		return err
 	}
+
+	auth, err := Auth(ctx)
+	if err != nil {
+		return err
+	}
+
+	name := ctx.String("name")
+	password := ctx.String("password")
+	user, err := auth.Register(
+		ctx.Context,
+		&pb.User{
+			Name:     name,
+			Password: password,
+		},
+	)
+	if err != nil {
+		return err
+	}
+	fmt.Println(user)
 
 	accounts := []string{
 		"Equity:OpeningBalances",
@@ -22,7 +41,7 @@ func Register(ctx *cli.Context) error {
 	fmt.Println("Welcome to phi!")
 	for _, account := range accounts {
 		fmt.Printf("Creating account %s\n", account)
-		_, err := client.CreateAccount(
+		_, err := core.CreateAccount(
 			ctx.Context,
 			&pb.Account{
 				Name: account,

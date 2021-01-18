@@ -1,4 +1,4 @@
-package cmd
+package migrate
 
 import (
 	"github.com/golang-migrate/migrate/v4"
@@ -7,12 +7,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func Migrate(ctx *cli.Context) error {
+func Auth(ctx *cli.Context) error {
 	down := ctx.Bool("down")
 
+	dbStr := ctx.String("db")
 	m, err := migrate.New(
-		"file://sql/schema",
-		"cockroachdb://phi@localhost:26257/phi?sslmode=disable",
+		"file://sql/schema/auth",
+		dbStr,
 	)
 	if err != nil {
 		return err
@@ -21,5 +22,11 @@ func Migrate(ctx *cli.Context) error {
 	if down {
 		return m.Down()
 	}
-	return m.Up()
+
+	err = m.Up()
+	if err != migrate.ErrNoChange {
+		return err
+	}
+
+	return nil
 }

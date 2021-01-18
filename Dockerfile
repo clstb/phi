@@ -1,8 +1,8 @@
-FROM golang@sha256:00967cc62fe598f62aec4b63c9f53f1de00f838384ab39e18ea02e5d2853e5ba as builder
+FROM golang:1.15.6-alpine as builder
 # Install git + SSL ca certificates.
 # Git is required for fetching the dependencies.
 # Ca-certificates is required to call HTTPS endpoints.
-RUN apk update && apk add --no-cache git ca-certificates make protoc && update-ca-certificates
+RUN apk update && apk add --no-cache git ca-certificates make protoc gcc musl-dev && update-ca-certificates
 # Create appuser
 ENV USER=appuser
 ENV UID=10001
@@ -20,16 +20,16 @@ WORKDIR $GOPATH/src/github.com/clstb/phi
 # Fetch dependencies.
 COPY go.mod .
 COPY go.sum .
+COPY Makefile .
+RUN make install-generators
 RUN go mod download
 RUN go mod verify
-RUN go get google.golang.org/protobuf/cmd/protoc-gen-go
-RUN go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 # Copy source
 COPY . .
 # Generate proto
 RUN make gen-proto
 # Build the binary
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/phi
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o /go/bin/phi
 ############################
 # STEP 2 build a small image
 ############################
@@ -40,6 +40,8 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 # Copy our static executable
 COPY --from=builder /go/bin/phi /go/bin/phi
+# Copy sql schema
+COPY --from=builder /go/src/github.com/clstb/phi/sql/schema /sql/schema
 # Use an unprivileged user.
 USER appuser:appuser
 # Run the hello binary.

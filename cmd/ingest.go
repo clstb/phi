@@ -12,14 +12,14 @@ import (
 	"time"
 
 	"github.com/c-bata/go-prompt"
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 )
 
 func Ingest(ctx *cli.Context) error {
-	client, err := getClient(ctx)
+	core, err := Core(ctx)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func Ingest(ctx *cli.Context) error {
 		amounts = append(amounts, amount)
 	}
 
-	transactionsPB, err := client.GetTransactions(
+	transactionsPB, err := core.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{},
 	)
@@ -89,7 +89,7 @@ func Ingest(ctx *cli.Context) error {
 		hashes[transaction.Hash] = struct{}{}
 	}
 
-	accountsPB, err := client.GetAccounts(
+	accountsPB, err := core.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{},
 	)
@@ -163,7 +163,7 @@ func Ingest(ctx *cli.Context) error {
 			fmt.Println(toPush)
 			fmt.Println("Uploading transactions...")
 			for _, transaction := range toPush {
-				_, err = client.CreateTransaction(
+				_, err = core.CreateTransaction(
 					ctx.Context,
 					transaction.PB(),
 				)

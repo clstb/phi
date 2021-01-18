@@ -3,7 +3,7 @@ package db_test
 import (
 	"testing"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/matryer/is"
 	"github.com/shopspring/decimal"
 )

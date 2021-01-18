@@ -31,9 +31,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createTransactionStmt, err = db.PrepareContext(ctx, createTransaction); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateTransaction: %w", err)
 	}
-	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
-		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
-	}
 	if q.deleteAccountStmt, err = db.PrepareContext(ctx, deleteAccount); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteAccount: %w", err)
 	}
@@ -51,9 +48,6 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getTransactionsStmt, err = db.PrepareContext(ctx, getTransactions); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTransactions: %w", err)
-	}
-	if q.getUserByNameStmt, err = db.PrepareContext(ctx, getUserByName); err != nil {
-		return nil, fmt.Errorf("error preparing query GetUserByName: %w", err)
 	}
 	return &q, nil
 }
@@ -73,11 +67,6 @@ func (q *Queries) Close() error {
 	if q.createTransactionStmt != nil {
 		if cerr := q.createTransactionStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createTransactionStmt: %w", cerr)
-		}
-	}
-	if q.createUserStmt != nil {
-		if cerr := q.createUserStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
 		}
 	}
 	if q.deleteAccountStmt != nil {
@@ -108,11 +97,6 @@ func (q *Queries) Close() error {
 	if q.getTransactionsStmt != nil {
 		if cerr := q.getTransactionsStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getTransactionsStmt: %w", cerr)
-		}
-	}
-	if q.getUserByNameStmt != nil {
-		if cerr := q.getUserByNameStmt.Close(); cerr != nil {
-			err = fmt.Errorf("error closing getUserByNameStmt: %w", cerr)
 		}
 	}
 	return err
@@ -157,14 +141,12 @@ type Queries struct {
 	createAccountStmt     *sql.Stmt
 	createPostingStmt     *sql.Stmt
 	createTransactionStmt *sql.Stmt
-	createUserStmt        *sql.Stmt
 	deleteAccountStmt     *sql.Stmt
 	deletePostingStmt     *sql.Stmt
 	deleteTransactionStmt *sql.Stmt
 	getAccountsStmt       *sql.Stmt
 	getPostingsStmt       *sql.Stmt
 	getTransactionsStmt   *sql.Stmt
-	getUserByNameStmt     *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -174,13 +156,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		createAccountStmt:     q.createAccountStmt,
 		createPostingStmt:     q.createPostingStmt,
 		createTransactionStmt: q.createTransactionStmt,
-		createUserStmt:        q.createUserStmt,
 		deleteAccountStmt:     q.deleteAccountStmt,
 		deletePostingStmt:     q.deletePostingStmt,
 		deleteTransactionStmt: q.deleteTransactionStmt,
 		getAccountsStmt:       q.getAccountsStmt,
 		getPostingsStmt:       q.getPostingsStmt,
 		getTransactionsStmt:   q.getTransactionsStmt,
-		getUserByNameStmt:     q.getUserByNameStmt,
 	}
 }

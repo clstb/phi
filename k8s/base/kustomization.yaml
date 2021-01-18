@@ -1,0 +1,5 @@
+bases:
+- ./core
+- ./auth
+commonLabels:
+  app: phi

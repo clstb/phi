@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-core
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    spec:
+      initContainers:
+        - image: clstb/phi
+          name: phi-core-migrate
+          args: ["migrate", "core"]
+          envFrom:
+            - secretRef:
+                name: phi-core
+                optional: false 
+      containers:
+        - image: clstb/phi
+          name: phi-core
+          args: ["server", "core"]
+          envFrom:
+            - secretRef:
+                name: phi-core
+                optional: false
+          ports:
+            - containerPort: 9000
+              name: grpc

@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"text/tabwriter"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -14,12 +14,12 @@ import (
 )
 
 func Income(ctx *cli.Context) error {
-	client, err := getClient(ctx)
+	core, err := Core(ctx)
 	if err != nil {
 		return err
 	}
 
-	accountsPB, err := client.GetAccounts(
+	accountsPB, err := core.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{
 			Name: "^(Income|Expenses)",
@@ -34,7 +34,7 @@ func Income(ctx *cli.Context) error {
 	}
 
 	from, to := ctx.String("from"), ctx.String("to")
-	transactionsPB, err := client.GetTransactions(
+	transactionsPB, err := core.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
 			From:        from,

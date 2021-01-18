@@ -11,12 +11,12 @@ import (
 )
 
 func Balances(ctx *cli.Context) error {
-	client, err := getClient(ctx)
+	core, err := Core(ctx)
 	if err != nil {
 		return err
 	}
 
-	accountsPB, err := client.GetAccounts(
+	accountsPB, err := core.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{},
 	)
@@ -29,7 +29,7 @@ func Balances(ctx *cli.Context) error {
 	}
 
 	date := ctx.String("date")
-	transactionsPB, err := client.GetTransactions(
+	transactionsPB, err := core.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
 			To: date,

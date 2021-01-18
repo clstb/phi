@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -11,15 +11,26 @@ import (
 	"google.golang.org/grpc"
 )
 
-func getClient(ctx *cli.Context) (pb.CoreClient, error) {
-	apiHost := ctx.String("api-host")
+func Core(ctx *cli.Context) (pb.CoreClient, error) {
+	coreHost := ctx.String("core-host")
 
-	conn, err := grpc.Dial(apiHost, grpc.WithInsecure())
+	conn, err := grpc.Dial(coreHost, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
 
 	return pb.NewCoreClient(conn), nil
+}
+
+func Auth(ctx *cli.Context) (pb.AuthClient, error) {
+	authHost := ctx.String("auth-host")
+
+	conn, err := grpc.Dial(authHost, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+
+	return pb.NewAuthClient(conn), nil
 }
 
 func renderTree(

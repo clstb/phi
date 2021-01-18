@@ -1,4 +1,4 @@
-package server_test
+package core_test
 
 import (
 	"database/sql"
@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	phidb "github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core"
+	coredb "github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/pb"
-	"github.com/clstb/phi/pkg/server"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
@@ -19,9 +19,9 @@ import (
 const bufSize = 1024 * 1024
 
 var conn *grpc.ClientConn
-var db *phidb.Queries
+var db *coredb.Queries
 
-func coreClient() pb.CoreClient {
+func client() pb.CoreClient {
 	return pb.NewCoreClient(conn)
 }
 
@@ -37,17 +37,17 @@ func TestMain(m *testing.M) {
 	if err := sqlDB.Ping(); err != nil {
 		log.Fatal(err)
 	}
-	db = phidb.New(sqlDB)
+	db = coredb.New(sqlDB)
 
 	lis := bufconn.Listen(bufSize)
 	s := grpc.NewServer()
-	server, err := server.NewServer(
-		server.WithDB(sqlDB),
+	server := core.New(
+		core.WithDB(sqlDB),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	pb.RegisterCoreServer(s, server.Core)
+	pb.RegisterCoreServer(s, server)
 
 	go func() {
 		if err := s.Serve(lis); err != nil {

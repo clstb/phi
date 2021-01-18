@@ -3,7 +3,7 @@ package fin
 import (
 	"fmt"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/pb"
 )
 

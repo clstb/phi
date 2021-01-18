@@ -1,0 +1,10 @@
+bases:
+  - ../base
+commonLabels:
+  env: local
+namespace: default
+secretGenerator:
+  - name: phi-core
+    env: secret_core.env
+  - name: phi-auth
+    env: secret_auth.env

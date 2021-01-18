@@ -1,63 +1,16 @@
-package server
+package core
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 )
 
-type core struct {
-	pb.UnimplementedCoreServer
-	db *sql.DB
-}
-
-func (s *core) CreateAccount(
-	ctx context.Context,
-	req *pb.Account,
-) (*pb.Account, error) {
-	account := fin.AccountFromPB(req)
-
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-	q := db.New(tx)
-
-	accountDB, err := q.CreateAccount(ctx, account.Name)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	if err := tx.Commit(); err != nil {
-		return nil, err
-	}
-
-	account = fin.NewAccount(accountDB)
-
-	return account.PB(), nil
-}
-
-func (s *core) GetAccounts(
-	ctx context.Context,
-	req *pb.AccountsQuery,
-) (*pb.Accounts, error) {
-	q := db.New(s.db)
-	accountsDB, err := q.GetAccounts(ctx, req.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	accounts := fin.NewAccounts(accountsDB...)
-
-	return accounts.PB(), nil
-}
-
-func (s *core) CreateTransaction(
+func (s *Server) CreateTransaction(
 	ctx context.Context,
 	req *pb.Transaction,
 ) (*pb.Transaction, error) {
@@ -108,7 +61,7 @@ func (s *core) CreateTransaction(
 	return transaction.PB(), nil
 }
 
-func (s *core) GetTransactions(
+func (s *Server) GetTransactions(
 	ctx context.Context,
 	req *pb.TransactionsQuery,
 ) (*pb.Transactions, error) {

@@ -1,0 +1,25 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+metadata:
+  name: phi
+build:
+  artifacts:
+  - image: clstb/phi
+    docker:
+      dockerfile: Dockerfile
+deploy:
+  kubeContext: minikube
+  kustomize:
+    paths:
+    - k8s/local
+profiles:
+- name: dev
+  deploy:
+    kustomize:
+      paths:
+      - k8s/dev
+- name: prod
+  deploy:
+    kustomize:
+      paths:
+      - k8s/prod

@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"github.com/clstb/phi/cmd"
+	"github.com/clstb/phi/cmd/create"
+	"github.com/clstb/phi/cmd/migrate"
+	"github.com/clstb/phi/cmd/server"
 	"github.com/urfave/cli/v2"
 )
 
@@ -17,17 +20,67 @@ func main() {
 			{
 				Name:        "server",
 				Description: "Runs the Phi server",
-				Action:      cmd.Server,
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:    "port",
+						Aliases: []string{"p"},
+						Value:   9000,
+					},
+				},
+				Subcommands: []*cli.Command{
+					{
+						Name:   "core",
+						Action: server.Core,
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "db",
+								EnvVars: []string{"DB"},
+							},
+							&cli.StringFlag{
+								Name:    "auth-server",
+								EnvVars: []string{"AUTH_SERVER"},
+							},
+						},
+					},
+					{
+						Name:   "auth",
+						Action: server.Auth,
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "db",
+								EnvVars: []string{"DB"},
+							},
+							&cli.StringFlag{
+								Name:     "signing-secret",
+								EnvVars:  []string{"SIGNING_SECRET"},
+								Required: true,
+							},
+						},
+					},
+				},
 			},
 			{
 				Name:        "migrate",
 				Description: "Runs database migrations",
-				Action:      cmd.Migrate,
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "down",
 						Usage:   "toggle down migrations",
 						Aliases: []string{"d"},
+					},
+					&cli.StringFlag{
+						Name:    "db",
+						EnvVars: []string{"DB"},
+					},
+				},
+				Subcommands: []*cli.Command{
+					{
+						Name:   "core",
+						Action: migrate.Core,
+					},
+					{
+						Name:   "auth",
+						Action: migrate.Auth,
 					},
 				},
 			},
@@ -68,14 +121,39 @@ func main() {
 								Required: true,
 							},
 						},
-						Action: cmd.CreateAccount,
+						Action: create.Account,
 					},
 				},
 			},
 			{
 				Name:        "register",
-				Description: "Register a new ledger",
+				Description: "Register as new user",
 				Action:      cmd.Register,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "name",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "password",
+						Required: true,
+					},
+				},
+			},
+			{
+				Name:        "login",
+				Description: "Login as user",
+				Action:      cmd.Login,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "name",
+						Required: true,
+					},
+					&cli.StringFlag{
+						Name:     "password",
+						Required: true,
+					},
+				},
 			},
 			{
 				Name:        "balances",
@@ -130,8 +208,13 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "api-host",
-				Usage: "phi server host",
+				Name:  "core-host",
+				Usage: "phi core server host",
+				Value: "localhost:9000",
+			},
+			&cli.StringFlag{
+				Name:  "auth-host",
+				Usage: "phi auth server host",
 				Value: "localhost:9000",
 			},
 		},

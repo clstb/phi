@@ -29,9 +29,3 @@ type Transaction struct {
 	Reference string    `json:"reference"`
 	Hash      string    `json:"hash"`
 }
-
-type User struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Password []byte    `json:"password"`
-}

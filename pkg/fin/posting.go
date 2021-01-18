@@ -1,7 +1,7 @@
 package fin
 
 import (
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
 )

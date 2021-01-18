@@ -11,6 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+// Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
 // CoreClient is the client API for Core service.
@@ -104,7 +105,7 @@ type UnsafeCoreServer interface {
 }
 
 func RegisterCoreServer(s grpc.ServiceRegistrar, srv CoreServer) {
-	s.RegisterService(&_Core_serviceDesc, srv)
+	s.RegisterService(&Core_ServiceDesc, srv)
 }
 
 func _Core_CreateAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -179,7 +180,10 @@ func _Core_GetTransactions_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Core_serviceDesc = grpc.ServiceDesc{
+// Core_ServiceDesc is the grpc.ServiceDesc for Core service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Core_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.Core",
 	HandlerType: (*CoreServer)(nil),
 	Methods: []grpc.MethodDesc{

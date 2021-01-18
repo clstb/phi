@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"text/tabwriter"
 
-	"github.com/clstb/phi/pkg/db"
+	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -14,12 +14,12 @@ import (
 )
 
 func BalSheet(ctx *cli.Context) error {
-	client, err := getClient(ctx)
+	core, err := Core(ctx)
 	if err != nil {
 		return err
 	}
 
-	accountsPB, err := client.GetAccounts(
+	accountsPB, err := core.GetAccounts(
 		ctx.Context,
 		&pb.AccountsQuery{},
 	)
@@ -32,7 +32,7 @@ func BalSheet(ctx *cli.Context) error {
 	}
 
 	date := ctx.String("date")
-	transactionsPB, err := client.GetTransactions(
+	transactionsPB, err := core.GetTransactions(
 		ctx.Context,
 		&pb.TransactionsQuery{
 			To: date,

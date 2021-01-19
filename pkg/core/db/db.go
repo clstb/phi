@@ -49,6 +49,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getTransactionsStmt, err = db.PrepareContext(ctx, getTransactions); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTransactions: %w", err)
 	}
+	if q.linkAccountStmt, err = db.PrepareContext(ctx, linkAccount); err != nil {
+		return nil, fmt.Errorf("error preparing query LinkAccount: %w", err)
+	}
+	if q.ownsAccountStmt, err = db.PrepareContext(ctx, ownsAccount); err != nil {
+		return nil, fmt.Errorf("error preparing query OwnsAccount: %w", err)
+	}
 	return &q, nil
 }
 
@@ -99,6 +105,16 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getTransactionsStmt: %w", cerr)
 		}
 	}
+	if q.linkAccountStmt != nil {
+		if cerr := q.linkAccountStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing linkAccountStmt: %w", cerr)
+		}
+	}
+	if q.ownsAccountStmt != nil {
+		if cerr := q.ownsAccountStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing ownsAccountStmt: %w", cerr)
+		}
+	}
 	return err
 }
 
@@ -147,6 +163,8 @@ type Queries struct {
 	getAccountsStmt       *sql.Stmt
 	getPostingsStmt       *sql.Stmt
 	getTransactionsStmt   *sql.Stmt
+	linkAccountStmt       *sql.Stmt
+	ownsAccountStmt       *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -162,5 +180,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getAccountsStmt:       q.getAccountsStmt,
 		getPostingsStmt:       q.getPostingsStmt,
 		getTransactionsStmt:   q.getTransactionsStmt,
+		linkAccountStmt:       q.linkAccountStmt,
+		ownsAccountStmt:       q.ownsAccountStmt,
 	}
 }

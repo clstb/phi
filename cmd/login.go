@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 )
@@ -26,7 +25,16 @@ func Login(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(jwt)
+	configPath := ctx.String("config")
+	config, err := config.Load(configPath)
+	if err != nil {
+		return err
+	}
+	config.AccessToken = jwt.AccessToken
+
+	if err := config.Save(configPath); err != nil {
+		return err
+	}
 
 	return nil
 }

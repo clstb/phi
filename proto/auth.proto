@@ -27,6 +27,4 @@ message Claims {
 	string issuer = 5;
 	int64 not_before = 6;
 	string subject = 7;
-	string user_id = 8;
-	string user_name = 9;
 }

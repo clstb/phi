@@ -21,7 +21,7 @@ func Core(ctx *cli.Context) error {
 	var unaryInterceptors []grpc.UnaryServerInterceptor
 	var streamInterceptors []grpc.StreamServerInterceptor
 
-	authServer := ctx.String("auth-server")
+	authServer := ctx.String("auth-host")
 	if authServer != "" {
 		conn, err := grpc.Dial(authServer, grpc.WithInsecure())
 		if err != nil {
@@ -92,7 +92,7 @@ func Core(ctx *cli.Context) error {
 
 	// listen and serve
 	port := ctx.Int("port")
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}

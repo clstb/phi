@@ -78,19 +78,31 @@ JOIN
 ON
   accounts.id = postings.account
 AND
-  accounts.name ~ $1::text
+  accounts.name ~ $1
+JOIN
+  accounts_users
+ON
+  accounts_users.account = accounts.id
+AND
+  accounts_users.user = $2
 WHERE
-  date BETWEEN $2::date AND $3::date
+  date BETWEEN $3 AND $4
 `
 
 type GetTransactionsParams struct {
 	AccountName string    `json:"account_name"`
+	UserID      uuid.UUID `json:"user_id"`
 	FromDate    time.Time `json:"from_date"`
 	ToDate      time.Time `json:"to_date"`
 }
 
 func (q *Queries) GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]Transaction, error) {
-	rows, err := q.query(ctx, q.getTransactionsStmt, getTransactions, arg.AccountName, arg.FromDate, arg.ToDate)
+	rows, err := q.query(ctx, q.getTransactionsStmt, getTransactions,
+		arg.AccountName,
+		arg.UserID,
+		arg.FromDate,
+		arg.ToDate,
+	)
 	if err != nil {
 		return nil, err
 	}

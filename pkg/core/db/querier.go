@@ -15,9 +15,11 @@ type Querier interface {
 	DeleteAccount(ctx context.Context, id uuid.UUID) error
 	DeletePosting(ctx context.Context, id uuid.UUID) error
 	DeleteTransaction(ctx context.Context, id uuid.UUID) error
-	GetAccounts(ctx context.Context, name string) ([]Account, error)
+	GetAccounts(ctx context.Context, arg GetAccountsParams) ([]Account, error)
 	GetPostings(ctx context.Context, transaction uuid.UUID) ([]Posting, error)
 	GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]Transaction, error)
+	LinkAccount(ctx context.Context, arg LinkAccountParams) (AccountsUser, error)
+	OwnsAccount(ctx context.Context, arg OwnsAccountParams) (int64, error)
 }
 
 var _ Querier = (*Queries)(nil)

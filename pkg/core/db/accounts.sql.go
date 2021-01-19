@@ -37,15 +37,27 @@ func (q *Queries) DeleteAccount(ctx context.Context, id uuid.UUID) error {
 
 const getAccounts = `-- name: GetAccounts :many
 SELECT
-  id, name
+  accounts.id,
+  accounts.name
 FROM
   accounts
+JOIN
+  accounts_users
+ON
+  accounts_users.account = accounts.id
+AND
+  accounts_users.user = $1
 WHERE
-  name ~ $1
+  accounts.name ~ $2
 `
 
-func (q *Queries) GetAccounts(ctx context.Context, name string) ([]Account, error) {
-	rows, err := q.query(ctx, q.getAccountsStmt, getAccounts, name)
+type GetAccountsParams struct {
+	User uuid.UUID `json:"user"`
+	Name string    `json:"name"`
+}
+
+func (q *Queries) GetAccounts(ctx context.Context, arg GetAccountsParams) ([]Account, error) {
+	rows, err := q.query(ctx, q.getAccountsStmt, getAccounts, arg.User, arg.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -65,4 +77,49 @@ func (q *Queries) GetAccounts(ctx context.Context, name string) ([]Account, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const linkAccount = `-- name: LinkAccount :one
+INSERT INTO accounts_users (
+  account,
+  "user"
+) VALUES (
+  $1,
+  $2
+) RETURNING id, account, "user"
+`
+
+type LinkAccountParams struct {
+	Account uuid.UUID `json:"account"`
+	User    uuid.UUID `json:"user"`
+}
+
+func (q *Queries) LinkAccount(ctx context.Context, arg LinkAccountParams) (AccountsUser, error) {
+	row := q.queryRow(ctx, q.linkAccountStmt, linkAccount, arg.Account, arg.User)
+	var i AccountsUser
+	err := row.Scan(&i.ID, &i.Account, &i.User)
+	return i, err
+}
+
+const ownsAccount = `-- name: OwnsAccount :one
+SELECT
+  COUNT(1)
+FROM
+  accounts_users
+WHERE
+  account = $1
+AND
+  "user" = $2
+`
+
+type OwnsAccountParams struct {
+	Account uuid.UUID `json:"account"`
+	User    uuid.UUID `json:"user"`
+}
+
+func (q *Queries) OwnsAccount(ctx context.Context, arg OwnsAccountParams) (int64, error) {
+	row := q.queryRow(ctx, q.ownsAccountStmt, ownsAccount, arg.Account, arg.User)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }

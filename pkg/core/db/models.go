@@ -13,6 +13,12 @@ type Account struct {
 	Name string    `json:"name"`
 }
 
+type AccountsUser struct {
+	ID      uuid.UUID `json:"id"`
+	Account uuid.UUID `json:"account"`
+	User    uuid.UUID `json:"user"`
+}
+
 type Posting struct {
 	ID          uuid.UUID `json:"id"`
 	Account     uuid.UUID `json:"account"`

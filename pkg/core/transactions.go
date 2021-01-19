@@ -8,22 +8,44 @@ import (
 	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/gofrs/uuid"
 )
 
 func (s *Server) CreateTransaction(
 	ctx context.Context,
 	req *pb.Transaction,
 ) (*pb.Transaction, error) {
+	subStr, ok := ctx.Value("sub").(string)
+	if !ok {
+		return nil, fmt.Errorf("context: missing subject")
+	}
+	sub := uuid.FromStringOrNil(subStr)
+
 	transaction, err := fin.TransactionFromPB(req)
 	if err != nil {
 		return nil, err
+	}
+
+	q := db.New(s.db)
+
+	for _, posting := range transaction.Postings {
+		exists, err := q.OwnsAccount(ctx, db.OwnsAccountParams{
+			Account: posting.Account,
+			User:    sub,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if exists == 0 {
+			return nil, fmt.Errorf("unauthorized: account")
+		}
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
-	q := db.New(tx)
+	q = q.WithTx(tx)
 
 	transactionDB, err := q.CreateTransaction(ctx, db.CreateTransactionParams{
 		Date:      transaction.Date,
@@ -65,6 +87,12 @@ func (s *Server) GetTransactions(
 	ctx context.Context,
 	req *pb.TransactionsQuery,
 ) (*pb.Transactions, error) {
+	subStr, ok := ctx.Value("sub").(string)
+	if !ok {
+		return nil, fmt.Errorf("context: missing subject")
+	}
+	sub := uuid.FromStringOrNil(subStr)
+
 	from, err := time.Parse("2006-01-02", req.From)
 	if err != nil {
 		if req.From != "" {
@@ -79,16 +107,17 @@ func (s *Server) GetTransactions(
 		}
 		to = time.Now()
 	}
-	fmt.Println(from)
-	fmt.Println(to)
 
 	q := db.New(s.db)
 	transactionsDB, err := q.GetTransactions(ctx, db.GetTransactionsParams{
+		UserID:      sub,
 		AccountName: req.AccountName,
 		FromDate:    from,
 		ToDate:      to,
 	})
-	fmt.Println(transactionsDB)
+	if err != nil {
+		return nil, err
+	}
 
 	var transactions fin.Transactions
 	for _, transaction := range transactionsDB {

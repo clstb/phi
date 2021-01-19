@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -35,10 +36,6 @@ func main() {
 							&cli.StringFlag{
 								Name:    "db",
 								EnvVars: []string{"DB"},
-							},
-							&cli.StringFlag{
-								Name:    "auth-server",
-								EnvVars: []string{"AUTH_SERVER"},
 							},
 						},
 					},
@@ -208,14 +205,21 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "core-host",
-				Usage: "phi core server host",
-				Value: "localhost:9000",
+				Name:    "core-host",
+				Usage:   "phi core server host",
+				Value:   "localhost:9000",
+				EnvVars: []string{"CORE_HOST"},
 			},
 			&cli.StringFlag{
-				Name:  "auth-host",
-				Usage: "phi auth server host",
-				Value: "localhost:9000",
+				Name:    "auth-host",
+				Usage:   "phi auth server host",
+				Value:   "localhost:9000",
+				EnvVars: []string{"AUTH_HOST"},
+			},
+			&cli.StringFlag{
+				Name:  "config",
+				Usage: "phi client config",
+				Value: fmt.Sprintf("%s/.config/phi.yaml", os.Getenv("HOME")),
 			},
 		},
 	}

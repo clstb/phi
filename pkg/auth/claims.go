@@ -7,8 +7,6 @@ import (
 
 type Claims struct {
 	jwt.StandardClaims
-	UserID   string `json:"user_id"`
-	UserName string `json:"user_name"`
 }
 
 func (c *Claims) PB() *pb.Claims {
@@ -20,8 +18,6 @@ func (c *Claims) PB() *pb.Claims {
 		Issuer:    c.Issuer,
 		NotBefore: c.NotBefore,
 		Subject:   c.Subject,
-		UserId:    c.UserID,
-		UserName:  c.UserName,
 	}
 }
 
@@ -36,7 +32,5 @@ func ClaimsFromPB(claims *pb.Claims) Claims {
 			NotBefore: claims.NotBefore,
 			Subject:   claims.Subject,
 		},
-		UserID:   claims.UserId,
-		UserName: claims.UserName,
 	}
 }

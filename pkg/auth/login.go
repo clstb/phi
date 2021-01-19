@@ -30,9 +30,8 @@ func (s *Server) Login(
 	claims := Claims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(30 * time.Minute).Unix(),
+			Subject:   user.ID.String(),
 		},
-		UserID:   user.ID.String(),
-		UserName: user.Name,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

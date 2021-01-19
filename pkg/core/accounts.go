@@ -2,16 +2,24 @@ package core
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/gofrs/uuid"
 )
 
 func (s *Server) CreateAccount(
 	ctx context.Context,
 	req *pb.Account,
 ) (*pb.Account, error) {
+	subStr, ok := ctx.Value("sub").(string)
+	if !ok {
+		return nil, fmt.Errorf("context: missing subject")
+	}
+	sub := uuid.FromStringOrNil(subStr)
+
 	account := fin.AccountFromPB(req)
 
 	tx, err := s.db.BeginTx(ctx, nil)
@@ -25,11 +33,21 @@ func (s *Server) CreateAccount(
 		tx.Rollback()
 		return nil, err
 	}
+	account = fin.NewAccount(accountDB)
+
+	_, err = q.LinkAccount(ctx, db.LinkAccountParams{
+		Account: account.ID,
+		User:    sub,
+	})
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+
+	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
-
-	account = fin.NewAccount(accountDB)
 
 	return account.PB(), nil
 }
@@ -38,8 +56,17 @@ func (s *Server) GetAccounts(
 	ctx context.Context,
 	req *pb.AccountsQuery,
 ) (*pb.Accounts, error) {
+	subStr, ok := ctx.Value("sub").(string)
+	if !ok {
+		return nil, fmt.Errorf("context: missing subject")
+	}
+	sub := uuid.FromStringOrNil(subStr)
+
 	q := db.New(s.db)
-	accountsDB, err := q.GetAccounts(ctx, req.Name)
+	accountsDB, err := q.GetAccounts(ctx, db.GetAccountsParams{
+		Name: req.Name,
+		User: sub,
+	})
 	if err != nil {
 		return nil, err
 	}

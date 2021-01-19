@@ -25,8 +25,7 @@ func auth(client pb.AuthClient) func(ctx context.Context) (context.Context, erro
 			return nil, err
 		}
 
-		ctx = context.WithValue(ctx, "user_id", claims.UserId)
-		ctx = context.WithValue(ctx, "user_name", claims.UserName)
+		ctx = context.WithValue(ctx, "sub", claims.Subject)
 		return ctx, nil
 	}
 }

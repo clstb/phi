@@ -26,8 +26,8 @@ RUN go mod download
 RUN go mod verify
 # Copy source
 COPY . .
-# Generate proto
-RUN make gen-proto
+# Generate code
+RUN make gen
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o /go/bin/phi
 ############################

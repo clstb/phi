@@ -81,7 +81,7 @@ func BalSheet(ctx *cli.Context) error {
 	nw := amounts.Sum()
 	var s string
 	for _, amount := range nw {
-		s += "\t" + amount.StringRaw()
+		s += "\t" + amount.ColorRaw(false)
 	}
 	fmt.Fprintf(w, "\t\nNet Worth:%s\n", s)
 

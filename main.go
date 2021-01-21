@@ -19,11 +19,12 @@ func main() {
 		Description: "Phi - Personal finance management",
 		Commands: []*cli.Command{
 			{
-				Name:        "server",
-				Description: "Runs the Phi server",
+				Name:  "server",
+				Usage: "runs the phi server",
 				Flags: []cli.Flag{
 					&cli.IntFlag{
 						Name:    "port",
+						Usage:   "port to serve on",
 						Aliases: []string{"p"},
 						Value:   9000,
 					},
@@ -31,24 +32,29 @@ func main() {
 				Subcommands: []*cli.Command{
 					{
 						Name:   "core",
+						Usage:  "starts the phi core microservice",
 						Action: server.Core,
 						Flags: []cli.Flag{
 							&cli.StringFlag{
 								Name:    "db",
+								Usage:   "postgres compatible database connection string",
 								EnvVars: []string{"DB"},
 							},
 						},
 					},
 					{
 						Name:   "auth",
+						Usage:  "starts the phi auth microservice",
 						Action: server.Auth,
 						Flags: []cli.Flag{
 							&cli.StringFlag{
 								Name:    "db",
+								Usage:   "postgres compatible database connection string",
 								EnvVars: []string{"DB"},
 							},
 							&cli.StringFlag{
 								Name:     "signing-secret",
+								Usage:    "secret to sign jwt's with",
 								EnvVars:  []string{"SIGNING_SECRET"},
 								Required: true,
 							},
@@ -57,34 +63,37 @@ func main() {
 				},
 			},
 			{
-				Name:        "migrate",
-				Description: "Runs database migrations",
+				Name:  "migrate",
+				Usage: "runs database migrations",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "down",
-						Usage:   "toggle down migrations",
+						Usage:   "toggle between up and down migrations",
 						Aliases: []string{"d"},
 					},
 					&cli.StringFlag{
 						Name:    "db",
+						Usage:   "postgres compatible database connection string",
 						EnvVars: []string{"DB"},
 					},
 				},
 				Subcommands: []*cli.Command{
 					{
 						Name:   "core",
+						Usage:  "runs migrations for the phi core microservice",
 						Action: migrate.Core,
 					},
 					{
 						Name:   "auth",
+						Usage:  "runs migrations for the phi auth microservice",
 						Action: migrate.Auth,
 					},
 				},
 			},
 			{
-				Name:        "ingest",
-				Description: "Parses and ingests the provided csv file",
-				Action:      cmd.Ingest,
+				Name:   "ingest",
+				Usage:  "ingest transactions from csv",
+				Action: cmd.Ingest,
 				Flags: []cli.Flag{
 					&cli.PathFlag{
 						Name:      "file",
@@ -95,21 +104,21 @@ func main() {
 					},
 					&cli.BoolFlag{
 						Name:  "skip-duplicates",
-						Usage: "skips duplicates based on matching hash values",
+						Usage: "skip duplicates based on matching hash values",
 						Value: true,
 					},
 				},
 			},
 			{
-				Name:        "create",
-				Description: "Creates resources",
-				Aliases:     []string{"c"},
+				Name:    "create",
+				Usage:   "create various resources",
+				Aliases: []string{"c"},
 				Subcommands: []*cli.Command{
 					{
 
-						Name:        "account",
-						Description: "Creates a new account",
-						Aliases:     []string{"a"},
+						Name:    "account",
+						Usage:   "creates an account",
+						Aliases: []string{"a"},
 						Flags: []cli.Flag{
 							&cli.StringFlag{
 								Name:     "name",
@@ -123,9 +132,9 @@ func main() {
 				},
 			},
 			{
-				Name:        "register",
-				Description: "Register as new user",
-				Action:      cmd.Register,
+				Name:   "register",
+				Usage:  "register as new user",
+				Action: cmd.Register,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "name",
@@ -138,9 +147,9 @@ func main() {
 				},
 			},
 			{
-				Name:        "login",
-				Description: "Login as user",
-				Action:      cmd.Login,
+				Name:   "login",
+				Usage:  "login as user",
+				Action: cmd.Login,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "name",
@@ -153,41 +162,41 @@ func main() {
 				},
 			},
 			{
-				Name:        "balances",
-				Description: "Prints trial balances",
-				Action:      cmd.Balances,
+				Name:   "balances",
+				Usage:  "print trial balance for date",
+				Action: cmd.Balances,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "date",
 						Aliases: []string{"d"},
-						Usage:   "Date of trial balance",
+						Usage:   "date of trial balance",
 						Value:   time.Now().Format("2006-01-02"),
 					},
 				},
 			},
 			{
-				Name:        "income",
-				Description: "Prints income statement for period",
-				Action:      cmd.Income,
+				Name:   "income",
+				Usage:  "print income statement for period",
+				Action: cmd.Income,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "from",
 						Aliases: []string{"f"},
-						Usage:   "Period start",
+						Usage:   "period start",
 						Value:   "0001-01-01",
 					},
 					&cli.StringFlag{
 						Name:    "to",
 						Aliases: []string{"t"},
-						Usage:   "Period end",
+						Usage:   "period end",
 						Value:   time.Now().Format("2006-01-02"),
 					},
 				},
 			},
 			{
-				Name:        "balsheet",
-				Description: "Prints balance sheet",
-				Action:      cmd.BalSheet,
+				Name:   "balsheet",
+				Usage:  "print balance sheet for date",
+				Action: cmd.BalSheet,
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "date",
@@ -198,9 +207,9 @@ func main() {
 				},
 			},
 			{
-				Name:        "journal",
-				Description: "Prints journal",
-				Action:      cmd.Journal,
+				Name:   "journal",
+				Usage:  "print journal",
+				Action: cmd.Journal,
 			},
 		},
 		Flags: []cli.Flag{
@@ -218,7 +227,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:  "config",
-				Usage: "phi client config",
+				Usage: "phi client config path",
 				Value: fmt.Sprintf("%s/.config/phi.yaml", os.Getenv("HOME")),
 			},
 		},

@@ -82,7 +82,7 @@ func Income(ctx *cli.Context) error {
 	ni := amounts.Sum()
 	var s string
 	for _, amount := range ni {
-		s += "\t" + amount.StringRaw()
+		s += "\t" + amount.ColorRaw(true)
 	}
 	fmt.Fprintf(w, "\t\nNet Income:%s\n", s)
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/shopspring/decimal"
 )
 
@@ -43,6 +44,23 @@ func (a Amount) String() string {
 		a.Decimal.String(),
 		a.Currency,
 	)
+}
+
+func (a Amount) ColorRaw(invert bool) string {
+	red := false
+	if a.Decimal.LessThan(decimal.Zero) {
+		red = !red
+	}
+	if invert {
+		red = !red
+	}
+
+	s := a.StringRaw()
+	if red {
+		return color.RedString(s)
+	} else {
+		return color.GreenString(s)
+	}
 }
 
 func (a Amount) IsZero() bool {

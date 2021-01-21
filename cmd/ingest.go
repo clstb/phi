@@ -1,19 +1,17 @@
 package cmd
 
 import (
-	"crypto/sha256"
-	"encoding/csv"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
+	"github.com/clstb/phi/pkg/loader/csv"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 )
@@ -30,50 +28,14 @@ func Ingest(ctx *cli.Context) error {
 		return err
 	}
 
-	r := csv.NewReader(f)
-	r.Comma = ';'
+	config, err := config.Load(ctx.String("config"))
+	if err != nil {
+		return err
+	}
 
-	var transactions fin.Transactions
-	var amounts db.Amounts
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		amount, err := db.AmountFromString(
-			record[7]+" "+record[8],
-			db.AmountEU,
-		)
-		if err != nil {
-			return err
-		}
-
-		date, err := time.Parse("02.01.2006", record[1])
-		if err != nil {
-			return err
-		}
-
-		hash := sha256.New()
-		_, err = hash.Write([]byte(strings.Join(record, "")))
-		if err != nil {
-			return err
-		}
-		hashStr := hex.EncodeToString(hash.Sum(nil))
-
-		transactions = append(
-			transactions,
-			fin.NewTransaction(db.Transaction{
-				Date:      date,
-				Entity:    record[2],
-				Reference: record[4],
-				Hash:      hashStr,
-			}, nil),
-		)
-		amounts = append(amounts, amount)
+	loader, err := csv.New(f, config, csv.WithSeperator(';'))
+	if err != nil {
+		return err
 	}
 
 	transactionsPB, err := core.GetTransactions(
@@ -132,10 +94,18 @@ func Ingest(ctx *cli.Context) error {
 	p := prompt.New(nil, completer)
 
 	skipDuplicates := ctx.Bool("skip-duplicates")
+
+	transaction, amount, loadErr := loader.Load()
+	fmt.Println(transaction, amount, loadErr)
 	var toPush []fin.Transaction
-	for i := 0; i < len(transactions); {
-		transaction := transactions[i]
-		amount := amounts[i]
+L:
+	for {
+		if loadErr == io.EOF {
+			break L
+		}
+		if loadErr != nil {
+			return loadErr
+		}
 
 		fmt.Printf(
 			"Date:\t%s\nEntity:\t%s\nReference:\t%s\nAmount:\t%s\n\n",
@@ -148,7 +118,7 @@ func Ingest(ctx *cli.Context) error {
 		_, ok := hashes[transaction.Hash]
 		if ok && skipDuplicates {
 			fmt.Println("Found duplicate hash. Skipping...")
-			i++
+			transaction, amount, loadErr = loader.Load()
 			continue
 		}
 
@@ -160,21 +130,9 @@ func Ingest(ctx *cli.Context) error {
 			fmt.Println("Bye!")
 			return nil
 		case reDone.MatchString(in):
-			fmt.Println(toPush)
-			fmt.Println("Uploading transactions...")
-			for _, transaction := range toPush {
-				_, err = core.CreateTransaction(
-					ctx.Context,
-					transaction.PB(),
-				)
-				if err != nil {
-					return err
-				}
-			}
-			fmt.Println("Success!")
-			return nil
+			break L
 		case reSkip.MatchString(in):
-			i++
+			transaction, amount, loadErr = loader.Load()
 		case reHelp.MatchString(in):
 		case reAccAcc.MatchString(in):
 			blocks := strings.Split(in, " ")
@@ -193,20 +151,32 @@ func Ingest(ctx *cli.Context) error {
 			postings := fin.Postings{
 				fin.NewPosting(db.Posting{
 					Account: from.ID,
-					Units:   amounts[i].Abs().Neg(),
+					Units:   amount.Abs().Neg(),
 				}),
 				fin.NewPosting(db.Posting{
 					Account: to.ID,
-					Units:   amounts[i].Abs(),
+					Units:   amount.Abs(),
 				}),
 			}
 			transaction.Postings = postings
 			toPush = append(toPush, transaction)
-			i++
+			transaction, amount, loadErr = loader.Load()
 		default:
 			fmt.Println("Invalid command.")
-			continue
 		}
 	}
+
+	fmt.Println("Uploading transactions...")
+	for _, transaction := range toPush {
+		_, err = core.CreateTransaction(
+			ctx.Context,
+			transaction.PB(),
+		)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println("Success!")
+
 	return nil
 }

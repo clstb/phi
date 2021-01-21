@@ -6,8 +6,19 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type FileConfig struct {
+	Regex      string `yaml:"regex"`
+	Date       int    `yaml:"date"`
+	DateFormat string `yaml:"date_format"`
+	Amount     int    `yaml:"amount"`
+	Currency   int    `yaml:"currency"`
+	Entity     int    `yaml:"entity"`
+	Reference  int    `yaml:"reference"`
+}
+
 type Config struct {
-	AccessToken string `yaml:"access_token"`
+	AccessToken string       `yaml:"access_token"`
+	Files       []FileConfig `yaml:"files"`
 }
 
 func Load(path string) (*Config, error) {

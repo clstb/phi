@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/clstb/phi/pkg/config"
@@ -73,6 +74,7 @@ func renderTree(
 	}
 	tree.SetValue(s)
 
+	re := regexp.MustCompile("^(Income|Expenses)")
 	m := make(map[string]treeprint.Tree)
 	for _, account := range accounts {
 		path := strings.Split(account.Name, ":")
@@ -87,9 +89,10 @@ func renderTree(
 			m[s] = branch
 		}
 		s := ""
+		invert := re.MatchString(account.Name)
 		for _, currency := range currencies {
 			amount := sum[account.ID.String()].ByCurrency(currency)
-			s += "\t" + amount.StringRaw()
+			s += "\t" + amount.ColorRaw(invert)
 		}
 		branch.SetValue(s)
 	}

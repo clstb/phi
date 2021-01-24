@@ -21,6 +21,7 @@ type CoreClient interface {
 	CreateAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*Account, error)
 	GetAccounts(ctx context.Context, in *AccountsQuery, opts ...grpc.CallOption) (*Accounts, error)
 	CreateTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error)
+	DeleteTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error)
 	GetTransactions(ctx context.Context, in *TransactionsQuery, opts ...grpc.CallOption) (*Transactions, error)
 }
 
@@ -59,6 +60,15 @@ func (c *coreClient) CreateTransaction(ctx context.Context, in *Transaction, opt
 	return out, nil
 }
 
+func (c *coreClient) DeleteTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error) {
+	out := new(Transaction)
+	err := c.cc.Invoke(ctx, "/pb.Core/DeleteTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *coreClient) GetTransactions(ctx context.Context, in *TransactionsQuery, opts ...grpc.CallOption) (*Transactions, error) {
 	out := new(Transactions)
 	err := c.cc.Invoke(ctx, "/pb.Core/GetTransactions", in, out, opts...)
@@ -75,6 +85,7 @@ type CoreServer interface {
 	CreateAccount(context.Context, *Account) (*Account, error)
 	GetAccounts(context.Context, *AccountsQuery) (*Accounts, error)
 	CreateTransaction(context.Context, *Transaction) (*Transaction, error)
+	DeleteTransaction(context.Context, *Transaction) (*Transaction, error)
 	GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error)
 	mustEmbedUnimplementedCoreServer()
 }
@@ -91,6 +102,9 @@ func (UnimplementedCoreServer) GetAccounts(context.Context, *AccountsQuery) (*Ac
 }
 func (UnimplementedCoreServer) CreateTransaction(context.Context, *Transaction) (*Transaction, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTransaction not implemented")
+}
+func (UnimplementedCoreServer) DeleteTransaction(context.Context, *Transaction) (*Transaction, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTransaction not implemented")
 }
 func (UnimplementedCoreServer) GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactions not implemented")
@@ -162,6 +176,24 @@ func _Core_CreateTransaction_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Core_DeleteTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Transaction)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServer).DeleteTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pb.Core/DeleteTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServer).DeleteTransaction(ctx, req.(*Transaction))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Core_GetTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TransactionsQuery)
 	if err := dec(in); err != nil {
@@ -198,6 +230,10 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTransaction",
 			Handler:    _Core_CreateTransaction_Handler,
+		},
+		{
+			MethodName: "DeleteTransaction",
+			Handler:    _Core_DeleteTransaction_Handler,
 		},
 		{
 			MethodName: "GetTransactions",

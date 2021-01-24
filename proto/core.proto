@@ -10,5 +10,6 @@ service Core {
 	rpc CreateAccount(Account) returns (Account);
 	rpc GetAccounts(AccountsQuery) returns (Accounts);
 	rpc CreateTransaction(Transaction) returns (Transaction);
+	rpc DeleteTransaction(Transaction) returns (Transaction);
 	rpc GetTransactions(TransactionsQuery) returns (Transactions);
 }

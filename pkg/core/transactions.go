@@ -89,6 +89,32 @@ func (s *Server) CreateTransaction(
 	return transaction.PB(), nil
 }
 
+func (s *Server) DeleteTransaction(
+	ctx context.Context,
+	req *pb.Transaction,
+) (*pb.Transaction, error) {
+	transaction, err := fin.TransactionFromPB(req)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	q := db.New(tx)
+
+	if err := q.DeleteTransaction(ctx, transaction.ID); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (s *Server) GetTransactions(
 	ctx context.Context,
 	req *pb.TransactionsQuery,

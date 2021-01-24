@@ -51,7 +51,7 @@ func New(
 
 	m := tview.NewModal()
 	m.SetText("Do you want to quit the application?")
-	m.AddButtons([]string{"Quit & Save", "Quit", "Cancel"})
+	m.AddButtons([]string{"Quit", "Cancel"})
 
 	pfia := tview.NewInputField()
 	pfia.SetLabel("Account")

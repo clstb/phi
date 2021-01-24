@@ -24,12 +24,7 @@ overrides:
   - go_type: "github.com/gofrs/uuid.UUID"
     db_type: "uuid"
     nullable: true
-  - column: "postings.units"
-    go_type:
-      type: "Amount"
-  - column: "postings.price"
-    go_type:
-      type: "Amount"
-  - column: "postings.cost"
-    go_type:
-      type: "Amount"
+rename:
+  units: UnitsStr
+  cost: CostStr
+  price: PriceStr

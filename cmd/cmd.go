@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/clstb/phi/pkg/config"
-	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -60,9 +59,9 @@ func Auth(ctx *cli.Context) (pb.AuthClient, error) {
 func renderTree(
 	tree treeprint.Tree,
 	accounts fin.Accounts,
-	sum map[string]db.Amounts,
+	sum map[string]fin.Amounts,
 ) []byte {
-	var amounts db.Amounts
+	var amounts fin.Amounts
 	for _, v := range sum {
 		amounts = append(amounts, v...)
 	}

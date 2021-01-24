@@ -8,13 +8,12 @@ import (
 
 type Posting struct {
 	db.Posting
+	Units Amount
+	Cost  Amount
+	Price Amount
 }
 
-func NewPosting(p db.Posting) Posting {
-	return Posting{p}
-}
-
-func (p Posting) Weight() db.Amount {
+func (p Posting) Weight() Amount {
 	if !p.Cost.IsZero() {
 		return p.Units.Mul(p.Cost)
 	}

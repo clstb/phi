@@ -28,27 +28,27 @@ INSERT INTO postings (
 type CreatePostingParams struct {
 	Account     uuid.UUID `json:"account"`
 	Transaction uuid.UUID `json:"transaction"`
-	Units       Amount    `json:"units"`
-	Cost        Amount    `json:"cost"`
-	Price       Amount    `json:"price"`
+	UnitsStr    string    `json:"units"`
+	CostStr     string    `json:"cost"`
+	PriceStr    string    `json:"price"`
 }
 
 func (q *Queries) CreatePosting(ctx context.Context, arg CreatePostingParams) (Posting, error) {
 	row := q.queryRow(ctx, q.createPostingStmt, createPosting,
 		arg.Account,
 		arg.Transaction,
-		arg.Units,
-		arg.Cost,
-		arg.Price,
+		arg.UnitsStr,
+		arg.CostStr,
+		arg.PriceStr,
 	)
 	var i Posting
 	err := row.Scan(
 		&i.ID,
 		&i.Account,
 		&i.Transaction,
-		&i.Units,
-		&i.Cost,
-		&i.Price,
+		&i.UnitsStr,
+		&i.CostStr,
+		&i.PriceStr,
 	)
 	return i, err
 }
@@ -86,9 +86,9 @@ func (q *Queries) GetPostings(ctx context.Context, transaction uuid.UUID) ([]Pos
 			&i.ID,
 			&i.Account,
 			&i.Transaction,
-			&i.Units,
-			&i.Cost,
-			&i.Price,
+			&i.UnitsStr,
+			&i.CostStr,
+			&i.PriceStr,
 		); err != nil {
 			return nil, err
 		}

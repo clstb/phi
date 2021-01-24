@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"text/tabwriter"
 
-	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -67,7 +66,7 @@ func Income(ctx *cli.Context) error {
 	}
 
 	re := regexp.MustCompile("^(Income|Expenses)")
-	var amounts db.Amounts
+	var amounts fin.Amounts
 	for accountId, v := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {

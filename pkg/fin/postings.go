@@ -9,22 +9,13 @@ import (
 
 type Postings []Posting
 
-func NewPostings(postingsDB ...db.Posting) Postings {
-	var postings Postings
-	for _, p := range postingsDB {
-		postings = append(postings, NewPosting(p))
-	}
-
-	return postings
-}
-
-func (p Postings) Sum() map[string]db.Amounts {
-	sums := make(map[string]db.Amounts)
+func (p Postings) Sum() map[string]Amounts {
+	sums := make(map[string]Amounts)
 	for _, posting := range p {
 		weight := posting.Weight()
 		sum, ok := sums[posting.Account.String()]
 		if !ok {
-			sum = db.Amounts{weight}
+			sum = Amounts{weight}
 		} else {
 			sum = append(sum, weight)
 		}

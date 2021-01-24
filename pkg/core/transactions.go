@@ -63,16 +63,22 @@ func (s *Server) CreateTransaction(
 		postingDB, err := q.CreatePosting(ctx, db.CreatePostingParams{
 			Account:     posting.Account,
 			Transaction: transactionDB.ID,
-			Units:       posting.Units,
-			Cost:        posting.Cost,
-			Price:       posting.Price,
+			UnitsStr:    posting.Units.String(),
+			CostStr:     posting.Cost.String(),
+			PriceStr:    posting.Price.String(),
 		})
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 
-		postings = append(postings, fin.NewPosting(postingDB))
+		posting, err := fin.PostingFromDB(postingDB)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		postings = append(postings, posting)
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
@@ -125,12 +131,14 @@ func (s *Server) GetTransactions(
 		if err != nil {
 			return nil, err
 		}
-		postings := fin.NewPostings(postingsDB...)
+		postings, err := fin.PostingsFromDB(postingsDB...)
+		if err != nil {
+			return nil, err
+		}
 
-		transactions = append(
-			transactions,
-			fin.NewTransaction(transaction, postings),
-		)
+		t := fin.TransactionFromDB(transaction)
+		t.Postings = postings
+		transactions = append(transactions, t)
 	}
 
 	return transactions.PB(), nil

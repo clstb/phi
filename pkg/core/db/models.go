@@ -23,9 +23,9 @@ type Posting struct {
 	ID          uuid.UUID `json:"id"`
 	Account     uuid.UUID `json:"account"`
 	Transaction uuid.UUID `json:"transaction"`
-	Units       Amount    `json:"units"`
-	Cost        Amount    `json:"cost"`
-	Price       Amount    `json:"price"`
+	UnitsStr    string    `json:"units"`
+	CostStr     string    `json:"cost"`
+	PriceStr    string    `json:"price"`
 }
 
 type Transaction struct {

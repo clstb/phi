@@ -1,4 +1,4 @@
-package db
+package fin
 
 type Amounts []Amount
 

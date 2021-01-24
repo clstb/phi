@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v2"
 )
@@ -46,4 +48,24 @@ func (c *Config) Save(path string) error {
 	}
 
 	return nil
+}
+
+func (c *Config) ForFile(name string) (FileConfig, error) {
+	var fileConfig FileConfig
+	found := false
+	for _, fc := range c.Files {
+		re, err := regexp.Compile(fc.Regex)
+		if err != nil {
+			return FileConfig{}, err
+		}
+		if re.MatchString(name) {
+			fileConfig = fc
+			found = true
+		}
+	}
+	if !found {
+		return FileConfig{}, fmt.Errorf("no config for: %s", name)
+	}
+
+	return fileConfig, nil
 }

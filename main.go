@@ -8,6 +8,7 @@ import (
 
 	"github.com/clstb/phi/cmd"
 	"github.com/clstb/phi/cmd/create"
+	"github.com/clstb/phi/cmd/ingest"
 	"github.com/clstb/phi/cmd/migrate"
 	"github.com/clstb/phi/cmd/server"
 	"github.com/urfave/cli/v2"
@@ -93,7 +94,7 @@ func main() {
 			{
 				Name:   "ingest",
 				Usage:  "ingest transactions from csv",
-				Action: cmd.Ingest,
+				Action: ingest.Ingest,
 				Flags: []cli.Flag{
 					&cli.PathFlag{
 						Name:      "file",

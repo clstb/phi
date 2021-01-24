@@ -21,9 +21,9 @@ func NewTransaction(
 	return Transaction{t, postings}
 }
 
-func (t Transaction) Balanced(postings Postings) bool {
-	var amounts db.Amounts
-	for _, v := range postings.Sum() {
+func (t Transaction) Balanced() bool {
+	var amounts Amounts
+	for _, v := range t.Postings.Sum() {
 		amounts = append(amounts, v...)
 	}
 
@@ -46,6 +46,12 @@ func (t Transaction) PB() *pb.Transaction {
 		Reference: t.Reference,
 		Hash:      t.Hash,
 		Postings:  t.Postings.PB(),
+	}
+}
+
+func TransactionFromDB(t db.Transaction) Transaction {
+	return Transaction{
+		Transaction: t,
 	}
 }
 

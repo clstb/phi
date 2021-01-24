@@ -96,11 +96,22 @@ func Ingest(ctx *cli.Context) error {
 	main := tview.NewFlex()
 	side := tview.NewFlex().SetDirection(tview.FlexRow)
 
-	tt := tview.NewTable().SetSelectable(true, false)
+	tt := tview.NewTable().SetSelectable(true, false).SetFixed(1, 0)
 	tt.SetBorder(true).SetTitle("Transactions")
+	tt.SetEvaluateAllRows(true)
+	currentTransaction := func() (fin.Transaction, int) {
+		row, _ := tt.GetSelection()
+		return transactions[row-1], row - 1
+	}
 
-	pt := tview.NewTable().SetSelectable(true, false)
+	pt := tview.NewTable().SetSelectable(true, false).SetFixed(1, 0)
 	pt.SetBorder(true).SetTitle("Postings")
+	pt.SetEvaluateAllRows(true)
+	currentPosting := func() (fin.Posting, int) {
+		transaction, _ := currentTransaction()
+		row, _ := pt.GetSelection()
+		return transaction.Postings[row-1], row - 1
+	}
 
 	m := tview.NewModal()
 	m.SetText("Do you want to quit the application?")
@@ -205,10 +216,8 @@ func Ingest(ctx *cli.Context) error {
 		return posting, nil
 	}
 	pfEdit := func(pRow int) {
-		tRow, _ := tt.GetSelection()
-		transaction := transactions[tRow]
-
-		posting := transaction.Postings[pRow]
+		transaction, tRow := currentTransaction()
+		posting, pRow := currentPosting()
 
 		account, ok := accounts.ById(posting.Account.String())
 		if !ok {
@@ -242,8 +251,7 @@ func Ingest(ctx *cli.Context) error {
 		})
 	}
 	pfAdd := func() {
-		tRow, _ := tt.GetSelection()
-		transaction := transactions[tRow]
+		transaction, tRow := currentTransaction()
 		amount := amounts[tRow]
 		if len(transaction.Postings) == 0 {
 			inputUnits.SetText(amount.String())
@@ -293,7 +301,11 @@ func Ingest(ctx *cli.Context) error {
 		app.SetRoot(m, true)
 	})
 	tt.SetSelectedFunc(func(row, column int) {
-		transaction := transactions[row]
+		if row == 0 {
+			return
+		}
+
+		transaction, _ := currentTransaction()
 		renderPostings(pt, transaction.Postings, accounts)
 		main.AddItem(side, 0, 1, false)
 		app.SetFocus(pt)
@@ -307,6 +319,10 @@ func Ingest(ctx *cli.Context) error {
 		app.SetFocus(tt)
 	})
 	pt.SetSelectedFunc(func(row, column int) {
+		if row == 0 {
+			return
+		}
+
 		pfEdit(row)
 		side.AddItem(pf, 0, 1, false)
 		app.SetFocus(pf)
@@ -350,8 +366,30 @@ func renderTransactions(
 	hashes map[string]struct{},
 ) {
 	t.Clear()
+
+	header := []string{
+		"Date",
+		"Amount",
+		"Currency",
+		"Entity",
+		"Reference",
+	}
+	for column, field := range header {
+		t.SetCell(0, column, &tview.TableCell{
+			Color: tcell.ColorYellow,
+			Text:  field,
+		})
+	}
+
 	for row, transaction := range transactions {
 		color := tcell.ColorWhite
+		columns := []string{
+			transaction.Date.Format("2006-01-02"),
+			amounts[row].StringRaw(),
+			amounts[row].Currency,
+			transaction.Entity,
+			transaction.Reference,
+		}
 
 		_, ok := hashes[transaction.Hash]
 		if ok {
@@ -364,15 +402,8 @@ func renderTransactions(
 			color = tcell.ColorRed
 		}
 
-		columns := []string{
-			transaction.Date.Format("2006-01-02"),
-			amounts[row].StringRaw(),
-			amounts[row].Currency,
-			transaction.Entity,
-			transaction.Reference,
-		}
 		for column, field := range columns {
-			t.SetCell(row, column, &tview.TableCell{
+			t.SetCell(row+1, column, &tview.TableCell{
 				Text:  field,
 				Color: color,
 			})
@@ -387,7 +418,22 @@ func renderPostings(
 	accounts fin.Accounts,
 ) {
 	t.Clear()
+
+	header := []string{
+		"Account",
+		"Units",
+		"Cost",
+		"Reference",
+	}
+	for column, field := range header {
+		t.SetCell(0, column, &tview.TableCell{
+			Color: tcell.ColorYellow,
+			Text:  field,
+		})
+	}
+
 	for row, posting := range postings {
+		color := tcell.ColorWhite
 		account, _ := accounts.ById(posting.Account.String())
 		columns := []string{
 			account.Name,
@@ -395,9 +441,9 @@ func renderPostings(
 			posting.Cost.StringRaw(),
 			posting.Price.StringRaw(),
 		}
-		color := tcell.ColorWhite
+
 		for column, field := range columns {
-			t.SetCell(row, column, &tview.TableCell{
+			t.SetCell(row+1, column, &tview.TableCell{
 				Text:  field,
 				Color: color,
 			})

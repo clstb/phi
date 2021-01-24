@@ -34,6 +34,19 @@ func (p Postings) PB() []*pb.Posting {
 	return postings
 }
 
+func PostingsFromDB(db ...db.Posting) (Postings, error) {
+	var postings Postings
+	for _, p := range db {
+		posting, err := PostingFromDB(p)
+		if err != nil {
+			return Postings{}, err
+		}
+		postings = append(postings, posting)
+	}
+
+	return postings, nil
+}
+
 func PostingsFromPB(pb *pb.Postings) (Postings, error) {
 	var postings Postings
 	for _, v := range pb.Data {

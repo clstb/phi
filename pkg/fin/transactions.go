@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/clstb/phi/pkg/core/db"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
 )
 
 type Transactions []Transaction
 
-func (t Transactions) Sum() map[string]db.Amounts {
-	sums := make(map[string]db.Amounts)
+func (t Transactions) Sum() map[string]Amounts {
+	sums := make(map[string]Amounts)
 	for _, transaction := range t {
 		for accountId, amounts := range transaction.Postings.Sum() {
 			sum, ok := sums[accountId]
@@ -50,19 +49,19 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 		}
 
 		for _, amount := range amounts {
-			transactions = append(transactions, Transaction{
-				Postings: []Posting{
-					NewPosting(db.Posting{
-						Account: ec.ID,
-						Units:   amount,
-					}),
-					NewPosting(db.Posting{
-						Account: uuid.FromStringOrNil(accountId), // TODO: this can break
-						Units:   amount.Neg(),
-					}),
-				},
-			})
+			transaction := Transaction{}
 
+			posting := Posting{}
+			posting.Account = ec.ID
+			posting.Units = amount
+			transaction.Postings = append(transaction.Postings, posting)
+
+			posting = Posting{}
+			posting.Account = uuid.FromStringOrNil(accountId) // TODO: this can break
+			posting.Units = amount.Neg()
+			transaction.Postings = append(transaction.Postings, posting)
+
+			transactions = append(transactions, transaction)
 		}
 
 	}

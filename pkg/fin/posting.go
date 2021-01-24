@@ -35,28 +35,52 @@ func (p Posting) PB() *pb.Posting {
 	}
 }
 
+func PostingFromDB(p db.Posting) (Posting, error) {
+	posting := Posting{
+		Posting: p,
+	}
+
+	units, err := AmountFromString(posting.UnitsStr)
+	if err != nil {
+		return Posting{}, err
+	}
+	cost, err := AmountFromString(posting.CostStr)
+	if err != nil {
+		return Posting{}, err
+	}
+	price, err := AmountFromString(posting.PriceStr)
+	if err != nil {
+		return Posting{}, err
+	}
+
+	posting.Units = units
+	posting.Cost = cost
+	posting.Price = price
+
+	return posting, nil
+}
+
 func PostingFromPB(pb *pb.Posting) (Posting, error) {
-	units, err := db.AmountFromString(pb.Units)
+	units, err := AmountFromString(pb.Units)
 	if err != nil {
 		return Posting{}, err
 	}
-	cost, err := db.AmountFromString(pb.Cost)
+	cost, err := AmountFromString(pb.Cost)
 	if err != nil {
 		return Posting{}, err
 	}
-	price, err := db.AmountFromString(pb.Price)
+	price, err := AmountFromString(pb.Price)
 	if err != nil {
 		return Posting{}, err
 	}
 
-	posting := db.Posting{
-		ID:          uuid.FromStringOrNil(pb.Id),
-		Account:     uuid.FromStringOrNil(pb.Account),
-		Transaction: uuid.FromStringOrNil(pb.Transaction),
-		Units:       units,
-		Cost:        cost,
-		Price:       price,
-	}
+	posting := Posting{}
+	posting.ID = uuid.FromStringOrNil(pb.Id)
+	posting.Account = uuid.FromStringOrNil(pb.Account)
+	posting.Transaction = uuid.FromStringOrNil(pb.Transaction)
+	posting.Units = units
+	posting.Cost = cost
+	posting.Price = price
 
-	return NewPosting(posting), nil
+	return posting, nil
 }

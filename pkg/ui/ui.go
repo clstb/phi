@@ -20,14 +20,21 @@ type UI struct {
 	app  *tview.Application
 	main *tview.Flex
 	side *tview.Flex
+
 	tt   *tview.Table
+	tfid *tview.InputField
+	tfie *tview.InputField
+	tfir *tview.InputField
+	tf   *tview.Form
+
 	pt   *tview.Table
 	pfia *tview.InputField
 	pfiu *tview.InputField
 	pfic *tview.InputField
 	pfip *tview.InputField
 	pf   *tview.Form
-	m    *tview.Modal
+
+	m *tview.Modal
 }
 
 func New(
@@ -45,13 +52,21 @@ func New(
 	tt.SetBorder(true).SetTitle("Transactions")
 	tt.SetEvaluateAllRows(true)
 
+	tfid := tview.NewInputField()
+	tfid.SetLabel("Date")
+
+	tfie := tview.NewInputField()
+	tfie.SetLabel("Entity")
+
+	tfir := tview.NewInputField()
+	tfir.SetLabel("Reference")
+
+	tf := tview.NewForm()
+	tf.SetBorder(true)
+
 	pt := tview.NewTable().SetSelectable(true, false).SetFixed(1, 0)
 	pt.SetBorder(true).SetTitle("Postings")
 	pt.SetEvaluateAllRows(true)
-
-	m := tview.NewModal()
-	m.SetText("Do you want to quit the application?")
-	m.AddButtons([]string{"Quit", "Cancel"})
 
 	pfia := tview.NewInputField()
 	pfia.SetLabel("Account")
@@ -81,11 +96,17 @@ func New(
 	pf := tview.NewForm()
 	pf.SetBorder(true)
 
-	main.AddItem(tt, 0, 3, true)
+	m := tview.NewModal()
+	m.SetText("Do you want to quit the application?")
+	m.AddButtons([]string{"Quit", "Cancel"})
+
 	side.AddItem(pt, 0, 1, true)
+	main.AddItem(tt, 0, 3, true)
+	main.AddItem(side, 0, 1, true)
 
 	ui := &UI{
-		ctx:          ctx,
+		ctx: ctx,
+
 		transactions: transactions,
 		accounts:     accounts,
 		core:         core,
@@ -93,31 +114,34 @@ func New(
 		app:  app,
 		main: main,
 		side: side,
+
 		tt:   tt,
+		tfid: tfid,
+		tfie: tfie,
+		tfir: tfir,
+		tf:   tf,
+
 		pt:   pt,
-		m:    m,
 		pfia: pfia,
 		pfiu: pfiu,
 		pfic: pfic,
 		pfip: pfip,
 		pf:   pf,
+
+		m: m,
 	}
 
 	ui.handlerTransactions()
+	ui.handlerTransactionForm()
 	ui.handlerPostings()
 	ui.handlerPostingForm()
 	ui.handlerModal()
 
-	ui.render()
+	ui.renderTransactions()
 
 	return ui
 }
 
 func (u *UI) Run() error {
 	return u.app.SetRoot(u.main, true).Run()
-}
-
-func (u *UI) render() {
-	u.renderTransactions()
-	u.renderPostings()
 }

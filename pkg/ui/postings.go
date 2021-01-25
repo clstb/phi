@@ -6,13 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (u *UI) selectedPosting() (fin.Posting, int) {
-	transaction, _ := u.selectedTransaction()
-	row, _ := u.pt.GetSelection()
-	return transaction.Postings[row-1], row - 1
-}
-
-func (u *UI) renderPostings() {
+func (u *UI) renderPostings(transaction fin.Transaction) {
 	u.pt.Clear()
 
 	header := []string{
@@ -23,20 +17,20 @@ func (u *UI) renderPostings() {
 	}
 	for column, field := range header {
 		u.pt.SetCell(0, column, &tview.TableCell{
-			Color: tcell.ColorYellow,
-			Text:  field,
+			Color:         tcell.ColorYellow,
+			Text:          field,
+			NotSelectable: true,
 		})
 	}
 
-	transaction, _ := u.selectedTransaction()
 	for row, posting := range transaction.Postings {
 		color := tcell.ColorWhite
 		account, _ := u.accounts.ById(posting.Account.String())
 		columns := []string{
 			account.Name,
-			posting.Units.StringRaw(),
-			posting.Cost.StringRaw(),
-			posting.Price.StringRaw(),
+			posting.Units.String(),
+			posting.Cost.String(),
+			posting.Price.String(),
 		}
 
 		for column, field := range columns {
@@ -53,31 +47,56 @@ func (u *UI) handlerPostings() {
 		if key != tcell.KeyESC {
 			return
 		}
-		u.main.RemoveItem(u.side)
-		u.app.SetFocus(u.tt)
+		u.app.SetRoot(u.m, true)
 	})
 	u.pt.SetSelectedFunc(func(row, column int) {
-		if row == 0 {
+		tRow, _ := u.tt.GetSelection()
+		transaction := u.transactions[tRow-1]
+
+		if row > len(transaction.Postings) {
 			return
 		}
 
-		u.renderPostings()
-
-		u.pfEdit()
+		u.pfPrep(row)
 		u.side.AddItem(u.pf, 0, 1, false)
 		u.app.SetFocus(u.pf)
 	})
 	u.pt.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() != tcell.KeyRune {
-			return event
-		}
-		if event.Rune() != 'i' {
+		switch event.Key() {
+		case tcell.KeyTAB:
+			u.app.SetFocus(u.tt)
+		case tcell.KeyRune:
+		default:
 			return event
 		}
 
-		u.pfAdd()
-		u.side.AddItem(u.pf, 0, 1, false)
-		u.app.SetFocus(u.pf)
+		switch event.Rune() {
+		case 'd':
+			tRow, _ := u.tt.GetSelection()
+			transaction := u.transactions[tRow-1]
+
+			pRow, _ := u.pt.GetSelection()
+			if pRow > len(transaction.Postings) {
+				return event
+			}
+
+			transaction.Postings = append(
+				transaction.Postings[:pRow-1],
+				transaction.Postings[pRow:]...,
+			)
+			u.transactions[tRow-1] = transaction
+
+			u.pt.Select(pRow-1, 0)
+
+			u.renderPostings(transaction)
+			u.renderTransactions()
+		case 'i':
+			u.pfPrep(-1)
+			u.side.AddItem(u.pf, 0, 1, false)
+			u.app.SetFocus(u.pf)
+		default:
+			return event
+		}
 
 		return nil
 	})

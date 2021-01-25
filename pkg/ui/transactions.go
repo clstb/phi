@@ -9,14 +9,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (u *UI) selectedTransaction() (fin.Transaction, int) {
-	row, _ := u.tt.GetSelection()
-	if row == 0 {
-		return fin.Transaction{}, 0
-	}
-	return u.transactions[row-1], row - 1
-}
-
 func (u *UI) renderTransactions() {
 	u.tt.Clear()
 
@@ -28,21 +20,26 @@ func (u *UI) renderTransactions() {
 
 	for column, field := range header {
 		u.tt.SetCell(0, column, &tview.TableCell{
-			Color: tcell.ColorYellow,
-			Text:  field,
+			Color:         tcell.ColorYellow,
+			Text:          field,
+			NotSelectable: true,
 		})
 	}
 
 	for row, transaction := range u.transactions {
 		color := tcell.ColorWhite
+
 		columns := []string{
 			transaction.Date.Format("2006-01-02"),
 			transaction.Entity,
 			transaction.Reference,
 		}
 
-		if transaction.ID == uuid.Nil {
-			color = tcell.ColorGrey
+		if transaction.ID == uuid.Nil && !transaction.Balanced() {
+			color = tcell.ColorLightSalmon
+		}
+		if transaction.ID == uuid.Nil && transaction.Balanced() {
+			color = tcell.ColorLightGreen
 		}
 
 		for column, field := range columns {
@@ -55,30 +52,52 @@ func (u *UI) renderTransactions() {
 }
 
 func (u *UI) handlerTransactions() {
-	u.tt.SetDoneFunc(func(key tcell.Key) {
-		u.app.SetRoot(u.m, true)
-	})
-	u.tt.SetSelectedFunc(func(row, column int) {
-		if row == 0 {
+	u.tt.SetSelectionChangedFunc(func(row, column int) {
+		if row > len(u.transactions) || row < 1 {
 			return
 		}
 
-		u.renderPostings()
-		u.main.AddItem(u.side, 0, 1, false)
-		u.app.SetFocus(u.pt)
+		transaction := u.transactions[row-1]
+		u.renderPostings(transaction)
 	})
-	u.tt.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() != tcell.KeyRune {
-			return event
+	u.tt.SetDoneFunc(func(key tcell.Key) {
+		if key != tcell.KeyESC {
+			return
+		}
+		u.app.SetRoot(u.m, true)
+	})
+	u.tt.SetSelectedFunc(func(row, column int) {
+		if row > len(u.transactions) {
+			return
 		}
 
-		transaction, row := u.selectedTransaction()
-		if row == 0 {
+		u.tfPrep(row)
+		u.side.AddItem(u.tf, 0, 1, false)
+		u.app.SetFocus(u.tf)
+	})
+	u.tt.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyTAB:
+			u.app.SetFocus(u.pt)
+		case tcell.KeyRune:
+		default:
 			return event
 		}
 
 		switch event.Rune() {
+		case 'i':
+			u.tfPrep(-1)
+			u.side.AddItem(u.tf, 0, 1, false)
+			u.app.SetFocus(u.tf)
+			return nil
 		case 'd':
+			tRow, _ := u.tt.GetSelection()
+			if tRow > len(u.transactions) {
+				return event
+			}
+
+			transaction := u.transactions[tRow-1]
+
 			if transaction.ID != uuid.Nil {
 				_, err := u.core.DeleteTransaction(
 					u.ctx,
@@ -88,14 +107,21 @@ func (u *UI) handlerTransactions() {
 					log.Fatal(err)
 				}
 				u.transactions = append(
-					u.transactions[:row],
-					u.transactions[row+1:]...,
+					u.transactions[:tRow-1],
+					u.transactions[tRow:]...,
 				)
-				u.tt.Select(row, 0)
-				u.render()
+				u.tt.Select(tRow-1, 0)
+				u.renderTransactions()
 			}
 			return nil
 		case 's':
+			tRow, _ := u.tt.GetSelection()
+			if tRow > len(u.transactions) {
+				return event
+			}
+
+			transaction := u.transactions[tRow-1]
+
 			if transaction.ID == uuid.Nil {
 				transactionPB, err := u.core.CreateTransaction(
 					u.ctx,
@@ -109,8 +135,8 @@ func (u *UI) handlerTransactions() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				u.transactions[row] = transaction
-				u.render()
+				u.transactions[tRow-1] = transaction
+				u.renderTransactions()
 			}
 			return nil
 		default:

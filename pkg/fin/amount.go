@@ -41,9 +41,9 @@ func (a Amount) ColorRaw(invert bool) string {
 
 	s := a.StringRaw()
 	if red {
-		return color.RedString(s)
+		return color.HiRedString(s)
 	} else {
-		return color.GreenString(s)
+		return color.HiGreenString(s)
 	}
 }
 

@@ -73,7 +73,7 @@ func renderTree(
 	}
 	tree.SetValue(s)
 
-	re := regexp.MustCompile("^(Income|Expenses)")
+	re := regexp.MustCompile("^(Income|Expenses|Equity)")
 	m := make(map[string]treeprint.Tree)
 	for _, account := range accounts {
 		path := strings.Split(account.Name, ":")

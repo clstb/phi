@@ -19,6 +19,42 @@ import (
 )
 
 func Ingest(ctx *cli.Context) error {
+	core, err := cmd.Core(ctx)
+	if err != nil {
+		return err
+	}
+
+	accountsPB, err := core.GetAccounts(
+		ctx.Context,
+		&pb.AccountsQuery{},
+	)
+	if err != nil {
+		return err
+	}
+
+	accounts, err := fin.AccountsFromPB(accountsPB)
+	if err != nil {
+		return err
+	}
+
+	transactionsPB, err := core.GetTransactions(
+		ctx.Context,
+		&pb.TransactionsQuery{},
+	)
+	if err != nil {
+		return err
+	}
+
+	existingTransactions, err := fin.TransactionsFromPB(transactionsPB)
+	if err != nil {
+		return err
+	}
+
+	hashes := make(map[string]fin.Transaction)
+	for _, transaction := range existingTransactions {
+		hashes[transaction.Hash] = transaction
+	}
+
 	fp := ctx.Path("file")
 	f, err := os.OpenFile(fp, os.O_RDONLY, os.ModePerm)
 	if err != nil {
@@ -53,25 +89,13 @@ func Ingest(ctx *cli.Context) error {
 			return err
 		}
 
-		transactions = append(transactions, transaction)
-	}
+		existingTransaction, ok := hashes[transaction.Hash]
+		if ok {
+			transactions = append(transactions, existingTransaction)
+		} else {
+			transactions = append(transactions, transaction)
+		}
 
-	core, err := cmd.Core(ctx)
-	if err != nil {
-		return err
-	}
-
-	accountsPB, err := core.GetAccounts(
-		ctx.Context,
-		&pb.AccountsQuery{},
-	)
-	if err != nil {
-		return err
-	}
-
-	accounts, err := fin.AccountsFromPB(accountsPB)
-	if err != nil {
-		return err
 	}
 
 	ui := ui.New(

@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"log"
-
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/gdamore/tcell/v2"
 	"github.com/gofrs/uuid"
@@ -104,7 +102,8 @@ func (u *UI) handlerTransactions() {
 					transaction.PB(),
 				)
 				if err != nil {
-					log.Fatal(err)
+					u.mePrep(err)
+					u.app.SetRoot(u.me, true)
 				}
 				u.transactions = append(
 					u.transactions[:tRow-1],
@@ -128,13 +127,16 @@ func (u *UI) handlerTransactions() {
 					transaction.PB(),
 				)
 				if err != nil {
-					log.Fatal(err)
+					u.mePrep(err)
+					u.app.SetRoot(u.me, true)
 				}
 
 				transaction, err := fin.TransactionFromPB(transactionPB)
 				if err != nil {
-					log.Fatal(err)
+					u.mePrep(err)
+					u.app.SetRoot(u.me, true)
 				}
+
 				u.transactions[tRow-1] = transaction
 				u.renderTransactions()
 			}

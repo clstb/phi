@@ -141,6 +141,7 @@ func New(
 	ui.handlerPostings()
 	ui.handlerPostingForm()
 	ui.handlerModalQuit()
+	ui.handlerModalErr()
 
 	ui.renderTransactions()
 

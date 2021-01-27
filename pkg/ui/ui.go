@@ -144,6 +144,7 @@ func New(
 	ui.handlerModalErr()
 
 	ui.renderTransactions()
+	ui.renderPostings(transactions[0])
 
 	return ui
 }

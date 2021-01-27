@@ -47,7 +47,7 @@ func (u *UI) handlerPostings() {
 		if key != tcell.KeyESC {
 			return
 		}
-		u.app.SetRoot(u.m, true)
+		u.app.SetRoot(u.mq, true)
 	})
 	u.pt.SetSelectedFunc(func(row, column int) {
 		tRow, _ := u.tt.GetSelection()

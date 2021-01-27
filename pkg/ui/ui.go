@@ -17,24 +17,25 @@ type UI struct {
 	accounts     fin.Accounts
 	core         pb.CoreClient
 
-	app  *tview.Application
-	main *tview.Flex
-	side *tview.Flex
+	app  *tview.Application // ui root
+	main *tview.Flex        // main flex container
+	side *tview.Flex        // side bar flex container
 
-	tt   *tview.Table
-	tfid *tview.InputField
-	tfie *tview.InputField
-	tfir *tview.InputField
-	tf   *tview.Form
+	tt   *tview.Table      // transactions table
+	tfid *tview.InputField // transaction form input date
+	tfie *tview.InputField // transaction form input entity
+	tfir *tview.InputField // transaction form input reference
+	tf   *tview.Form       // transaction form
 
-	pt   *tview.Table
-	pfia *tview.InputField
-	pfiu *tview.InputField
-	pfic *tview.InputField
-	pfip *tview.InputField
-	pf   *tview.Form
+	pt   *tview.Table      // postings table
+	pfia *tview.InputField // posting form input account
+	pfiu *tview.InputField // posting form input units
+	pfic *tview.InputField // posting form input cost
+	pfip *tview.InputField // posting form input price
+	pf   *tview.Form       // posting form
 
-	m *tview.Modal
+	mq *tview.Modal // modal quit
+	me *tview.Modal // modal error
 }
 
 func New(
@@ -96,9 +97,12 @@ func New(
 	pf := tview.NewForm()
 	pf.SetBorder(true)
 
-	m := tview.NewModal()
-	m.SetText("Do you want to quit the application?")
-	m.AddButtons([]string{"Quit", "Cancel"})
+	mq := tview.NewModal()
+	mq.SetText("Do you want to quit the application?")
+	mq.AddButtons([]string{"Quit", "Cancel"})
+
+	me := tview.NewModal()
+	me.AddButtons([]string{"Close"})
 
 	side.AddItem(pt, 0, 1, true)
 	main.AddItem(tt, 0, 3, true)
@@ -128,14 +132,15 @@ func New(
 		pfip: pfip,
 		pf:   pf,
 
-		m: m,
+		mq: mq,
+		me: me,
 	}
 
 	ui.handlerTransactions()
 	ui.handlerTransactionForm()
 	ui.handlerPostings()
 	ui.handlerPostingForm()
-	ui.handlerModal()
+	ui.handlerModalQuit()
 
 	ui.renderTransactions()
 

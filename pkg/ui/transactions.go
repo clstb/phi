@@ -64,7 +64,7 @@ func (u *UI) handlerTransactions() {
 		if key != tcell.KeyESC {
 			return
 		}
-		u.app.SetRoot(u.m, true)
+		u.app.SetRoot(u.mq, true)
 	})
 	u.tt.SetSelectedFunc(func(row, column int) {
 		if row > len(u.transactions) {

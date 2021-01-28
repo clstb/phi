@@ -9,6 +9,6 @@ import "proto/transaction.proto";
 service Core {
 	rpc CreateAccount(Account) returns (Account);
 	rpc GetAccounts(AccountsQuery) returns (Accounts);
-	rpc CreateTransaction(Transaction) returns (Transaction);
+	rpc CreateTransactions(stream Transaction) returns (Transactions);
 	rpc GetTransactions(TransactionsQuery) returns (Transactions);
 }

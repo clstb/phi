@@ -11,25 +11,31 @@ INSERT INTO transactions (
   $4
 ) RETURNING *;
 -- name: GetTransactions :many
-SELECT DISTINCT
+SELECT
   transactions.id,
-  date,
-  entity,
-  reference,
-  hash
+  transactions.date,
+  transactions.entity,
+  transactions.reference,
+  transactions.hash,
+  postings.id AS posting_id,
+  postings.account,
+  postings.units,
+  postings.cost,
+  postings.price,
+  accounts.name
 FROM
   transactions
-JOIN
+INNER JOIN
   postings
 ON
   transactions.id = postings.transaction
-JOIN
+INNER JOIN
   accounts
 ON
   accounts.id = postings.account
 AND
   accounts.name ~ @account_name
-JOIN
+INNER JOIN
   accounts_users
 ON
   accounts_users.account = accounts.id

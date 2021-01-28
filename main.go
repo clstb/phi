@@ -8,7 +8,7 @@ import (
 
 	"github.com/clstb/phi/cmd"
 	"github.com/clstb/phi/cmd/create"
-	"github.com/clstb/phi/cmd/ingest"
+	"github.com/clstb/phi/cmd/csv"
 	"github.com/clstb/phi/cmd/migrate"
 	"github.com/clstb/phi/cmd/server"
 	"github.com/urfave/cli/v2"
@@ -92,21 +92,43 @@ func main() {
 				},
 			},
 			{
-				Name:   "ingest",
-				Usage:  "ingest transactions from csv",
-				Action: ingest.Ingest,
-				Flags: []cli.Flag{
-					&cli.PathFlag{
-						Name:      "file",
-						Aliases:   []string{"f"},
-						Usage:     "csv file",
-						Required:  true,
-						TakesFile: true,
+				Name: "csv",
+				Subcommands: []*cli.Command{
+					{
+						Name:   "parse",
+						Action: csv.Parse,
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:      "file",
+								Aliases:   []string{"f"},
+								Required:  true,
+								TakesFile: true,
+							},
+						},
 					},
-					&cli.BoolFlag{
-						Name:  "skip-duplicates",
-						Usage: "skip duplicates based on matching hash values",
-						Value: true,
+					{
+						Name:   "review",
+						Action: csv.Review,
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:      "file",
+								Aliases:   []string{"f"},
+								Required:  true,
+								TakesFile: true,
+							},
+						},
+					},
+					{
+						Name:   "ingest",
+						Action: csv.Ingest,
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:      "file",
+								Aliases:   []string{"f"},
+								Required:  true,
+								TakesFile: true,
+							},
+						},
 					},
 				},
 			},

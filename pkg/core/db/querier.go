@@ -17,7 +17,7 @@ type Querier interface {
 	DeleteTransaction(ctx context.Context, id uuid.UUID) error
 	GetAccounts(ctx context.Context, arg GetAccountsParams) ([]Account, error)
 	GetPostings(ctx context.Context, transaction uuid.UUID) ([]Posting, error)
-	GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]Transaction, error)
+	GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]GetTransactionsRow, error)
 	LinkAccount(ctx context.Context, arg LinkAccountParams) (AccountsUser, error)
 	OwnsAccount(ctx context.Context, arg OwnsAccountParams) (int64, error)
 }

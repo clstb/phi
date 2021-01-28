@@ -37,6 +37,16 @@ func Core(ctx *cli.Context) (pb.CoreClient, error) {
 				return invoker(ctx, method, req, reply, cc, opts...)
 			},
 		),
+		grpc.WithStreamInterceptor(
+			func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+				ctx = metadata.AppendToOutgoingContext(
+					ctx,
+					"authorization",
+					fmt.Sprintf("Bearer %s", config.AccessToken),
+				)
+				return streamer(ctx, desc, cc, method, opts...)
+			},
+		),
 	)
 	if err != nil {
 		return nil, err

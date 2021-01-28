@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type CoreClient interface {
 	CreateAccount(ctx context.Context, in *Account, opts ...grpc.CallOption) (*Account, error)
 	GetAccounts(ctx context.Context, in *AccountsQuery, opts ...grpc.CallOption) (*Accounts, error)
-	CreateTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error)
+	CreateTransactions(ctx context.Context, opts ...grpc.CallOption) (Core_CreateTransactionsClient, error)
 	GetTransactions(ctx context.Context, in *TransactionsQuery, opts ...grpc.CallOption) (*Transactions, error)
 }
 
@@ -50,13 +50,38 @@ func (c *coreClient) GetAccounts(ctx context.Context, in *AccountsQuery, opts ..
 	return out, nil
 }
 
-func (c *coreClient) CreateTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Transaction, error) {
-	out := new(Transaction)
-	err := c.cc.Invoke(ctx, "/pb.Core/CreateTransaction", in, out, opts...)
+func (c *coreClient) CreateTransactions(ctx context.Context, opts ...grpc.CallOption) (Core_CreateTransactionsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Core_ServiceDesc.Streams[0], "/pb.Core/CreateTransactions", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &coreCreateTransactionsClient{stream}
+	return x, nil
+}
+
+type Core_CreateTransactionsClient interface {
+	Send(*Transaction) error
+	CloseAndRecv() (*Transactions, error)
+	grpc.ClientStream
+}
+
+type coreCreateTransactionsClient struct {
+	grpc.ClientStream
+}
+
+func (x *coreCreateTransactionsClient) Send(m *Transaction) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *coreCreateTransactionsClient) CloseAndRecv() (*Transactions, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Transactions)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *coreClient) GetTransactions(ctx context.Context, in *TransactionsQuery, opts ...grpc.CallOption) (*Transactions, error) {
@@ -74,7 +99,7 @@ func (c *coreClient) GetTransactions(ctx context.Context, in *TransactionsQuery,
 type CoreServer interface {
 	CreateAccount(context.Context, *Account) (*Account, error)
 	GetAccounts(context.Context, *AccountsQuery) (*Accounts, error)
-	CreateTransaction(context.Context, *Transaction) (*Transaction, error)
+	CreateTransactions(Core_CreateTransactionsServer) error
 	GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error)
 	mustEmbedUnimplementedCoreServer()
 }
@@ -89,8 +114,8 @@ func (UnimplementedCoreServer) CreateAccount(context.Context, *Account) (*Accoun
 func (UnimplementedCoreServer) GetAccounts(context.Context, *AccountsQuery) (*Accounts, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccounts not implemented")
 }
-func (UnimplementedCoreServer) CreateTransaction(context.Context, *Transaction) (*Transaction, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateTransaction not implemented")
+func (UnimplementedCoreServer) CreateTransactions(Core_CreateTransactionsServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateTransactions not implemented")
 }
 func (UnimplementedCoreServer) GetTransactions(context.Context, *TransactionsQuery) (*Transactions, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactions not implemented")
@@ -144,22 +169,30 @@ func _Core_GetAccounts_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Core_CreateTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Transaction)
-	if err := dec(in); err != nil {
+func _Core_CreateTransactions_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CoreServer).CreateTransactions(&coreCreateTransactionsServer{stream})
+}
+
+type Core_CreateTransactionsServer interface {
+	SendAndClose(*Transactions) error
+	Recv() (*Transaction, error)
+	grpc.ServerStream
+}
+
+type coreCreateTransactionsServer struct {
+	grpc.ServerStream
+}
+
+func (x *coreCreateTransactionsServer) SendAndClose(m *Transactions) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *coreCreateTransactionsServer) Recv() (*Transaction, error) {
+	m := new(Transaction)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(CoreServer).CreateTransaction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pb.Core/CreateTransaction",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServer).CreateTransaction(ctx, req.(*Transaction))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 func _Core_GetTransactions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -196,14 +229,16 @@ var Core_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Core_GetAccounts_Handler,
 		},
 		{
-			MethodName: "CreateTransaction",
-			Handler:    _Core_CreateTransaction_Handler,
-		},
-		{
 			MethodName: "GetTransactions",
 			Handler:    _Core_GetTransactions_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CreateTransactions",
+			Handler:       _Core_CreateTransactions_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "proto/core.proto",
 }

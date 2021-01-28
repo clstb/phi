@@ -61,25 +61,31 @@ func (q *Queries) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
 }
 
 const getTransactions = `-- name: GetTransactions :many
-SELECT DISTINCT
+SELECT
   transactions.id,
-  date,
-  entity,
-  reference,
-  hash
+  transactions.date,
+  transactions.entity,
+  transactions.reference,
+  transactions.hash,
+  postings.id AS posting_id,
+  postings.account,
+  postings.units,
+  postings.cost,
+  postings.price,
+  accounts.name
 FROM
   transactions
-JOIN
+INNER JOIN
   postings
 ON
   transactions.id = postings.transaction
-JOIN
+INNER JOIN
   accounts
 ON
   accounts.id = postings.account
 AND
   accounts.name ~ $1
-JOIN
+INNER JOIN
   accounts_users
 ON
   accounts_users.account = accounts.id
@@ -96,7 +102,21 @@ type GetTransactionsParams struct {
 	ToDate      time.Time `json:"to_date"`
 }
 
-func (q *Queries) GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]Transaction, error) {
+type GetTransactionsRow struct {
+	ID        uuid.UUID `json:"id"`
+	Date      time.Time `json:"date"`
+	Entity    string    `json:"entity"`
+	Reference string    `json:"reference"`
+	Hash      string    `json:"hash"`
+	PostingID uuid.UUID `json:"posting_id"`
+	Account   uuid.UUID `json:"account"`
+	UnitsStr  string    `json:"units"`
+	CostStr   string    `json:"cost"`
+	PriceStr  string    `json:"price"`
+	Name      string    `json:"name"`
+}
+
+func (q *Queries) GetTransactions(ctx context.Context, arg GetTransactionsParams) ([]GetTransactionsRow, error) {
 	rows, err := q.query(ctx, q.getTransactionsStmt, getTransactions,
 		arg.AccountName,
 		arg.UserID,
@@ -107,15 +127,21 @@ func (q *Queries) GetTransactions(ctx context.Context, arg GetTransactionsParams
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Transaction
+	var items []GetTransactionsRow
 	for rows.Next() {
-		var i Transaction
+		var i GetTransactionsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Date,
 			&i.Entity,
 			&i.Reference,
 			&i.Hash,
+			&i.PostingID,
+			&i.Account,
+			&i.UnitsStr,
+			&i.CostStr,
+			&i.PriceStr,
+			&i.Name,
 		); err != nil {
 			return nil, err
 		}

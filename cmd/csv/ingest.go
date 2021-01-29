@@ -142,8 +142,9 @@ func Ingest(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	for i, transaction := range transactions {
-		fmt.Printf("Uploading transaction (%d/%d)...\n", i, len(transactions))
+
+	fmt.Printf("Uploading transactions...\n")
+	for _, transaction := range transactions {
 		err := stream.Send(transaction.PB())
 		if err == io.EOF {
 			break
@@ -153,11 +154,11 @@ func Ingest(ctx *cli.Context) error {
 		}
 	}
 
-	transactionsPB, err := stream.CloseAndRecv()
+	_, err = stream.CloseAndRecv()
 	if err != nil {
 		return err
 	}
-	fmt.Println(transactionsPB.String())
+	fmt.Printf("Success!\n")
 
 	return nil
 }

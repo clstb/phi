@@ -3,14 +3,42 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/manifoldco/promptui"
 	"github.com/urfave/cli/v2"
 )
 
 func Register(ctx *cli.Context) error {
-	core, err := Core(ctx)
+	p := promptui.Prompt{
+		Label: "Username",
+	}
+
+	name, err := p.Run()
 	if err != nil {
 		return err
+	}
+
+	p = promptui.Prompt{
+		Label: "Password",
+		Mask:  '*',
+	}
+	password, err := p.Run()
+	if err != nil {
+		return err
+	}
+
+	p = promptui.Prompt{
+		Label: "Retype Password",
+		Mask:  '*',
+	}
+	retyped, err := p.Run()
+	if err != nil {
+		return err
+	}
+
+	if password != retyped {
+		return fmt.Errorf("passwords don't match")
 	}
 
 	auth, err := Auth(ctx)
@@ -18,9 +46,7 @@ func Register(ctx *cli.Context) error {
 		return err
 	}
 
-	name := ctx.String("name")
-	password := ctx.String("password")
-	user, err := auth.Register(
+	jwt, err := auth.Register(
 		ctx.Context,
 		&pb.User{
 			Name:     name,
@@ -30,7 +56,22 @@ func Register(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(user)
+
+	configPath := ctx.String("config")
+	config, err := config.Load(configPath)
+	if err != nil {
+		return err
+	}
+	config.AccessToken = jwt.AccessToken
+
+	if err := config.Save(configPath); err != nil {
+		return err
+	}
+
+	core, err := Core(ctx)
+	if err != nil {
+		return err
+	}
 
 	accounts := []string{
 		"Equity:OpeningBalances",

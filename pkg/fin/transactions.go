@@ -92,3 +92,18 @@ func (t Transactions) PB() *pb.Transactions {
 		Data: data,
 	}
 }
+
+func (t Transactions) ByDate() map[string]Transactions {
+	byDate := map[string]Transactions{}
+	for _, transaction := range t {
+		date := transaction.Date.Format("2006-01-02")
+		transactions, ok := byDate[date]
+		if !ok {
+			byDate[date] = Transactions{transaction}
+		} else {
+			byDate[date] = append(transactions, transaction)
+		}
+	}
+
+	return byDate
+}

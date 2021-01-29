@@ -5,10 +5,12 @@ import (
 	"encoding/csv"
 	"encoding/hex"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/clstb/phi/cmd"
+	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
@@ -68,15 +70,26 @@ func Parse(ctx *cli.Context) error {
 	}
 	defer output.Close()
 
+	configPath := ctx.Path("config")
+	config, err := config.Load(configPath)
+	if err != nil {
+		return err
+	}
+
+	fc, err := config.ForFile(filepath.Base(f.Name()))
+	if err != nil {
+		return err
+	}
+
 	w := csv.NewWriter(output)
 	w.Comma = ';'
 	for i, record := range records {
 		hash := sha256.New()
 		_, err = hash.Write([]byte(strings.Join([]string{
-			record[0],
-			record[2],
-			record[4],
-			record[7] + " " + record[8],
+			record[fc.Date],
+			record[fc.Entity],
+			record[fc.Reference],
+			record[fc.Amount] + " " + record[fc.Currency],
 		}, "")))
 		if err != nil {
 			return err
@@ -88,11 +101,19 @@ func Parse(ctx *cli.Context) error {
 			continue
 		}
 
-		if i >= 1 && records[i][2] != records[i-1][2] {
+		if i >= 1 && records[i][fc.Entity] != records[i-1][fc.Entity] {
 			output.Write([]byte("\n"))
 		}
 
-		w.Write(append([]string{"", ""}, []string{record[0], record[2], record[4], record[7] + " " + record[8]}...))
+		w.Write(append(
+			[]string{"", ""},
+			[]string{
+				record[fc.Date],
+				record[fc.Entity],
+				record[fc.Reference],
+				record[fc.Amount] + " " + record[fc.Currency],
+			}...),
+		)
 		w.Flush()
 	}
 

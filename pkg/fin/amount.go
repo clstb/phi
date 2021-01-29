@@ -65,12 +65,12 @@ func (a Amount) Color(invert bool) string {
 	)
 }
 
-// IsZero return true when the amoutns decimal is zero or false otherwise.
+// IsZero return true when the amounts decimal is zero or false otherwise.
 func (a Amount) IsZero() bool {
 	return a.Decimal.IsZero()
 }
 
-// Abs returns a new Amount with absolute decimal.
+// Abs returns a new amount with absolute decimal.
 func (a Amount) Abs() Amount {
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Abs()
@@ -79,7 +79,7 @@ func (a Amount) Abs() Amount {
 	return amount
 }
 
-// Neg returns a new Amount with negated decimal.
+// Neg returns a new amount with negated decimal.
 func (a Amount) Neg() Amount {
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Neg()

@@ -7,6 +7,7 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 )
 
+// Accounts is a slice of account
 type Accounts []Account
 
 func NewAccounts(accountsDB ...db.Account) Accounts {
@@ -18,6 +19,7 @@ func NewAccounts(accountsDB ...db.Account) Accounts {
 	return accounts
 }
 
+// AccountsFromPB creates a new account slice from it's protobuf representation.
 func AccountsFromPB(pb *pb.Accounts) (Accounts, error) {
 	var accounts Accounts
 	for _, v := range pb.Data {
@@ -27,6 +29,7 @@ func AccountsFromPB(pb *pb.Accounts) (Accounts, error) {
 	return accounts, nil
 }
 
+// PB marshalls the account into it's protobuf representation.
 func (a Accounts) PB() *pb.Accounts {
 	var data []*pb.Account
 	for _, account := range a {
@@ -38,24 +41,29 @@ func (a Accounts) PB() *pb.Accounts {
 	}
 }
 
-func (a Accounts) ById(id string) (Account, bool) {
+// ById returns the first account matching given id.
+// An empty account is returned when no account is found.
+func (a Accounts) ById(id string) Account {
 	for _, account := range a {
 		if account.ID.String() == id {
-			return account, true
+			return account
 		}
 	}
-	return Account{}, false
+	return Account{}
 }
 
-func (a Accounts) ByName(name string) (Account, bool) {
+// ByName returns the first account matching given name.
+// An empty account is returned when no account is found.
+func (a Accounts) ByName(name string) Account {
 	for _, account := range a {
 		if account.Name == name {
-			return account, true
+			return account
 		}
 	}
-	return Account{}, false
+	return Account{}
 }
 
+// Names returns a string slice of account names.
 func (a Accounts) Names() []string {
 	var names []string
 	for _, account := range a {
@@ -65,6 +73,8 @@ func (a Accounts) Names() []string {
 	return names
 }
 
+// FilterName returns a string slice of account names filtered by provided regexp.
+// It checks whether or not the regexp matches for each account name.
 func (a Accounts) FilterName(re *regexp.Regexp) Accounts {
 	var accounts Accounts
 

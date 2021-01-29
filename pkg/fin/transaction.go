@@ -9,6 +9,13 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// Transaction is composed of
+// * a fixed date
+// * an entity executing it
+// * a reference describing the entities intention
+// * a hash as origin identifier
+// It should always be balanced as defined in double entry bookkeeping.
+// A transaction defines movement of currency(ies) over multiple accounts.
 type Transaction struct {
 	db.Transaction
 	Postings Postings
@@ -21,6 +28,7 @@ func NewTransaction(
 	return Transaction{t, postings}
 }
 
+// Balanced returns an error if the transaction is unbalanced or nil otherwise.
 func (t Transaction) Balanced() error {
 	var amounts Amounts
 	sum, err := t.Postings.Sum()
@@ -45,6 +53,7 @@ func (t Transaction) Balanced() error {
 	return nil
 }
 
+// PB marshalls the transaction into it's protobuf representation.
 func (t Transaction) PB() *pb.Transaction {
 	return &pb.Transaction{
 		Id:        t.ID.String(),
@@ -56,12 +65,14 @@ func (t Transaction) PB() *pb.Transaction {
 	}
 }
 
+// TransactionFromDB creates a new transaction from it's database representation.
 func TransactionFromDB(t db.Transaction) Transaction {
 	return Transaction{
 		Transaction: t,
 	}
 }
 
+// TransactionFromPB creates a new transaction from it's protobuf representation.
 func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
 	postings, err := PostingsFromPB(&pb.Postings{
 		Data: t.Postings,

@@ -1,7 +1,9 @@
 package fin
 
+// Amounts is a slice of amount.
 type Amounts []Amount
 
+// Sum calculates the sum of all amounts grouped by the currency of each amount.
 func (a Amounts) Sum() (Amounts, error) {
 	sums := make(map[string]Amount)
 	for _, amount := range a {
@@ -26,6 +28,9 @@ func (a Amounts) Sum() (Amounts, error) {
 	return amounts, nil
 }
 
+// ByCurrency returns the first amount matching given currency.
+// An empty amount is returned when no amount is found.
+// This is usually used after summing amounts.
 func (a Amounts) ByCurrency(currency string) Amount {
 	for _, amount := range a {
 		if amount.Currency == currency {
@@ -36,6 +41,7 @@ func (a Amounts) ByCurrency(currency string) Amount {
 	return Amount{}
 }
 
+// Currencies returns a slice of all currencies in amounts.
 func (a Amounts) Currencies() []string {
 	var currencies []string
 	for _, amount := range a {

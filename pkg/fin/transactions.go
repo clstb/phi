@@ -8,8 +8,10 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// Transactions is a slice of transaction
 type Transactions []Transaction
 
+// Sum calculates the sum of all transactions grouped by the account each posting belongs to.
 func (t Transactions) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
 	for _, transaction := range t {
@@ -39,6 +41,8 @@ func (t Transactions) Sum() (map[string]Amounts, error) {
 	return sums, nil
 }
 
+// Clear adds transactions to balance each income and expenses account to 0.
+// The amounts are moved to Equity:Earnings:Current as well as Equity:Earnings:Previous depending on date.
 func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 	ec, ok := accounts.ByName("Equity:Earnings:Current")
 	if !ok {
@@ -83,6 +87,7 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 	return append(transactions, t...), nil
 }
 
+// TransactionsFromPB creates a new transaction slice from it's protobuf representation.
 func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
 	var transactions Transactions
 	for _, v := range pb.Data {
@@ -96,6 +101,7 @@ func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
 	return transactions, nil
 }
 
+// PB marshalls the transactions into their protobuf representation.
 func (t Transactions) PB() *pb.Transactions {
 	var data []*pb.Transaction
 	for _, transaction := range t {
@@ -107,6 +113,7 @@ func (t Transactions) PB() *pb.Transactions {
 	}
 }
 
+// ByDate groups transactions by their date.
 func (t Transactions) ByDate() map[string]Transactions {
 	byDate := map[string]Transactions{}
 	for _, transaction := range t {

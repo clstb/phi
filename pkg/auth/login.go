@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/clstb/phi/pkg/auth/db"
+	db "github.com/clstb/phi/pkg/db/auth"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"

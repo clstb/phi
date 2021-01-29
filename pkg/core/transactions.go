@@ -7,7 +7,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/clstb/phi/pkg/core/db"
+	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"

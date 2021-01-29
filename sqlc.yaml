@@ -1,7 +1,7 @@
 version: "1"
 packages:
   - name: "db"
-    path: "pkg/core/db"
+    path: "pkg/db/core"
     queries: "./sql/query/core/"
     schema: "./sql/schema/core/"
     engine: "postgresql"
@@ -11,7 +11,7 @@ packages:
     emit_exact_table_names: false
     emit_empty_slices: false
   - name: "db"
-    path: "pkg/auth/db"
+    path: "pkg/db/auth"
     queries: "./sql/query/auth/"
     schema: "./sql/schema/auth/"
     engine: "postgresql"

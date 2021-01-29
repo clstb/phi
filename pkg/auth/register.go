@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/clstb/phi/pkg/auth/db"
+	db "github.com/clstb/phi/pkg/db/auth"
 	"github.com/clstb/phi/pkg/pb"
 	"golang.org/x/crypto/bcrypt"
 )

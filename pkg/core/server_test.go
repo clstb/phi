@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/clstb/phi/pkg/core"
-	coredb "github.com/clstb/phi/pkg/core/db"
+	coredb "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/pb"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"

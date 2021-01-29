@@ -88,14 +88,14 @@ func renderTree(
 	for _, account := range accounts {
 		path := strings.Split(account.Name, ":")
 		branch := tree
-		for _, s := range path {
-			v, ok := m[s]
+		for i, s := range path {
+			v, ok := m[strings.Join(path[:i+1], ":")]
 			if ok {
 				branch = v
 				continue
 			}
 			branch = branch.AddMetaBranch(s, "\t")
-			m[s] = branch
+			m[strings.Join(path[:i+1], ":")] = branch
 		}
 		s := ""
 		invert := re.MatchString(account.Name)

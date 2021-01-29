@@ -24,6 +24,10 @@ func Parse(ctx *cli.Context) error {
 		ctx.Context,
 		&pb.TransactionsQuery{},
 	)
+	if err != nil {
+		return err
+	}
+
 	transactions, err := fin.TransactionsFromPB(transactionsPB)
 	if err != nil {
 		return err
@@ -34,8 +38,8 @@ func Parse(ctx *cli.Context) error {
 		hashes[transaction.Hash] = struct{}{}
 	}
 
-	fp := ctx.Path("file")
-	f, err := os.OpenFile(fp, os.O_RDONLY, os.ModePerm)
+	filePath := ctx.Path("file")
+	f, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -57,13 +61,14 @@ func Parse(ctx *cli.Context) error {
 		return records[i][4] < records[j][4]
 	})
 
-	fParsed, err := os.OpenFile("./parsed.csv", os.O_CREATE|os.O_WRONLY, 0600)
+	outputPath := ctx.Path("output")
+	output, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
-	defer fParsed.Close()
+	defer output.Close()
 
-	w := csv.NewWriter(fParsed)
+	w := csv.NewWriter(output)
 	w.Comma = ';'
 	for i, record := range records {
 		hash := sha256.New()
@@ -84,7 +89,7 @@ func Parse(ctx *cli.Context) error {
 		}
 
 		if i >= 1 && records[i][2] != records[i-1][2] {
-			fParsed.Write([]byte("\n"))
+			output.Write([]byte("\n"))
 		}
 
 		w.Write(append([]string{"", ""}, []string{record[0], record[2], record[4], record[7] + " " + record[8]}...))

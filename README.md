@@ -21,17 +21,17 @@ Skaffold is a system to rapidly develop distributed systems on a local kubernete
 With it you can get Phi running on your local machine in a few commands.
 
 1. Install [skaffold](https://skaffold.dev/docs/install/)
-2. Install a local kubernetes distribution such as [minikube](https://minikube.sigs.k8s.io/docs/start/) or [kind](https://github.com/kubernetes-sigs/kind).
-3. Deploy a PostgresQL compatible database to your local cluster.
+2. Install a local kubernetes distribution such as [minikube](https://minikube.sigs.k8s.io/docs/start/) or [kind](https://github.com/kubernetes-sigs/kind)
+3. Deploy a PostgresQL compatible database to your local cluster
 ```sh
 kubectl create -f https://raw.githubusercontent.com/cockroachdb/cockroach/master/cloud/kubernetes/cockroachdb-statefulset.yaml
 kubectl create -f https://raw.githubusercontent.com/cockroachdb/cockroach/master/cloud/kubernetes/cluster-init.yaml
 ```
-4. Connect to the database.
+4. Connect to the database
 ```sh
 kubectl run cockroachdb -it --image=cockroachdb/cockroach:v20.2.4 --rm --restart=Never -- sql --insecure --host=cockroachdb-public
 ```
-5. Create needed databases and users.
+5. Create needed databases and users
 ```sql
 CREATE DATABASE phi_core;
 CREATE DATABASE phi_auth;

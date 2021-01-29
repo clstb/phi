@@ -79,20 +79,28 @@ func (a Amount) Neg() Amount {
 	return amount
 }
 
-func (a Amount) Add(a2 Amount) Amount {
+func (a Amount) Add(a2 Amount) (Amount, error) {
+	if a.Currency != a2.Currency {
+		return Amount{}, ErrMismatchedCurrency
+	}
+
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Add(a2.Decimal)
 	amount.Currency = a.Currency
 
-	return amount
+	return amount, nil
 }
 
-func (a Amount) Mul(a2 Amount) Amount {
+func (a Amount) Mul(a2 Amount) (Amount, error) {
+	if a.Currency != a2.Currency {
+		return Amount{}, ErrMismatchedCurrency
+	}
+
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Mul(a2.Decimal)
 	amount.Currency = a.Currency
 
-	return amount
+	return amount, nil
 }
 
 var AmountRE = regexp.MustCompile(`(-?\d*\.?\d*) ([A-Z]+)`)

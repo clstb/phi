@@ -21,21 +21,28 @@ func NewTransaction(
 	return Transaction{t, postings}
 }
 
-func (t Transaction) Balanced() bool {
+func (t Transaction) Balanced() error {
 	var amounts Amounts
-	for _, v := range t.Postings.Sum() {
+	sum, err := t.Postings.Sum()
+	if err != nil {
+		return err
+	}
+	for _, v := range sum {
 		amounts = append(amounts, v...)
 	}
 
-	amounts = amounts.Sum()
+	amounts, err = amounts.Sum()
+	if err != nil {
+		return err
+	}
 
 	for _, amount := range amounts {
 		if !amount.IsZero() {
-			return false
+			return ErrUnbalanced
 		}
 	}
 
-	return true
+	return nil
 }
 
 func (t Transaction) PB() *pb.Transaction {

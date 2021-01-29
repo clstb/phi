@@ -48,7 +48,20 @@ func BalSheet(ctx *cli.Context) error {
 		return err
 	}
 
-	sum := cleared.Sum()
+	sum, err := cleared.Sum()
+	if err != nil {
+		return err
+	}
+
+	amounts := fin.Amounts{}
+	for _, v := range sum {
+		amounts = append(amounts, v...)
+	}
+	amountsSum, err := amounts.Sum()
+	if err != nil {
+		return err
+	}
+	currencies := amountsSum.Currencies()
 
 	tree := treeprint.New()
 	tree.SetMetaValue("Balance Sheet")
@@ -58,6 +71,7 @@ func BalSheet(ctx *cli.Context) error {
 	_, err = w.Write(renderTree(
 		tree,
 		accounts.FilterName(re),
+		currencies,
 		sum,
 	))
 	if err != nil {
@@ -65,7 +79,7 @@ func BalSheet(ctx *cli.Context) error {
 	}
 
 	re = regexp.MustCompile("^Equity")
-	var amounts fin.Amounts
+	amounts = fin.Amounts{}
 	for accountId, v := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {
@@ -77,7 +91,11 @@ func BalSheet(ctx *cli.Context) error {
 		amounts = append(amounts, v...)
 	}
 
-	nw := amounts.Sum()
+	nw, err := amounts.Sum()
+	if err != nil {
+		return err
+	}
+
 	var s string
 	for _, amount := range nw {
 		s += "\t" + amount.ColorRaw(false)

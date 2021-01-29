@@ -44,7 +44,20 @@ func Balances(ctx *cli.Context) error {
 		return err
 	}
 
-	sum := transactions.Sum()
+	sum, err := transactions.Sum()
+	if err != nil {
+		return err
+	}
+
+	amounts := fin.Amounts{}
+	for _, v := range sum {
+		amounts = append(amounts, v...)
+	}
+	amountsSum, err := amounts.Sum()
+	if err != nil {
+		return err
+	}
+	currencies := amountsSum.Currencies()
 
 	tree := treeprint.New()
 	tree.SetMetaValue("Balances")
@@ -53,6 +66,7 @@ func Balances(ctx *cli.Context) error {
 	_, err = w.Write(renderTree(
 		tree,
 		accounts,
+		currencies,
 		sum,
 	))
 	if err != nil {

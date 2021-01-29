@@ -7,8 +7,10 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 )
 
+// Postings is a slice of posting.
 type Postings []Posting
 
+// Sum calculates the sum of all postings grouped by the account each posting belongs to.
 func (p Postings) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
 	for _, posting := range p {
@@ -29,6 +31,7 @@ func (p Postings) Sum() (map[string]Amounts, error) {
 	return sums, nil
 }
 
+// PB marshalls the postings into their protobuf representation.
 func (p Postings) PB() []*pb.Posting {
 	var postings []*pb.Posting
 	for _, posting := range p {
@@ -38,6 +41,7 @@ func (p Postings) PB() []*pb.Posting {
 	return postings
 }
 
+// PostingsFromDB creates a new posting slice from it's database representation.
 func PostingsFromDB(db ...db.Posting) (Postings, error) {
 	var postings Postings
 	for _, p := range db {
@@ -51,6 +55,7 @@ func PostingsFromDB(db ...db.Posting) (Postings, error) {
 	return postings, nil
 }
 
+// PostingsFromPB creates a new posting slice from it's protobuf representation.
 func PostingsFromPB(pb *pb.Postings) (Postings, error) {
 	var postings Postings
 	for _, v := range pb.Data {

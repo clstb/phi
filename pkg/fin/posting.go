@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// Posting is part of an transaction and associated to an account.
+// It defines a movement of currency on an account.
 type Posting struct {
 	db.Posting
 	Units Amount
@@ -13,6 +15,7 @@ type Posting struct {
 	Price Amount
 }
 
+// Weight calculates the weight used for balancing this posting against postings.
 func (p Posting) Weight() (Amount, error) {
 	if !p.Cost.IsZero() {
 		p.Units.Currency = p.Cost.Currency
@@ -26,6 +29,7 @@ func (p Posting) Weight() (Amount, error) {
 	return p.Units, nil
 }
 
+// PB marshalls the posting into it's protobuf representation.
 func (p Posting) PB() *pb.Posting {
 	return &pb.Posting{
 		Id:          p.ID.String(),
@@ -37,6 +41,7 @@ func (p Posting) PB() *pb.Posting {
 	}
 }
 
+// PostingFromDB creates a new posting from it's database representation.
 func PostingFromDB(p db.Posting) (Posting, error) {
 	posting := Posting{
 		Posting: p,
@@ -62,6 +67,7 @@ func PostingFromDB(p db.Posting) (Posting, error) {
 	return posting, nil
 }
 
+// PostingFromPB creates a new posting from it's protobuf representation.
 func PostingFromPB(pb *pb.Posting) (Posting, error) {
 	units, err := AmountFromString(pb.Units)
 	if err != nil {

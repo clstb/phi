@@ -4,8 +4,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 )
 
@@ -40,6 +42,13 @@ func Review(ctx *cli.Context) error {
 			to = record[1]
 		}
 
+		amount := record[5]
+		if strings.HasPrefix(amount, "-") {
+			amount = color.HiRedString(amount)
+		} else {
+			amount = color.HiGreenString(amount)
+		}
+
 		fmt.Fprintf(
 			w,
 			"%s\t%s\t%s\t%s\t%s\t%s\n",
@@ -48,7 +57,7 @@ func Review(ctx *cli.Context) error {
 			record[2],
 			record[3],
 			record[4],
-			record[5],
+			amount,
 		)
 	}
 	return w.Flush()

@@ -13,15 +13,17 @@ type Posting struct {
 	Price Amount
 }
 
-func (p Posting) Weight() Amount {
+func (p Posting) Weight() (Amount, error) {
 	if !p.Cost.IsZero() {
+		p.Units.Currency = p.Cost.Currency
 		return p.Units.Mul(p.Cost)
 	}
 	if !p.Price.IsZero() {
+		p.Units.Currency = p.Cost.Currency
 		return p.Units.Mul(p.Price)
 	}
 
-	return p.Units
+	return p.Units, nil
 }
 
 func (p Posting) PB() *pb.Posting {

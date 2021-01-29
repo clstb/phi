@@ -9,10 +9,14 @@ import (
 
 type Postings []Posting
 
-func (p Postings) Sum() map[string]Amounts {
+func (p Postings) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
 	for _, posting := range p {
-		weight := posting.Weight()
+		weight, err := posting.Weight()
+		if err != nil {
+			return nil, err
+		}
+
 		sum, ok := sums[posting.Account.String()]
 		if !ok {
 			sum = Amounts{weight}
@@ -22,7 +26,7 @@ func (p Postings) Sum() map[string]Amounts {
 		sums[posting.Account.String()] = sum
 	}
 
-	return sums
+	return sums, nil
 }
 
 func (p Postings) PB() []*pb.Posting {

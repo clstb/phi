@@ -2,14 +2,18 @@ package fin
 
 type Amounts []Amount
 
-func (a Amounts) Sum() Amounts {
+func (a Amounts) Sum() (Amounts, error) {
 	sums := make(map[string]Amount)
 	for _, amount := range a {
 		sum, ok := sums[amount.Currency]
 		if !ok {
 			sum = amount
 		} else {
-			sum = sum.Add(amount)
+			v, err := sum.Add(amount)
+			if err != nil {
+				return Amounts{}, err
+			}
+			sum = v
 		}
 		sums[amount.Currency] = sum
 	}
@@ -19,7 +23,7 @@ func (a Amounts) Sum() Amounts {
 		amounts = append(amounts, v)
 	}
 
-	return amounts
+	return amounts, nil
 }
 
 func (a Amounts) ByCurrency(currency string) Amount {

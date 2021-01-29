@@ -50,7 +50,20 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
-	sum := transactions.Sum()
+	sum, err := transactions.Sum()
+	if err != nil {
+		return err
+	}
+
+	amounts := fin.Amounts{}
+	for _, v := range sum {
+		amounts = append(amounts, v...)
+	}
+	amountsSum, err := amounts.Sum()
+	if err != nil {
+		return err
+	}
+	currencies := amountsSum.Currencies()
 
 	tree := treeprint.New()
 	tree.SetMetaValue("Income Statement")
@@ -59,6 +72,7 @@ func Income(ctx *cli.Context) error {
 	_, err = w.Write(renderTree(
 		tree,
 		accounts,
+		currencies,
 		sum,
 	))
 	if err != nil {
@@ -66,7 +80,7 @@ func Income(ctx *cli.Context) error {
 	}
 
 	re := regexp.MustCompile("^(Income|Expenses)")
-	var amounts fin.Amounts
+	amounts = fin.Amounts{}
 	for accountId, v := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {
@@ -78,7 +92,11 @@ func Income(ctx *cli.Context) error {
 		amounts = append(amounts, v...)
 	}
 
-	ni := amounts.Sum()
+	ni, err := amounts.Sum()
+	if err != nil {
+		return err
+	}
+
 	var s string
 	for _, amount := range ni {
 		s += "\t" + amount.ColorRaw(true)

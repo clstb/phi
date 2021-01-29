@@ -10,10 +10,15 @@ import (
 
 type Transactions []Transaction
 
-func (t Transactions) Sum() map[string]Amounts {
+func (t Transactions) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
 	for _, transaction := range t {
-		for accountId, amounts := range transaction.Postings.Sum() {
+		postingsSum, err := transaction.Postings.Sum()
+		if err != nil {
+			return nil, err
+		}
+
+		for accountId, amounts := range postingsSum {
 			sum, ok := sums[accountId]
 			if !ok {
 				sum = amounts
@@ -24,10 +29,14 @@ func (t Transactions) Sum() map[string]Amounts {
 		}
 	}
 	for k, v := range sums {
-		sums[k] = v.Sum()
+		sum, err := v.Sum()
+		if err != nil {
+			return nil, err
+		}
+		sums[k] = sum
 	}
 
-	return sums
+	return sums, nil
 }
 
 func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
@@ -38,8 +47,13 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 
 	re := regexp.MustCompile("^(Income|Expenses)")
 
+	sum, err := t.Sum()
+	if err != nil {
+		return Transactions{}, err
+	}
+
 	var transactions Transactions
-	for accountId, amounts := range t.Sum() {
+	for accountId, amounts := range sum {
 		account, ok := accounts.ById(accountId)
 		if !ok {
 			return Transactions{}, fmt.Errorf("couldn't find account by id: %s", accountId)

@@ -69,14 +69,9 @@ func Auth(ctx *cli.Context) (pb.AuthClient, error) {
 func renderTree(
 	tree treeprint.Tree,
 	accounts fin.Accounts,
+	currencies []string,
 	sum map[string]fin.Amounts,
 ) []byte {
-	var amounts fin.Amounts
-	for _, v := range sum {
-		amounts = append(amounts, v...)
-	}
-	currencies := amounts.Sum().Currencies()
-
 	s := ""
 	for _, currency := range currencies {
 		s += "\t" + currency

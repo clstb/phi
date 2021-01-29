@@ -4,6 +4,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/clstb/phi)](https://goreportcard.com/report/github.com/clstb/phi)
 
 ---
+:warning: Phi is in alpha stage. Do not use for production! :warning:
+---
 Phi is an open source system for managing your finances.
 Phi provides tools to efficiently ingest finance data and generate financial reports such as trial balance, income statement, balance sheet and journal.  
 

@@ -9,15 +9,18 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// Amount holds an decimal and currency.
 type Amount struct {
 	Decimal  decimal.Decimal
 	Currency string
 }
 
+// StringRaw returns the amount decimal as string.
 func (a Amount) StringRaw() string {
 	return a.Decimal.String()
 }
 
+// String is like StringRaw but includes the currency.
 func (a Amount) String() string {
 	if a.IsZero() {
 		return ""
@@ -30,6 +33,8 @@ func (a Amount) String() string {
 	)
 }
 
+// ColorRaw returns the amount decimal in red when negative and green when positive.
+// The color choice can be swapped with invert
 func (a Amount) ColorRaw(invert bool) string {
 	red := false
 	if a.Decimal.LessThan(decimal.Zero) {
@@ -47,6 +52,7 @@ func (a Amount) ColorRaw(invert bool) string {
 	}
 }
 
+// Color is like ColorRaw but includes the currency.
 func (a Amount) Color(invert bool) string {
 	if a.IsZero() {
 		return ""
@@ -59,10 +65,12 @@ func (a Amount) Color(invert bool) string {
 	)
 }
 
+// IsZero return true when the amoutns decimal is zero or false otherwise.
 func (a Amount) IsZero() bool {
 	return a.Decimal.IsZero()
 }
 
+// Abs returns a new Amount with absolute decimal.
 func (a Amount) Abs() Amount {
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Abs()
@@ -71,6 +79,7 @@ func (a Amount) Abs() Amount {
 	return amount
 }
 
+// Neg returns a new Amount with negated decimal.
 func (a Amount) Neg() Amount {
 	amount := Amount{}
 	amount.Decimal = a.Decimal.Neg()
@@ -79,6 +88,7 @@ func (a Amount) Neg() Amount {
 	return amount
 }
 
+// Add adds two amounts. An error is returned when currencies don't match.
 func (a Amount) Add(a2 Amount) (Amount, error) {
 	if a.Currency != a2.Currency {
 		return Amount{}, ErrMismatchedCurrency
@@ -91,6 +101,7 @@ func (a Amount) Add(a2 Amount) (Amount, error) {
 	return amount, nil
 }
 
+// Mul multiplies two amounts. An error is returned when currencies don't match.
 func (a Amount) Mul(a2 Amount) (Amount, error) {
 	if a.Currency != a2.Currency {
 		return Amount{}, ErrMismatchedCurrency
@@ -103,8 +114,12 @@ func (a Amount) Mul(a2 Amount) (Amount, error) {
 	return amount, nil
 }
 
+// AmountRE defines valid string representations of an amount.
 var AmountRE = regexp.MustCompile(`(-?\d*\.?\d*) ([A-Z]+)`)
 
+// AmountFromString parses a string into an Amount.
+// The input string must match AmountRE.
+// Formatters can modify the input string before parsing.
 func AmountFromString(s string, fmts ...AmountFormatter) (Amount, error) {
 	if s == "" {
 		return Amount{
@@ -140,8 +155,10 @@ func AmountFromString(s string, fmts ...AmountFormatter) (Amount, error) {
 	return amount, nil
 }
 
+// AmountFormatter modifies an amount string.
 type AmountFormatter func(string) string
 
+// AmountEU changes the input string from EU currency standard to US currency standard.
 func AmountEU(s string) string {
 	s = strings.ReplaceAll(s, ".", "")
 	return strings.ReplaceAll(s, ",", ".")

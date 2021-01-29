@@ -238,6 +238,20 @@ func main() {
 				Name:   "journal",
 				Usage:  "print journal",
 				Action: cmd.Journal,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "from",
+						Aliases: []string{"f"},
+						Usage:   "period start",
+						Value:   "0001-01-01",
+					},
+					&cli.StringFlag{
+						Name:    "to",
+						Aliases: []string{"t"},
+						Usage:   "period end",
+						Value:   time.Now().Format("2006-01-02"),
+					},
+				},
 			},
 		},
 		Flags: []cli.Flag{

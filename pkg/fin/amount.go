@@ -25,7 +25,7 @@ func (a Amount) String() string {
 
 	return fmt.Sprintf(
 		"%s %s",
-		a.Decimal.String(),
+		a.StringRaw(),
 		a.Currency,
 	)
 }
@@ -45,6 +45,18 @@ func (a Amount) ColorRaw(invert bool) string {
 	} else {
 		return color.GreenString(s)
 	}
+}
+
+func (a Amount) Color(invert bool) string {
+	if a.IsZero() {
+		return ""
+	}
+
+	return fmt.Sprintf(
+		"%s %s",
+		a.ColorRaw(invert),
+		a.Currency,
+	)
 }
 
 func (a Amount) IsZero() bool {

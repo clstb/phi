@@ -3,17 +3,34 @@ package cmd
 import (
 	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/manifoldco/promptui"
 	"github.com/urfave/cli/v2"
 )
 
 func Login(ctx *cli.Context) error {
+	p := promptui.Prompt{
+		Label: "Username",
+	}
+
+	name, err := p.Run()
+	if err != nil {
+		return err
+	}
+
+	p = promptui.Prompt{
+		Label: "Password",
+		Mask:  '*',
+	}
+	password, err := p.Run()
+	if err != nil {
+		return err
+	}
+
 	auth, err := Auth(ctx)
 	if err != nil {
 		return err
 	}
 
-	name := ctx.String("name")
-	password := ctx.String("password")
 	jwt, err := auth.Login(
 		ctx.Context,
 		&pb.User{

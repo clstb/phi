@@ -12,6 +12,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/jackc/pgconn v1.8.0 // indirect
 	github.com/lib/pq v1.8.0
+	github.com/manifoldco/promptui v0.8.0
 	github.com/matryer/is v1.4.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.6.1 // indirect

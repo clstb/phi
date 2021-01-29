@@ -163,31 +163,11 @@ func main() {
 				Name:   "register",
 				Usage:  "register as new user",
 				Action: cmd.Register,
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:     "password",
-						Required: true,
-					},
-				},
 			},
 			{
 				Name:   "login",
 				Usage:  "login as user",
 				Action: cmd.Login,
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:     "password",
-						Required: true,
-					},
-				},
 			},
 			{
 				Name:   "balances",

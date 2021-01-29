@@ -104,6 +104,11 @@ func main() {
 								Required:  true,
 								TakesFile: true,
 							},
+							&cli.PathFlag{
+								Name:    "output",
+								Aliases: []string{"o"},
+								Value:   "./parsed.csv",
+							},
 						},
 					},
 					{

@@ -18,6 +18,15 @@ func (s *Server) CreateTransactions(
 ) error {
 	ctx := stream.Context()
 
+	subStr, ok := ctx.Value("sub").(string)
+	if !ok {
+		return fmt.Errorf("context: missing subject")
+	}
+	sub, err := uuid.FromString(subStr)
+	if err != nil {
+		return err
+	}
+
 	var transactions fin.Transactions
 	for {
 		transactionPB, err := stream.Recv()
@@ -33,6 +42,15 @@ func (s *Server) CreateTransactions(
 		}
 		transactions = append(transactions, transaction)
 	}
+
+	q := db.New(s.db)
+	accountsDB, err := q.GetAccounts(ctx, db.GetAccountsParams{
+		User: sub,
+	})
+	if err != nil {
+		return err
+	}
+	accounts := fin.AccountsFromDB(accountsDB...)
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -57,6 +75,7 @@ func (s *Server) CreateTransactions(
 	for _, transaction := range transactions {
 		id, err := uuid.NewV4()
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 		transactionStmt = transactionStmt.Values(
@@ -68,6 +87,11 @@ func (s *Server) CreateTransactions(
 		)
 
 		for _, posting := range transaction.Postings {
+			if accounts.ById(posting.Account.String()).Empty() {
+				tx.Rollback()
+				return fmt.Errorf("unauthorized: post to account")
+			}
+
 			postingStmt = postingStmt.Values(
 				posting.Account.String(),
 				id,
@@ -105,7 +129,10 @@ func (s *Server) GetTransactions(
 	if !ok {
 		return nil, fmt.Errorf("context: missing subject")
 	}
-	sub := uuid.FromStringOrNil(subStr)
+	sub, err := uuid.FromString(subStr)
+	if err != nil {
+		return nil, err
+	}
 
 	from, err := time.Parse("2006-01-02", req.From)
 	if err != nil {

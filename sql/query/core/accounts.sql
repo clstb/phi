@@ -30,12 +30,3 @@ INSERT INTO accounts_users (
   $1,
   $2
 ) RETURNING *;
--- name: OwnsAccount :one
-SELECT
-  COUNT(1)
-FROM
-  accounts_users
-WHERE
-  account = $1
-AND
-  "user" = $2;

@@ -22,7 +22,7 @@ With it you can get Phi running on your local machine in a few commands.
 
 1. Install [skaffold](https://skaffold.dev/docs/install/).
 2. Install a local kubernetes distribution such as [minikube](https://minikube.sigs.k8s.io/docs/start/) or [kind](https://github.com/kubernetes-sigs/kind).
-3. Deploy a PostgresQL compatible database to your local cluster. Wait for the pods to be up and running. In this example we'll use cockroachdb.
+3. Deploy a PostgresQL compatible database to your local cluster. In this example we will use cockroachdb. Wait for the pods to be up and running.
 ```sh
 kubectl create -f https://raw.githubusercontent.com/cockroachdb/cockroach/master/cloud/kubernetes/cockroachdb-statefulset.yaml
 kubectl get pods

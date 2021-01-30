@@ -15,30 +15,30 @@ type Posting struct {
 	Price Amount
 }
 
-// Weight calculates the weight used for balancing this posting against postings.
-func (p Posting) Weight() (Amount, error) {
-	if !p.Cost.IsZero() {
-		p.Units.Currency = p.Cost.Currency
-		return p.Units.Mul(p.Cost)
+// PostingFromPB creates a new posting from it's protobuf representation.
+func PostingFromPB(pb *pb.Posting) (Posting, error) {
+	units, err := AmountFromString(pb.Units)
+	if err != nil {
+		return Posting{}, err
 	}
-	if !p.Price.IsZero() {
-		p.Units.Currency = p.Cost.Currency
-		return p.Units.Mul(p.Price)
+	cost, err := AmountFromString(pb.Cost)
+	if err != nil {
+		return Posting{}, err
+	}
+	price, err := AmountFromString(pb.Price)
+	if err != nil {
+		return Posting{}, err
 	}
 
-	return p.Units, nil
-}
+	posting := Posting{}
+	posting.ID = uuid.FromStringOrNil(pb.Id)
+	posting.Account = uuid.FromStringOrNil(pb.Account)
+	posting.Transaction = uuid.FromStringOrNil(pb.Transaction)
+	posting.Units = units
+	posting.Cost = cost
+	posting.Price = price
 
-// PB marshalls the posting into it's protobuf representation.
-func (p Posting) PB() *pb.Posting {
-	return &pb.Posting{
-		Id:          p.ID.String(),
-		Account:     p.Account.String(),
-		Transaction: p.Transaction.String(),
-		Units:       p.Units.String(),
-		Cost:        p.Cost.String(),
-		Price:       p.Price.String(),
-	}
+	return posting, nil
 }
 
 // PostingFromDB creates a new posting from it's database representation.
@@ -67,28 +67,28 @@ func PostingFromDB(p db.Posting) (Posting, error) {
 	return posting, nil
 }
 
-// PostingFromPB creates a new posting from it's protobuf representation.
-func PostingFromPB(pb *pb.Posting) (Posting, error) {
-	units, err := AmountFromString(pb.Units)
-	if err != nil {
-		return Posting{}, err
+// PB marshalls the posting into it's protobuf representation.
+func (p Posting) PB() *pb.Posting {
+	return &pb.Posting{
+		Id:          p.ID.String(),
+		Account:     p.Account.String(),
+		Transaction: p.Transaction.String(),
+		Units:       p.Units.String(),
+		Cost:        p.Cost.String(),
+		Price:       p.Price.String(),
 	}
-	cost, err := AmountFromString(pb.Cost)
-	if err != nil {
-		return Posting{}, err
+}
+
+// Weight calculates the weight used for balancing this posting against postings.
+func (p Posting) Weight() (Amount, error) {
+	if !p.Cost.IsZero() {
+		p.Units.Currency = p.Cost.Currency
+		return p.Units.Mul(p.Cost)
 	}
-	price, err := AmountFromString(pb.Price)
-	if err != nil {
-		return Posting{}, err
+	if !p.Price.IsZero() {
+		p.Units.Currency = p.Cost.Currency
+		return p.Units.Mul(p.Price)
 	}
 
-	posting := Posting{}
-	posting.ID = uuid.FromStringOrNil(pb.Id)
-	posting.Account = uuid.FromStringOrNil(pb.Account)
-	posting.Transaction = uuid.FromStringOrNil(pb.Transaction)
-	posting.Units = units
-	posting.Cost = cost
-	posting.Price = price
-
-	return posting, nil
+	return p.Units, nil
 }

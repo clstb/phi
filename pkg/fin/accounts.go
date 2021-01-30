@@ -3,21 +3,11 @@ package fin
 import (
 	"regexp"
 
-	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/pb"
 )
 
 // Accounts is a slice of account
 type Accounts []Account
-
-func NewAccounts(accountsDB ...db.Account) Accounts {
-	var accounts Accounts
-	for _, a := range accountsDB {
-		accounts = append(accounts, NewAccount(a))
-	}
-
-	return accounts
-}
 
 // AccountsFromPB creates a new account slice from it's protobuf representation.
 func AccountsFromPB(pb *pb.Accounts) (Accounts, error) {

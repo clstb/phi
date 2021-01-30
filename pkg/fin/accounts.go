@@ -25,6 +25,7 @@ func AccountsFromPB(a *pb.Accounts) (Accounts, error) {
 	return accounts, nil
 }
 
+// AccountsFromDB create a new account slice from it's database representation.
 func AccountsFromDB(a ...db.Account) Accounts {
 	var accounts Accounts
 	for _, account := range a {

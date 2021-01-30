@@ -2,7 +2,23 @@ kind: pipeline
 name: default
 
 steps:
-  - name: build
-    image: gcr.io/k8s-skaffold/skaffold:latest
-    commands:
-      - skaffold build
+- name: test
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  - sleep 5 # give docker enough time to start
+  - docker ps -a
+
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}

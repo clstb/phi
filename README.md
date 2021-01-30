@@ -2,6 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/clstb/phi.svg)](https://pkg.go.dev/github.com/clstb/phi)
 [![Go Report Card](https://goreportcard.com/badge/github.com/clstb/phi)](https://goreportcard.com/report/github.com/clstb/phi)
+[![Build Status](https://cloud.drone.io/api/badges/clstb/phi/status.svg)](https://cloud.drone.io/clstb/phi)
 
 ---
 Phi is an open source system for managing your finances.

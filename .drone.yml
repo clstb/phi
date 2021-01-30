@@ -1,0 +1,8 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: build
+    image: gcr.io/k8s-skaffold/skaffold:latest
+    commands:
+      - skaffold build

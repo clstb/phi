@@ -44,9 +44,12 @@ func (t Transactions) Sum() (map[string]Amounts, error) {
 // Clear adds transactions to balance each income and expenses account to 0.
 // The amounts are moved to Equity:Earnings:Current as well as Equity:Earnings:Previous depending on date.
 func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
-	ec, ok := accounts.ByName("Equity:Earnings:Current")
-	if !ok {
-		return Transactions{}, fmt.Errorf("couldn't find account by name: Equity:Expenses:Current")
+	ec := accounts.ByName("Equity:Earnings:Current")
+	if ec.Empty() {
+		return Transactions{}, ErrNotFound{
+			kind: "account",
+			name: "Equity:Earnings:Current",
+		}
 	}
 
 	re := regexp.MustCompile("^(Income|Expenses)")
@@ -58,10 +61,8 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 
 	var transactions Transactions
 	for accountId, amounts := range sum {
-		account, ok := accounts.ById(accountId)
-		if !ok {
-			return Transactions{}, fmt.Errorf("couldn't find account by id: %s", accountId)
-		}
+		// these accounts always exist so we don't check for empty
+		account := accounts.ById(accountId)
 		if !re.MatchString(account.Name) {
 			continue
 		}

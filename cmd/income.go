@@ -82,10 +82,8 @@ func Income(ctx *cli.Context) error {
 	re := regexp.MustCompile("^(Income|Expenses)")
 	amounts = fin.Amounts{}
 	for accountId, v := range sum {
-		account, ok := accounts.ById(accountId)
-		if !ok {
-			continue
-		}
+		// these accounts always exist so we don't check for empty
+		account := accounts.ById(accountId)
 		if !re.MatchString(account.Name) {
 			continue
 		}

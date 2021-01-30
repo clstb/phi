@@ -68,7 +68,8 @@ func Journal(ctx *cli.Context) error {
 		for _, transaction := range transactions {
 			pb := tb.AddMetaBranch(transaction.Entity, "\t")
 			for _, posting := range transaction.Postings {
-				account, _ := accounts.ById(posting.Account.String())
+				// these accounts always exist so we don't check for empty
+				account := accounts.ById(posting.Account.String())
 				pb.AddMetaNode(account.Name, fmt.Sprintf(
 					"\t%s\t%s\t%s",
 					posting.Units.Color(false),

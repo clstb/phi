@@ -3,6 +3,7 @@ package fin
 import (
 	"regexp"
 
+	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/pb"
 )
 
@@ -10,13 +11,27 @@ import (
 type Accounts []Account
 
 // AccountsFromPB creates a new account slice from it's protobuf representation.
-func AccountsFromPB(pb *pb.Accounts) (Accounts, error) {
+func AccountsFromPB(a *pb.Accounts) (Accounts, error) {
 	var accounts Accounts
-	for _, v := range pb.Data {
-		accounts = append(accounts, AccountFromPB(v))
+	for _, v := range a.Data {
+		account, err := AccountFromPB(v)
+		if err != nil {
+			return Accounts{}, err
+		}
+
+		accounts = append(accounts, account)
 	}
 
 	return accounts, nil
+}
+
+func AccountsFromDB(a ...db.Account) Accounts {
+	var accounts Accounts
+	for _, account := range a {
+		accounts = append(accounts, AccountFromDB(account))
+	}
+
+	return accounts
 }
 
 // PB marshalls the account into it's protobuf representation.

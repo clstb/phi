@@ -157,6 +157,12 @@ func main() {
 						},
 						Action: create.Account,
 					},
+					{
+						Name:    "transaction",
+						Usage:   "create a transaction",
+						Aliases: []string{"t"},
+						Action:  create.Transaction,
+					},
 				},
 			},
 			{

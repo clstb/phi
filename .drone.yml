@@ -2,23 +2,12 @@ kind: pipeline
 name: default
 
 steps:
-- name: test
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
-  commands:
-  - sleep 5 # give docker enough time to start
-  - docker ps -a
-
-services:
-- name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-- name: dockersock
-  temp: {}
+- name: docker  
+  image: plugins/docker
+  settings:
+    username: clstb
+    password:
+      from_secret: docker_password
+    repo: clstb/phi
+    auto_tag: true
+    dry_run: true

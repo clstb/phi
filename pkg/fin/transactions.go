@@ -40,19 +40,19 @@ func (t Transactions) PB() *pb.Transactions {
 func (t Transactions) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
 	for _, transaction := range t {
-		postingsSum, err := transaction.Postings.Sum()
+		sum, err := transaction.Sum()
 		if err != nil {
 			return nil, err
 		}
 
-		for accountId, amounts := range postingsSum {
-			sum, ok := sums[accountId]
+		for accountId, amounts := range sum {
+			v, ok := sums[accountId]
 			if !ok {
-				sum = amounts
+				v = amounts
 			} else {
-				sum = append(sum, amounts...)
+				v = append(v, amounts...)
 			}
-			sums[accountId] = sum
+			sums[accountId] = v
 		}
 	}
 	for k, v := range sums {

@@ -45,24 +45,3 @@ func (p Postings) PB() []*pb.Posting {
 
 	return postings
 }
-
-// Sum calculates the sum of all postings grouped by the account each posting belongs to.
-func (p Postings) Sum() (map[string]Amounts, error) {
-	sums := make(map[string]Amounts)
-	for _, posting := range p {
-		weight, err := posting.Weight()
-		if err != nil {
-			return nil, err
-		}
-
-		sum, ok := sums[posting.Account.String()]
-		if !ok {
-			sum = Amounts{weight}
-		} else {
-			sum = append(sum, weight)
-		}
-		sums[posting.Account.String()] = sum
-	}
-
-	return sums, nil
-}

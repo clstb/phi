@@ -64,13 +64,35 @@ func (t Transaction) PB() *pb.Transaction {
 	}
 }
 
+// Sum calculates the sum of this transaction grouped by account.
+func (t Transaction) Sum() (map[string]Amounts, error) {
+	sum := make(map[string]Amounts)
+	for _, posting := range t.Postings {
+		weight, err := posting.Weight()
+		if err != nil {
+			return nil, err
+		}
+
+		v, ok := sum[posting.Account.String()]
+		if !ok {
+			v = Amounts{weight}
+		} else {
+			v = append(v, weight)
+		}
+		sum[posting.Account.String()] = v
+	}
+
+	return sum, nil
+}
+
 // Balanced returns an error if the transaction is unbalanced or nil otherwise.
 func (t Transaction) Balanced() error {
-	var amounts Amounts
-	sum, err := t.Postings.Sum()
+	sum, err := t.Sum()
 	if err != nil {
 		return err
 	}
+
+	var amounts Amounts
 	for _, v := range sum {
 		amounts = append(amounts, v...)
 	}

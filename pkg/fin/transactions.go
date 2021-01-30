@@ -1,7 +1,6 @@
 package fin
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/clstb/phi/pkg/pb"
@@ -17,7 +16,7 @@ func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
 	for _, v := range pb.Data {
 		transaction, err := TransactionFromPB(v)
 		if err != nil {
-			return Transactions{}, fmt.Errorf("data: %w", err)
+			return Transactions{}, err
 		}
 		transactions = append(transactions, transaction)
 	}

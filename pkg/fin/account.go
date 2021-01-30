@@ -12,12 +12,22 @@ type Account struct {
 }
 
 // AccountFromPB creates a new account from it's protobuf representation.
-func AccountFromPB(a *pb.Account) Account {
+func AccountFromPB(a *pb.Account) (Account, error) {
+	id, err := uuid.FromString(a.Id)
+	if err != nil {
+		return Account{}, err
+	}
+
 	account := Account{}
-	account.ID = uuid.FromStringOrNil(a.Id)
+	account.ID = id
 	account.Name = a.Name
 
-	return account
+	return account, nil
+}
+
+// AccountFromDB creates a new accoutn from it's database representation.
+func AccountFromDB(a db.Account) Account {
+	return Account{Account: a}
 }
 
 // PB marshalls the account into it's protobuf representation.

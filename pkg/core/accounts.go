@@ -20,7 +20,10 @@ func (s *Server) CreateAccount(
 	}
 	sub := uuid.FromStringOrNil(subStr)
 
-	account := fin.AccountFromPB(req)
+	account, err := fin.AccountFromPB(req)
+	if err != nil {
+		return nil, err
+	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -33,7 +36,7 @@ func (s *Server) CreateAccount(
 		tx.Rollback()
 		return nil, err
 	}
-	account = fin.NewAccount(accountDB)
+	account = fin.AccountFromDB(accountDB)
 
 	_, err = q.LinkAccount(ctx, db.LinkAccountParams{
 		Account: account.ID,
@@ -71,7 +74,7 @@ func (s *Server) GetAccounts(
 		return nil, err
 	}
 
-	accounts := fin.NewAccounts(accountsDB...)
+	accounts := fin.AccountsFromDB(accountsDB...)
 
 	return accounts.PB(), nil
 }

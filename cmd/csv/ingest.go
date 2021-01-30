@@ -93,8 +93,8 @@ func Ingest(ctx *cli.Context) error {
 		transaction.Reference = record[4]
 		transaction.Hash = hashStr
 
-		accountFrom, ok := accounts.ByName(from)
-		if !ok {
+		accountFrom := accounts.ByName(from)
+		if accountFrom.Empty() {
 			fmt.Printf("Account not found %s: Creating...\n", from)
 			accountPB, err := core.CreateAccount(
 				ctx.Context,
@@ -105,12 +105,17 @@ func Ingest(ctx *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			accountFrom = fin.AccountFromPB(accountPB)
+
+			accountFrom, err = fin.AccountFromPB(accountPB)
+			if err != nil {
+				return err
+			}
+
 			accounts = append(accounts, accountFrom)
 		}
 
-		accountTo, ok := accounts.ByName(to)
-		if !ok {
+		accountTo := accounts.ByName(to)
+		if accountTo.Empty() {
 			fmt.Printf("Account not found %s: Creating...\n", to)
 			accountPB, err := core.CreateAccount(
 				ctx.Context,
@@ -121,7 +126,12 @@ func Ingest(ctx *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			accountTo = fin.AccountFromPB(accountPB)
+
+			accountTo, err = fin.AccountFromPB(accountPB)
+			if err != nil {
+				return err
+			}
+
 			accounts = append(accounts, accountTo)
 		}
 

@@ -32,3 +32,8 @@ func (a Account) PB() *pb.Account {
 		Name: a.Name,
 	}
 }
+
+// Empty returns true if the account is initialized with default values.
+func (a Account) Empty() bool {
+	return a == Account{}
+}

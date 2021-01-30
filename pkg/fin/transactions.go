@@ -11,6 +11,32 @@ import (
 // Transactions is a slice of transaction
 type Transactions []Transaction
 
+// TransactionsFromPB creates a new transaction slice from it's protobuf representation.
+func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
+	var transactions Transactions
+	for _, v := range pb.Data {
+		transaction, err := TransactionFromPB(v)
+		if err != nil {
+			return Transactions{}, fmt.Errorf("data: %w", err)
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
+}
+
+// PB marshalls the transactions into their protobuf representation.
+func (t Transactions) PB() *pb.Transactions {
+	var data []*pb.Transaction
+	for _, transaction := range t {
+		data = append(data, transaction.PB())
+	}
+
+	return &pb.Transactions{
+		Data: data,
+	}
+}
+
 // Sum calculates the sum of all transactions grouped by the account each posting belongs to.
 func (t Transactions) Sum() (map[string]Amounts, error) {
 	sums := make(map[string]Amounts)
@@ -86,32 +112,6 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 	}
 
 	return append(transactions, t...), nil
-}
-
-// TransactionsFromPB creates a new transaction slice from it's protobuf representation.
-func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
-	var transactions Transactions
-	for _, v := range pb.Data {
-		transaction, err := TransactionFromPB(v)
-		if err != nil {
-			return Transactions{}, fmt.Errorf("data: %w", err)
-		}
-		transactions = append(transactions, transaction)
-	}
-
-	return transactions, nil
-}
-
-// PB marshalls the transactions into their protobuf representation.
-func (t Transactions) PB() *pb.Transactions {
-	var data []*pb.Transaction
-	for _, transaction := range t {
-		data = append(data, transaction.PB())
-	}
-
-	return &pb.Transactions{
-		Data: data,
-	}
 }
 
 // ByDate groups transactions by their date.

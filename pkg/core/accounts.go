@@ -20,6 +20,7 @@ func (s *Server) CreateAccount(
 	}
 	sub := uuid.FromStringOrNil(subStr)
 
+	req.Id = uuid.Nil.String()
 	account, err := fin.AccountFromPB(req)
 	if err != nil {
 		return nil, err

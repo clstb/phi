@@ -7,7 +7,7 @@ import (
 	"github.com/matryer/is"
 )
 
-func TestAmounts(t *testing.T) {
+func TestAmountsSum(t *testing.T) {
 	is := is.New(t)
 
 	type test struct {
@@ -48,7 +48,6 @@ func TestAmounts(t *testing.T) {
 			is.Equal(a.ByCurrency("EUR"), fromString("0.5 EUR"))
 			is.Equal(a.ByCurrency("USD"), fromString("1.5 USD"))
 			is.Equal(a.ByCurrency("CAD"), fromString("5 CAD"))
-			is.Equal(a.Currencies(), []string{"EUR", "USD", "CAD"})
 		},
 	})
 

@@ -1,7 +1,6 @@
 package fin
 
 import (
-	"fmt"
 	"time"
 
 	db "github.com/clstb/phi/pkg/db/core"
@@ -20,11 +19,9 @@ type Transaction struct {
 
 // TransactionFromPB creates a new transaction from it's protobuf representation.
 func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
-	postings, err := PostingsFromPB(&pb.Postings{
-		Data: t.Postings,
-	})
+	id, err := uuid.FromString(t.Id)
 	if err != nil {
-		return Transaction{}, fmt.Errorf("transaction: %w", err)
+		return Transaction{}, err
 	}
 
 	date, err := time.Parse("2006-01-02", t.Date)
@@ -32,8 +29,15 @@ func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
 		return Transaction{}, err
 	}
 
+	postings, err := PostingsFromPB(&pb.Postings{
+		Data: t.Postings,
+	})
+	if err != nil {
+		return Transaction{}, err
+	}
+
 	transaction := Transaction{}
-	transaction.ID = uuid.FromStringOrNil(t.Id)
+	transaction.ID = id
 	transaction.Date = date
 	transaction.Entity = t.Entity
 	transaction.Reference = t.Reference
@@ -45,9 +49,7 @@ func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
 
 // TransactionFromDB creates a new transaction from it's database representation.
 func TransactionFromDB(t db.Transaction) Transaction {
-	return Transaction{
-		Transaction: t,
-	}
+	return Transaction{Transaction: t}
 }
 
 // PB marshalls the transaction into it's protobuf representation.

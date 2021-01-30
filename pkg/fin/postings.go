@@ -1,8 +1,6 @@
 package fin
 
 import (
-	"fmt"
-
 	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/pb"
 )
@@ -16,7 +14,7 @@ func PostingsFromPB(pb *pb.Postings) (Postings, error) {
 	for _, v := range pb.Data {
 		posting, err := PostingFromPB(v)
 		if err != nil {
-			return Postings{}, fmt.Errorf("data: %w", err)
+			return Postings{}, err
 		}
 		postings = append(postings, posting)
 	}

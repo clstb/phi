@@ -18,7 +18,10 @@ func (s *Server) CreateAccount(
 	if !ok {
 		return nil, fmt.Errorf("context: missing subject")
 	}
-	sub := uuid.FromStringOrNil(subStr)
+	sub, err := uuid.FromString(subStr)
+	if err != nil {
+		return nil, err
+	}
 
 	req.Id = uuid.Nil.String()
 	account, err := fin.AccountFromPB(req)
@@ -64,7 +67,10 @@ func (s *Server) GetAccounts(
 	if !ok {
 		return nil, fmt.Errorf("context: missing subject")
 	}
-	sub := uuid.FromStringOrNil(subStr)
+	sub, err := uuid.FromString(subStr)
+	if err != nil {
+		return nil, err
+	}
 
 	q := db.New(s.db)
 	accountsDB, err := q.GetAccounts(ctx, db.GetAccountsParams{

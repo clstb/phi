@@ -25,7 +25,7 @@ func AccountFromPB(a *pb.Account) (Account, error) {
 	return account, nil
 }
 
-// AccountFromDB creates a new accoutn from it's database representation.
+// AccountFromDB creates a new account from it's database representation.
 func AccountFromDB(a db.Account) Account {
 	return Account{Account: a}
 }

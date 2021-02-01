@@ -28,6 +28,9 @@ RUN go mod verify
 COPY . .
 # Generate code
 RUN make gen
+# Run tests
+ARG test_tags
+RUN go test ./... -v -tags=$test_tags
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o /go/bin/phi
 ############################

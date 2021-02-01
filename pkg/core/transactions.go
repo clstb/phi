@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"time"
@@ -43,7 +44,12 @@ func (s *Server) CreateTransactions(
 		transactions = append(transactions, transaction)
 	}
 
-	q := db.New(s.db)
+	tx, ok := ctx.Value("tx").(*sql.Tx)
+	if !ok {
+		return fmt.Errorf("context: missing transaction")
+	}
+	q := db.New(tx)
+
 	accountsDB, err := q.GetAccounts(ctx, db.GetAccountsParams{
 		User: sub,
 	})
@@ -51,11 +57,6 @@ func (s *Server) CreateTransactions(
 		return err
 	}
 	accounts := fin.AccountsFromDB(accountsDB...)
-
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
 
 	transactionStmt := sq.Insert("transactions").Columns(
 		"id",
@@ -75,7 +76,6 @@ func (s *Server) CreateTransactions(
 	for _, transaction := range transactions {
 		id, err := uuid.NewV4()
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
 		transactionStmt = transactionStmt.Values(
@@ -88,7 +88,6 @@ func (s *Server) CreateTransactions(
 
 		for _, posting := range transaction.Postings {
 			if accounts.ById(posting.Account.String()).Empty() {
-				tx.Rollback()
 				return fmt.Errorf("unauthorized: post to account")
 			}
 
@@ -102,19 +101,19 @@ func (s *Server) CreateTransactions(
 		}
 	}
 
-	_, err = transactionStmt.PlaceholderFormat(sq.Dollar).RunWith(tx).ExecContext(ctx)
+	_, err = transactionStmt.
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		ExecContext(ctx)
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
-	_, err = postingStmt.PlaceholderFormat(sq.Dollar).RunWith(tx).ExecContext(ctx)
+	_, err = postingStmt.
+		PlaceholderFormat(sq.Dollar).
+		RunWith(tx).
+		ExecContext(ctx)
 	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
 		return err
 	}
 
@@ -149,7 +148,12 @@ func (s *Server) GetTransactions(
 		to = time.Now()
 	}
 
-	q := db.New(s.db)
+	tx, ok := ctx.Value("tx").(*sql.Tx)
+	if !ok {
+		return nil, fmt.Errorf("context: missing transaction")
+	}
+	q := db.New(tx)
+
 	rows, err := q.GetTransactions(ctx, db.GetTransactionsParams{
 		UserID:      sub,
 		AccountName: req.AccountName,

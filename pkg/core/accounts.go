@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	db "github.com/clstb/phi/pkg/db/core"
@@ -29,15 +30,14 @@ func (s *Server) CreateAccount(
 		return nil, err
 	}
 
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
+	tx, ok := ctx.Value("tx").(*sql.Tx)
+	if !ok {
+		return nil, fmt.Errorf("context: missing transaction")
 	}
 	q := db.New(tx)
 
 	accountDB, err := q.CreateAccount(ctx, account.Name)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	account = fin.AccountFromDB(accountDB)
@@ -47,12 +47,6 @@ func (s *Server) CreateAccount(
 		User:    sub,
 	})
 	if err != nil {
-		tx.Rollback()
-		return nil, err
-
-	}
-
-	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -72,7 +66,12 @@ func (s *Server) GetAccounts(
 		return nil, err
 	}
 
-	q := db.New(s.db)
+	tx, ok := ctx.Value("tx").(*sql.Tx)
+	if !ok {
+		return nil, fmt.Errorf("context: missing transaction")
+	}
+	q := db.New(tx)
+
 	accountsDB, err := q.GetAccounts(ctx, db.GetAccountsParams{
 		Name: req.Name,
 		User: sub,

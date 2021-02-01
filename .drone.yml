@@ -1,7 +1,26 @@
 kind: pipeline
 name: default
 
+environment:
+  DB: postgresql://root@db:26257?sslmode=disable
+
+services:
+- name: db
+  image: cockroachdb/cockroach:v20.2.4
+  commands:
+  - cockroach start-single-node --insecure
+
 steps:
+- name: prep_db
+  image: cockroachdb/cockroach:v20.2.4
+  commands:
+  - cockroach sql --insecure --url=$DB --execute="CREATE DATABASE phi_core;"
+  - cockroach sql --insecure --url=$DB --execute="CREATE ROLE phi_core;"
+  - cockroach sql --insecure --url=$DB --execute="GRANT ALL ON DATABASE phi_core TO phi_core;"
+  - cockroach sql --insecure --url=$DB --execute="CREATE DATABASE phi_auth;"
+  - cockroach sql --insecure --url=$DB --execute="CREATE ROLE phi_auth;"
+  - cockroach sql --insecure --url=$DB --execute="GRANT ALL ON DATABASE phi_auth TO phi_auth;"
+
 - name: docker  
   image: plugins/docker
   settings:
@@ -9,5 +28,4 @@ steps:
     password:
       from_secret: docker_password
     repo: clstb/phi
-    auto_tag: true
     dry_run: true

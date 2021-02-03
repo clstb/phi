@@ -19,7 +19,7 @@ var sqlDB *sql.DB
 func TestMain(m *testing.M) {
 	dbStr := os.Getenv("DB")
 	mg, err := migrate.New(
-		"file://sql/schema/core",
+		"file://../../sql/schema/core",
 		dbStr,
 	)
 	if err != nil {

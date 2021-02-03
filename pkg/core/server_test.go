@@ -8,16 +8,32 @@ import (
 	"os"
 	"testing"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/cockroachdb"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
 var sqlDB *sql.DB
 
 func TestMain(m *testing.M) {
-	var err error
+	dbStr := os.Getenv("DB")
+	mg, err := migrate.New(
+		"file://sql/schema/core",
+		dbStr,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = mg.Up()
+	if err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
+
 	sqlDB, err = sql.Open(
 		"postgres",
-		"postgresql://root@localhost:26257?sslmode=disable",
+		dbStr,
 	)
 	if err != nil {
 		log.Fatal(err)

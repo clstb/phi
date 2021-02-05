@@ -45,5 +45,11 @@ func TestMain(m *testing.M) {
 	}
 
 	status := m.Run()
+
+	err = mg.Down()
+	if err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
+
 	os.Exit(status)
 }

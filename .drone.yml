@@ -7,6 +7,9 @@ services:
   commands:
   - cockroach start-single-node --insecure
 
+environment:
+  DB: postgres://root@db:26257?sslmode=disable
+
 steps:
 - name: prep_db
   image: cockroachdb/cockroach:v20.2.4
@@ -17,13 +20,9 @@ steps:
   - cockroach sql --insecure --url=$DB --execute="CREATE DATABASE phi_auth;"
   - cockroach sql --insecure --url=$DB --execute="CREATE ROLE phi_auth;"
   - cockroach sql --insecure --url=$DB --execute="GRANT ALL ON DATABASE phi_auth TO phi_auth;"
-  environment:
-    DB: postgresql://root@db:26257?sslmode=disable
 
 - name: docker  
   image: plugins/docker
-  environment:
-    DB: postgresql://root@db:26257?sslmode=disable
   settings:
     username: clstb
     password:
@@ -31,4 +30,3 @@ steps:
     repo: clstb/phi
     build_args:
     - test_tags=integration
-    

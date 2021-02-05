@@ -20,14 +20,14 @@ func TestMain(m *testing.M) {
 	dbStr := os.Getenv("DB")
 	mg, err := migrate.New(
 		"file://../../sql/schema/core",
-		dbStr,
+		"crdb-"+dbStr,
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = mg.Up()
-	if err != migrate.ErrNoChange {
+	if err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
 

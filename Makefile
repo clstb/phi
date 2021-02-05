@@ -1,9 +1,18 @@
-gen: gen-sql gen-proto
+build:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o phi
+
+test:
+	go test ./... -v
+	
+test-integration:
+	go test ./... -tags=integration
 
 install-generators:
 	go get google.golang.org/protobuf/cmd/protoc-gen-go
 	go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
+
+gen: gen-sql gen-proto
 
 gen-proto: ## Generate protobuf and grpc definitions
 	rm -f ./pkg/pb/*.go

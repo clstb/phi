@@ -11,6 +11,15 @@ environment:
   DB: postgres://root@db:26257/defaultdb?sslmode=disable
 
 steps:
+- name: build
+  image: golang:1.15.6-alpine
+  commands:
+  - apk add --no-cache git make protoc gcc musl-dev
+  - make install-generators
+  - make gen
+  - make test-integration
+  - make build
+  
 - name: docker  
   image: plugins/docker
   settings:
@@ -18,5 +27,8 @@ steps:
     password:
       from_secret: docker_password
     repo: clstb/phi
-    build_args:
-    - test_tags=integration
+    auto_tag: true
+
+trigger:
+  event:
+  - push

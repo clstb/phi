@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
-	"strings"
 
 	"github.com/clstb/phi/pkg/auth"
 	"github.com/clstb/phi/pkg/pb"
@@ -47,9 +46,6 @@ func Auth(ctx *cli.Context) error {
 
 	// create db connection
 	dbStr := ctx.String("db")
-	if strings.HasPrefix(dbStr, "cockroachdb") {
-		dbStr = "postgres" + strings.TrimPrefix(dbStr, "cockroachdb")
-	}
 	db, err := sql.Open(
 		"postgres",
 		dbStr,

@@ -33,9 +33,7 @@ ARG test_tags
 RUN go test ./... -v -tags=$test_tags
 # Build the binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o /go/bin/phi
-############################
-# STEP 2 build a small image
-############################
+# Build executable image
 FROM scratch
 # Import from builder.
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

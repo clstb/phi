@@ -13,7 +13,7 @@ func Auth(ctx *cli.Context) error {
 	dbStr := ctx.String("db")
 	m, err := migrate.New(
 		"file://sql/schema/auth",
-		dbStr,
+		"crdb-"+dbStr,
 	)
 	if err != nil {
 		return err

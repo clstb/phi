@@ -13,7 +13,7 @@ func Core(ctx *cli.Context) error {
 	dbStr := ctx.String("db")
 	m, err := migrate.New(
 		"file://sql/schema/core",
-		dbStr,
+		"crdb-"+dbStr,
 	)
 	if err != nil {
 		return err

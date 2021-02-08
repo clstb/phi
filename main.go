@@ -15,6 +15,10 @@ import (
 )
 
 func main() {
+	t := time.Now()
+	firstOfMonth := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.Local)
+	lastOfMonth := firstOfMonth.AddDate(0, 1, 0).Add(time.Nanosecond * -1)
+
 	app := &cli.App{
 		Name:        "Phi",
 		Description: "Phi - Personal finance management",
@@ -197,13 +201,13 @@ func main() {
 						Name:    "from",
 						Aliases: []string{"f"},
 						Usage:   "period start",
-						Value:   "0001-01-01",
+						Value:   firstOfMonth.Format("2006-01-02"),
 					},
 					&cli.StringFlag{
 						Name:    "to",
 						Aliases: []string{"t"},
 						Usage:   "period end",
-						Value:   time.Now().Format("2006-01-02"),
+						Value:   lastOfMonth.Format("2006-01-02"),
 					},
 				},
 			},

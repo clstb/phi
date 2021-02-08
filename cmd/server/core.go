@@ -38,31 +38,6 @@ func Core(ctx *cli.Context) error {
 		)
 	}
 
-	// create logger
-	logger, err := zap.NewProduction()
-	if err != nil {
-		return err
-	}
-	defer logger.Sync()
-	unaryInterceptors = append(
-		unaryInterceptors,
-		grpc_zap.UnaryServerInterceptor(logger),
-	)
-	streamInterceptors = append(
-		streamInterceptors,
-		grpc_zap.StreamServerInterceptor(logger),
-	)
-
-	// create grpc server
-	s := grpc.NewServer(
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			unaryInterceptors...,
-		)),
-		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			streamInterceptors...,
-		)),
-	)
-
 	// create db connection
 	dbStr := ctx.String("db")
 	db, err := sql.Open(
@@ -76,6 +51,33 @@ func Core(ctx *cli.Context) error {
 	if err := db.Ping(); err != nil {
 		return err
 	}
+
+	// create logger
+	logger, err := zap.NewProduction()
+	if err != nil {
+		return err
+	}
+	defer logger.Sync()
+
+	// setup interceptors
+	unaryInterceptors = append(unaryInterceptors, []grpc.UnaryServerInterceptor{
+		interceptor.TXUnary(db),
+		grpc_zap.UnaryServerInterceptor(logger),
+	}...)
+	streamInterceptors = append(streamInterceptors, []grpc.StreamServerInterceptor{
+		interceptor.TXStream(db),
+		grpc_zap.StreamServerInterceptor(logger),
+	}...)
+
+	// create grpc server
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			unaryInterceptors...,
+		)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			streamInterceptors...,
+		)),
+	)
 
 	// create / register server implementation
 	server := core.New(

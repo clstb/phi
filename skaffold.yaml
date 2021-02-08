@@ -5,8 +5,8 @@ metadata:
 build:
   artifacts:
   - image: clstb/phi
-    docker:
-      dockerfile: Dockerfile
+    custom:
+      buildCommand: ./build.sh
 deploy:
   kubeContext: minikube
   kustomize:

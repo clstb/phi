@@ -1,3 +1,8 @@
+clean:
+	rm -rf ./pkg/pb/*
+	rm -rf ./pkg/db/*
+	rm -rf ./phi
+
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags='-w -s' -o phi
 
@@ -15,7 +20,6 @@ install-generators:
 gen: gen-sql gen-proto
 
 gen-proto: ## Generate protobuf and grpc definitions
-	rm -f ./pkg/pb/*.go
 	protoc --go_out=module=github.com/clstb/phi:. --go-grpc_out=module=github.com/clstb/phi:. proto/*.proto
 gen-sql: ## Generate models and queries from sql definitions
 	sqlc generate

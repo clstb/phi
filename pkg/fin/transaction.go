@@ -19,9 +19,18 @@ type Transaction struct {
 
 // TransactionFromPB creates a new transaction from it's protobuf representation.
 func TransactionFromPB(t *pb.Transaction) (Transaction, error) {
-	id, err := uuid.FromString(t.Id)
-	if err != nil {
-		return Transaction{}, err
+	var (
+		id  uuid.UUID
+		err error
+	)
+
+	if t.Id == "" {
+		id = uuid.Nil
+	} else {
+		id, err = uuid.FromString(t.Id)
+		if err != nil {
+			return Transaction{}, err
+		}
 	}
 
 	date, err := time.Parse("2006-01-02", t.Date)

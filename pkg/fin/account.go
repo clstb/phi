@@ -13,9 +13,18 @@ type Account struct {
 
 // AccountFromPB creates a new account from it's protobuf representation.
 func AccountFromPB(a *pb.Account) (Account, error) {
-	id, err := uuid.FromString(a.Id)
-	if err != nil {
-		return Account{}, err
+	var (
+		id  uuid.UUID
+		err error
+	)
+
+	if a.Id == "" {
+		id = uuid.Nil
+	} else {
+		id, err = uuid.FromString(a.Id)
+		if err != nil {
+			return Account{}, err
+		}
 	}
 
 	account := Account{}

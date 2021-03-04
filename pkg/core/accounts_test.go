@@ -15,6 +15,8 @@ import (
 )
 
 func TestCreateAccount(t *testing.T) {
+	t.Parallel()
+
 	is := is.New(t)
 
 	server := core.New(core.WithDB(sqlDB))
@@ -73,6 +75,8 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestGetAccounts(t *testing.T) {
+	t.Parallel()
+
 	is := is.New(t)
 
 	server := core.New(core.WithDB(sqlDB))

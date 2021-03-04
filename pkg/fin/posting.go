@@ -17,19 +17,38 @@ type Posting struct {
 
 // PostingFromPB creates a new posting from it's protobuf representation.
 func PostingFromPB(pb *pb.Posting) (Posting, error) {
-	id, err := uuid.FromString(pb.Id)
-	if err != nil {
-		return Posting{}, err
+	var (
+		id          uuid.UUID
+		account     uuid.UUID
+		transaction uuid.UUID
+		err         error
+	)
+
+	if pb.Id == "" {
+		id = uuid.Nil
+	} else {
+		id, err = uuid.FromString(pb.Id)
+		if err != nil {
+			return Posting{}, err
+		}
 	}
 
-	account, err := uuid.FromString(pb.Account)
-	if err != nil {
-		return Posting{}, err
+	if pb.Account == "" {
+		account = uuid.Nil
+	} else {
+		account, err = uuid.FromString(pb.Account)
+		if err != nil {
+			return Posting{}, err
+		}
 	}
 
-	transaction, err := uuid.FromString(pb.Transaction)
-	if err != nil {
-		return Posting{}, err
+	if pb.Transaction == "" {
+		transaction = uuid.Nil
+	} else {
+		transaction, err = uuid.FromString(pb.Transaction)
+		if err != nil {
+			return Posting{}, err
+		}
 	}
 
 	units, err := AmountFromString(pb.Units)

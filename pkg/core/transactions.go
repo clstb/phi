@@ -25,7 +25,7 @@ func (s *Server) CreateTransactions(
 	}
 	sub, err := uuid.FromString(subStr)
 	if err != nil {
-		return err
+		return fmt.Errorf("context: invalid subject id: %w", err)
 	}
 
 	var transactions fin.Transactions
@@ -37,16 +37,17 @@ func (s *Server) CreateTransactions(
 		if err != nil {
 			return err
 		}
+
 		transaction, err := fin.TransactionFromPB(transactionPB)
 		if err != nil {
-			return err
+			return fmt.Errorf("parsing transaction: %w", err)
 		}
 		transactions = append(transactions, transaction)
 	}
 
 	tx, ok := ctx.Value("tx").(*sql.Tx)
 	if !ok {
-		return fmt.Errorf("context: missing transaction")
+		return fmt.Errorf("context: missing database transaction")
 	}
 	q := db.New(tx)
 

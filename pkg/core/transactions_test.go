@@ -73,6 +73,80 @@ func (s *TestTransactionsServer) Recv() (*pb.Transaction, error) {
 }
 
 func TestCreateTransaction(t *testing.T) {
+	t.Parallel()
+
+	is := is.New(t)
+
+	server := core.New(core.WithDB(sqlDB))
+
+	type test struct {
+		do    func() (*sql.Tx, *pb.Transactions, error)
+		check func(*sql.Tx, *pb.Transactions, error) *sql.Tx
+	}
+	var tests []test
+	add := func(t test) {
+		tests = append(tests, t)
+	}
+	tx := func() (*sql.Tx, context.Context) {
+		tx, err := sqlDB.Begin()
+		is.NoErr(err)
+		ctx := context.WithValue(
+			context.Background(),
+			"tx",
+			tx,
+		)
+
+		return tx, context.WithValue(
+			ctx,
+			"sub",
+			uuid.Nil.String(),
+		)
+	}
+
+	add(test{
+		do: func() (*sql.Tx, *pb.Transactions, error) {
+			tx, ctx := tx()
+
+			account, err := server.CreateAccount(ctx, &pb.Account{
+				Name: "account-1",
+			})
+			is.NoErr(err)
+
+			// TODO: fix parsing of all uuid's
+			stream := NewTestTransactionsServer(
+				ctx,
+				&pb.Transaction{
+					Date: time.Now().Format("2006-01-02"),
+					Postings: []*pb.Posting{
+						{
+							Account: account.Id,
+							Units:   "1 EUR",
+						},
+						{
+							Account: account.Id,
+							Units:   "-1 EUR",
+						},
+					},
+				},
+			)
+			err = server.CreateTransactions(stream)
+
+			return tx, stream.res, err
+		},
+		check: func(tx *sql.Tx, t *pb.Transactions, e error) *sql.Tx {
+			is.NoErr(e)
+			return tx
+		},
+	})
+
+	for _, t := range tests {
+		is.NoErr(t.check(t.do()).Rollback())
+	}
+}
+
+func TestGetTransactions(t *testing.T) {
+	t.Parallel()
+
 	is := is.New(t)
 
 	server := core.New(core.WithDB(sqlDB))
@@ -127,10 +201,18 @@ func TestCreateTransaction(t *testing.T) {
 				},
 			)
 			err = server.CreateTransactions(stream)
+			is.NoErr(err)
 
-			return tx, stream.res, err
+			res, err := server.GetTransactions(
+				ctx,
+				&pb.TransactionsQuery{},
+			)
+
+			return tx, res, err
 		},
 		check: func(tx *sql.Tx, t *pb.Transactions, e error) *sql.Tx {
+			is.NoErr(e)
+			is.Equal(len(t.Data), 1)
 			return tx
 		},
 	})
@@ -138,69 +220,4 @@ func TestCreateTransaction(t *testing.T) {
 	for _, t := range tests {
 		is.NoErr(t.check(t.do()).Rollback())
 	}
-}
-
-func TestGetTransactions(t *testing.T) {
-	/*
-		is := is.New(t)
-		ctx := context.Background()
-
-		client := client()
-		type test struct {
-			do    func() (*pb.Transactions, error)
-			check func(*pb.Transactions, error)
-		}
-		var tests []test
-		add := func(t test) {
-			tests = append(tests, t)
-		}
-
-		account, err := client.CreateAccount(
-			ctx,
-			&pb.Account{
-				Name: "account-test",
-			},
-		)
-		is.NoErr(err)
-		defer func() {
-			is.NoErr(db.DeleteAccount(ctx, uuid.FromStringOrNil(account.Id)))
-		}()
-
-		add(test{
-			do: func() (*pb.Transactions, error) {
-				transactions, err := client.CreateTransaction(
-					ctx,
-					&pb.Transaction{
-						Date: time.Now().Format("2006-01-02"),
-						Postings: []*pb.Posting{
-							{
-								Account: account.Id,
-								Units:   "1 EUR",
-							},
-							{
-								Account: account.Id,
-								Units:   "-1 EUR",
-							},
-						},
-					},
-				)
-				fmt.Println(transactions)
-				is.NoErr(err)
-				return client.GetTransactions(
-					ctx,
-					&pb.TransactionsQuery{
-						AccountName: "^account-.*",
-					},
-				)
-			},
-			check: func(t *pb.Transactions, e error) {
-				is.NoErr(e)
-				is.NoErr(db.DeleteTransaction(ctx, uuid.FromStringOrNil(t.Data[0].Id)))
-			},
-		})
-
-		for _, t := range tests {
-			t.check(t.do())
-		}
-	*/
 }

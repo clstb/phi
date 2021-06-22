@@ -40,7 +40,15 @@ func Connect(ctx *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(i, result)
+	eua, err := nordigen.CreateEndUserAgreement(
+		"365",
+		"test",
+		banks[i].ID,
+	)
+	if err != nil {
+		return err
+	}
+	fmt.Println(result, eua)
 
 	return nil
 }

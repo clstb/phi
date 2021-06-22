@@ -243,6 +243,18 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:   "connect",
+				Usage:  "connect to banks via PSD2",
+				Action: cmd.Connect,
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:     "nordigen-token",
+						Required: true,
+						EnvVars:  []string{"NORDIGEN_TOKEN"},
+					},
+				},
+			},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{

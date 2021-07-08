@@ -1,4 +1,4 @@
-# Phi :warning: Alpha software. Do not use for production! :warning:
+# Phi
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/clstb/phi.svg)](https://pkg.go.dev/github.com/clstb/phi)
 [![Go Report Card](https://goreportcard.com/badge/github.com/clstb/phi)](https://goreportcard.com/report/github.com/clstb/phi)
@@ -10,10 +10,11 @@ Phi provides tools to efficiently ingest finance data and generate financial rep
 
 It is written in go, consisting of multiple containerized microservices. The services communicate with GRPC and use PostgresQL compatible databases for storage.
 Currently Phi has following services:
-| Service | Spec                      | Description                                                    |
-|:------- |:------------------------- |:-------------------------------------------------------------- |
-| Core    | [Link](/proto/core.proto) | Core functionality such as Accounts, Transactions and Postings |
-| Auth    | [Link](/proto/auth.proto) | User management and authentication via JWT's                   |
+| Service | Spec                        | Description                                                    |
+|:------- |:--------------------------- |:-------------------------------------------------------------- |
+| Core    | [Link](/proto/core.proto)   | Core functionality such as accounts and transactions           |
+| Auth    | [Link](/proto/auth.proto)   | User management and authentication via JWT's                   |
+| TinkGW  | [Link](/proto/tinkgw.proto) | Links Phi to bank accounts using Tinks PSD2 API                |
 
 ## Contribute
 
@@ -40,10 +41,13 @@ kubectl run cockroachdb -it --image=cockroachdb/cockroach:v20.2.4 --rm --restart
 ```sql
 CREATE DATABASE phi_core;
 CREATE DATABASE phi_auth;
+CREATE DATABASE phi_tinkgw;
 CREATE USER phi_core;
 CREATE USER phi_auth;
+CREATE USER phi_tinkgw;
 GRANT ALL ON DATABASE phi_core TO phi_core;
 GRANT ALL ON DATABASE phi_auth TO phi_auth;
+GRANT ALL ON DATABASE phi_tinkgw TO phi_tinkgw;
 ```
 7. Deploy Phi.
 ```sh

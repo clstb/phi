@@ -3,6 +3,7 @@ module github.com/clstb/phi
 go 1.15
 
 require (
+	github.com/c-bata/go-prompt v0.2.6
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/color v1.10.0

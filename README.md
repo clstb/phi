@@ -16,6 +16,14 @@ Currently Phi has following services:
 | Auth    | [Link](/proto/auth.proto)   | User management and authentication via JWT's                   |
 | TinkGW  | [Link](/proto/tinkgw.proto) | Links Phi to bank accounts using Tinks PSD2 API                |
 
+## Features
+Besides functionalities of a double entry accounting system phi has following features:
+* Bayesian classification of transactions
+* Import transactions from your bank account programmatically using [Tink](https://tink.com/)
+* Import transactions using csv
+* Support for multiple users
+* GRPC interface for all services
+
 ## Contribute
 
 ### Skaffold

@@ -15,78 +15,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func (s *Server) getToken(
-	ctx context.Context,
-	user uuid.UUID,
-) (db.Token, error) {
-	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
-	if err != nil {
-		return db.Token{}, err
-	}
-	q := db.New(tx)
-
-	tokens, err := q.GetTokens(ctx, user)
-	if err != nil {
-		return db.Token{}, fmt.Errorf(
-			"err: %w; rollback err: %v",
-			err,
-			tx.Rollback(ctx),
-		)
-	}
-	if len(tokens) != 0 {
-		return tokens[0], nil
-	}
-
-	code, err := s.tink.AuthorizeGrant(&tink.AuthorizeGrantReq{
-		ExternalUserID: user.String(),
-		Scope:          "accounts:read,balances:read,transactions:read,provider-consents:read,credentials:refresh",
-	})
-	if err != nil {
-		return db.Token{}, fmt.Errorf(
-			"err: %w; rollback err: %v",
-			err,
-			tx.Rollback(ctx),
-		)
-	}
-
-	tokenRes, err := s.tink.OAuthToken(&tink.OAuthTokenReq{
-		Code:         code,
-		ClientID:     s.clientID,
-		ClientSecret: s.clientSecret,
-		GrantType:    "authorization_code",
-	})
-	if err != nil {
-		return db.Token{}, fmt.Errorf(
-			"err: %w; rollback err: %v",
-			err,
-			tx.Rollback(ctx),
-		)
-	}
-
-	expiresAt := time.Now().Add(time.Duration(tokenRes.ExpiresIn) * time.Second)
-	token, err := q.CreateToken(ctx, db.CreateTokenParams{
-		AccessToken:  tokenRes.AccessToken,
-		RefreshToken: tokenRes.RefreshToken,
-		TokenType:    tokenRes.TokenType,
-		ExpiresAt:    expiresAt,
-		Scope:        tokenRes.Scope,
-		User:         user,
-	})
-	if err != nil {
-		return db.Token{}, fmt.Errorf(
-			"err: %w; rollback err: %v",
-			err,
-			tx.Rollback(ctx),
-		)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return db.Token{}, fmt.Errorf("commit err: %w", err)
-	}
-
-	return token, nil
-}
-
 func (s *Server) Sync(
 	ctx context.Context,
 	req *pb.SyncReq,
@@ -187,4 +115,76 @@ func (s *Server) Sync(
 	}
 
 	return &pb.SyncRes{}, nil
+}
+
+func (s *Server) getToken(
+	ctx context.Context,
+	user uuid.UUID,
+) (db.Token, error) {
+	tx, err := s.db.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return db.Token{}, err
+	}
+	q := db.New(tx)
+
+	tokens, err := q.GetTokens(ctx, user)
+	if err != nil {
+		return db.Token{}, fmt.Errorf(
+			"err: %w; rollback err: %v",
+			err,
+			tx.Rollback(ctx),
+		)
+	}
+	if len(tokens) != 0 {
+		return tokens[0], nil
+	}
+
+	code, err := s.tink.AuthorizeGrant(&tink.AuthorizeGrantReq{
+		ExternalUserID: user.String(),
+		Scope:          "accounts:read,balances:read,transactions:read,provider-consents:read,credentials:refresh",
+	})
+	if err != nil {
+		return db.Token{}, fmt.Errorf(
+			"err: %w; rollback err: %v",
+			err,
+			tx.Rollback(ctx),
+		)
+	}
+
+	tokenRes, err := s.tink.OAuthToken(&tink.OAuthTokenReq{
+		Code:         code,
+		ClientID:     s.clientID,
+		ClientSecret: s.clientSecret,
+		GrantType:    "authorization_code",
+	})
+	if err != nil {
+		return db.Token{}, fmt.Errorf(
+			"err: %w; rollback err: %v",
+			err,
+			tx.Rollback(ctx),
+		)
+	}
+
+	expiresAt := time.Now().Add(time.Duration(tokenRes.ExpiresIn) * time.Second)
+	token, err := q.CreateToken(ctx, db.CreateTokenParams{
+		AccessToken:  tokenRes.AccessToken,
+		RefreshToken: tokenRes.RefreshToken,
+		TokenType:    tokenRes.TokenType,
+		ExpiresAt:    expiresAt,
+		Scope:        tokenRes.Scope,
+		User:         user,
+	})
+	if err != nil {
+		return db.Token{}, fmt.Errorf(
+			"err: %w; rollback err: %v",
+			err,
+			tx.Rollback(ctx),
+		)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return db.Token{}, fmt.Errorf("commit err: %w", err)
+	}
+
+	return token, nil
 }

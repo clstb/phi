@@ -2,11 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	db "github.com/clstb/phi/pkg/db/auth"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -14,7 +16,12 @@ func (s *Server) Login(
 	ctx context.Context,
 	req *pb.User,
 ) (*pb.JWT, error) {
-	q := db.New(s.db)
+	tx, ok := ctx.Value("tx").(pgx.Tx)
+	if !ok {
+		return nil, fmt.Errorf("context: missing database transaction")
+	}
+	q := db.New(tx)
+
 	user, err := q.GetUserByName(ctx, req.Name)
 	if err != nil {
 		return nil, err

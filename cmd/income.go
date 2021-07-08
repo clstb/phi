@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"text/tabwriter"
 
 	"github.com/clstb/phi/pkg/fin"
@@ -79,14 +78,14 @@ func Income(ctx *cli.Context) error {
 		return err
 	}
 
-	re := regexp.MustCompile("^(Income|Expenses)")
+	accountsById := accounts.ById()
 	amounts = fin.Amounts{}
 	for accountId, v := range sum {
-		// these accounts always exist so we don't check for empty
-		account := accounts.ById(accountId)
-		if !re.MatchString(account.Name) {
+		_, ok := accountsById[accountId]
+		if !ok {
 			continue
 		}
+
 		amounts = append(amounts, v...)
 	}
 

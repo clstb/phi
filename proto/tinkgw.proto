@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/pkg/pb";
+
+service TinkGW {
+	rpc Link(LinkReq) returns (LinkRes);
+	rpc Sync(SyncReq) returns (SyncRes);
+}
+
+message LinkReq {
+	string market = 1;
+	string locale = 2;
+}
+
+message LinkRes {
+	string tink_link = 1;
+}
+
+message SyncReq {}
+
+message SyncRes {}

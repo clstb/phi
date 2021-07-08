@@ -1,45 +1,16 @@
 package csv
 
 import (
-	"crypto/sha256"
 	"encoding/csv"
-	"encoding/hex"
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 
-	"github.com/clstb/phi/cmd"
 	"github.com/clstb/phi/pkg/config"
-	"github.com/clstb/phi/pkg/fin"
-	"github.com/clstb/phi/pkg/pb"
 	"github.com/urfave/cli/v2"
 )
 
 func Parse(ctx *cli.Context) error {
-	core, err := cmd.Core(ctx)
-	if err != nil {
-		return err
-	}
-
-	transactionsPB, err := core.GetTransactions(
-		ctx.Context,
-		&pb.TransactionsQuery{},
-	)
-	if err != nil {
-		return err
-	}
-
-	transactions, err := fin.TransactionsFromPB(transactionsPB)
-	if err != nil {
-		return err
-	}
-
-	hashes := make(map[string]struct{})
-	for _, transaction := range transactions {
-		hashes[transaction.Hash] = struct{}{}
-	}
-
 	filePath := ctx.Path("file")
 	f, err := os.OpenFile(filePath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
@@ -84,23 +55,6 @@ func Parse(ctx *cli.Context) error {
 	w := csv.NewWriter(output)
 	w.Comma = ';'
 	for i, record := range records {
-		hash := sha256.New()
-		_, err = hash.Write([]byte(strings.Join([]string{
-			record[fc.Date],
-			record[fc.Entity],
-			record[fc.Reference],
-			record[fc.Amount] + " " + record[fc.Currency],
-		}, "")))
-		if err != nil {
-			return err
-		}
-		hashStr := hex.EncodeToString(hash.Sum(nil))
-
-		_, ok := hashes[hashStr]
-		if ok {
-			continue
-		}
-
 		if i >= 1 && records[i][fc.Entity] != records[i-1][fc.Entity] {
 			output.Write([]byte("\n"))
 		}

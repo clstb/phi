@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-tinkgw
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    spec:
+      initContainers:
+        - image: clstb/phi
+          name: phi-tinkgw-migrate
+          args: ["migrate", "tinkgw"]
+          envFrom:
+            - secretRef:
+                name: phi-tinkgw
+                optional: false 
+      containers:
+        - image: clstb/phi
+          name: phi-tinkgw
+          args: ["server", "tinkgw"]
+          envFrom:
+            - secretRef:
+                name: phi-tinkgw
+                optional: false
+          ports:
+            - containerPort: 9000
+              name: grpc

@@ -80,9 +80,12 @@ func BalSheet(ctx *cli.Context) error {
 
 	re = regexp.MustCompile("^Equity")
 	amounts = fin.Amounts{}
+	accountsById := accounts.ById()
 	for accountId, v := range sum {
-		// these accounts always exist so we don't check for empty
-		account := accounts.ById(accountId)
+		account, ok := accountsById[accountId]
+		if !ok {
+			return fmt.Errorf("account not found: %s", accountId)
+		}
 		if !re.MatchString(account.Name) {
 			continue
 		}

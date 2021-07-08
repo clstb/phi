@@ -1,6 +1,7 @@
 package create
 
 import (
+	"database/sql"
 	"strings"
 	"time"
 
@@ -49,8 +50,7 @@ func Transaction(ctx *cli.Context) error {
 	}
 
 	p = promptui.Prompt{
-		Label:   "Entity",
-		Default: "Username",
+		Label: "Entity",
 	}
 	entity, err := p.Run()
 	if err != nil {
@@ -65,94 +65,62 @@ func Transaction(ctx *cli.Context) error {
 		return err
 	}
 
-	transaction := fin.Transaction{}
-	transaction.Date = date
-	transaction.Entity = entity
-	transaction.Reference = reference
-
+	accountNames := accounts.Names()
 	pSelect := promptui.Select{
-		Label: "Select action",
-		Items: []string{"Done", "Add posting"},
-	}
-	for {
-		_, action, err := pSelect.Run()
-		if err != nil {
-			return err
-		}
-		if action == "Done" {
-			break
-		}
-		posting, err := postingPrompt(accounts)
-		if err != nil {
-			return err
-		}
-		transaction.Postings = append(transaction.Postings, posting)
+		Label:             "Select account",
+		Items:             accountNames,
+		StartInSearchMode: true,
+		Searcher: func(s string, i int) bool {
+			s = strings.ToLower(strings.TrimSpace(s))
+			name := strings.ToLower(strings.TrimSpace(accountNames[i]))
+			return fuzzy.Match(s, name)
+		},
 	}
 
-	stream, err := core.CreateTransactions(ctx.Context)
+	_, fromName, err := pSelect.Run()
 	if err != nil {
 		return err
 	}
-	if err := stream.Send(transaction.PB()); err != nil {
+
+	_, toName, err := pSelect.Run()
+	if err != nil {
 		return err
 	}
-	_, err = stream.CloseAndRecv()
+
+	p = promptui.Prompt{
+		Label: "Amount",
+	}
+	amountStr, err := p.Run()
+	if err != nil {
+		return err
+	}
+	amount, err := fin.AmountFromString(amountStr)
+	if err != nil {
+		return err
+	}
+
+	transaction := fin.Transaction{}
+	transaction.Date = date
+	transaction.Entity = entity
+	if reference != "" {
+		transaction.Reference = sql.NullString{
+			String: reference,
+			Valid:  true,
+		}
+	}
+	transaction.From = accounts.ByName(fromName).ID
+	transaction.To = accounts.ByName(toName).ID
+	transaction.Units = amount.Abs()
+
+	_, err = core.CreateTransactions(
+		ctx.Context,
+		&pb.Transactions{
+			Data: []*pb.Transaction{transaction.PB()},
+		},
+	)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func postingPrompt(accounts fin.Accounts) (fin.Posting, error) {
-	accountNames := accounts.Names()
-
-	getAccount := func() (fin.Account, error) {
-		p := promptui.Select{
-			Label:             "Select account",
-			Items:             accountNames,
-			StartInSearchMode: true,
-			Searcher: func(s string, i int) bool {
-				s = strings.ToLower(strings.TrimSpace(s))
-				name := strings.ToLower(strings.TrimSpace(accountNames[i]))
-				return fuzzy.Match(s, name)
-			},
-		}
-
-		_, accountName, err := p.Run()
-		if err != nil {
-			return fin.Account{}, err
-		}
-		return accounts.ByName(accountName), nil
-	}
-	getAmount := func(label string) (fin.Amount, error) {
-		p := promptui.Prompt{
-			Label: "Units",
-		}
-		amountStr, err := p.Run()
-		if err != nil {
-			return fin.Amount{}, err
-		}
-		amount, err := fin.AmountFromString(amountStr)
-		if err != nil {
-			return fin.Amount{}, err
-		}
-
-		return amount, nil
-	}
-
-	account, err := getAccount()
-	if err != nil {
-		return fin.Posting{}, err
-	}
-	units, err := getAmount("Enter units")
-	if err != nil {
-		return fin.Posting{}, err
-	}
-
-	posting := fin.Posting{}
-	posting.Account = account.ID
-	posting.Units = units
-
-	return posting, nil
 }

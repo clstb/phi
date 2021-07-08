@@ -1,14 +1,13 @@
 package core
 
 import (
-	"database/sql"
-
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type Server struct {
 	pb.UnimplementedCoreServer
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 func New(opts ...Opt) *Server {
@@ -23,7 +22,7 @@ func New(opts ...Opt) *Server {
 
 type Opt func(s *Server)
 
-func WithDB(db *sql.DB) Opt {
+func WithDB(db *pgxpool.Pool) Opt {
 	return func(s *Server) {
 		s.db = db
 	}

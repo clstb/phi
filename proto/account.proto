@@ -6,6 +6,7 @@ option go_package = "github.com/clstb/phi/pkg/pb";
 message Account {
 	string id = 1;
 	string name = 2;
+	string user = 3;
 }
 
 message Accounts {

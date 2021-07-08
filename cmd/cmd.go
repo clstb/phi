@@ -9,6 +9,7 @@ import (
 	"github.com/clstb/phi/pkg/config"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 	"github.com/xlab/treeprint"
 	"google.golang.org/grpc"
@@ -55,6 +56,46 @@ func Core(ctx *cli.Context) (pb.CoreClient, error) {
 	return pb.NewCoreClient(conn), nil
 }
 
+func TinkGW(ctx *cli.Context) (pb.TinkGWClient, error) {
+	configPath := ctx.String("config")
+	config, err := config.Load(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	tinkGWHost := ctx.String("tinkgw-host")
+
+	conn, err := grpc.Dial(
+		tinkGWHost,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+				ctx = metadata.AppendToOutgoingContext(
+					ctx,
+					"authorization",
+					fmt.Sprintf("Bearer %s", config.AccessToken),
+				)
+				return invoker(ctx, method, req, reply, cc, opts...)
+			},
+		),
+		grpc.WithStreamInterceptor(
+			func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+				ctx = metadata.AppendToOutgoingContext(
+					ctx,
+					"authorization",
+					fmt.Sprintf("Bearer %s", config.AccessToken),
+				)
+				return streamer(ctx, desc, cc, method, opts...)
+			},
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return pb.NewTinkGWClient(conn), nil
+}
+
 func Auth(ctx *cli.Context) (pb.AuthClient, error) {
 	authHost := ctx.String("auth-host")
 
@@ -82,12 +123,28 @@ func renderTree(
 	m := make(map[string]treeprint.Tree)
 	for _, account := range accounts {
 		path := strings.Split(account.Name, ":")
+		if path[0] == "Uncategorized" {
+			continue
+		}
+
 		branch := tree
 		for i, s := range path {
 			v, ok := m[strings.Join(path[:i+1], ":")]
 			if ok {
 				branch = v
 				continue
+			}
+			switch s {
+			case "Liabilities":
+				s = color.RedString(" ") + s
+			case "Equity":
+				s = color.MagentaString(" ") + s
+			case "Assets":
+				s = color.YellowString(" ") + s
+			case "Income":
+				s = color.GreenString("ﲓ ") + s
+			case "Expenses":
+				s = color.RedString("ﲔ ") + s
 			}
 			branch = branch.AddMetaBranch(s, "\t")
 			m[strings.Join(path[:i+1], ":")] = branch

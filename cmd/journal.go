@@ -30,6 +30,7 @@ func Journal(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	accountsById := accounts.ById()
 
 	from, to := ctx.String("from"), ctx.String("to")
 	transactionsPB, err := core.GetTransactions(
@@ -59,24 +60,29 @@ func Journal(ctx *cli.Context) error {
 
 	tree := treeprint.New()
 	tree.SetMetaValue("Journal")
+	tree.SetValue("")
 
 	w := tabwriter.NewWriter(os.Stdout, 8, 8, 0, '\t', 0)
 
 	for _, date := range byDateKeys {
 		transactions := byDate[date]
-		tb := tree.AddMetaBranch(date, "\t")
+		tb := tree.AddMetaBranch(date, "\t\t\t\t\t\t")
 		for _, transaction := range transactions {
-			pb := tb.AddMetaBranch(transaction.Entity, "\t")
-			for _, posting := range transaction.Postings {
-				// these accounts always exist so we don't check for empty
-				account := accounts.ById(posting.Account.String())
-				pb.AddMetaNode(account.Name, fmt.Sprintf(
-					"\t%s\t%s\t%s",
-					posting.Units.Color(false),
-					posting.Cost.Color(false),
-					posting.Price.Color(false),
-				))
+			from, ok := accountsById[transaction.From.String()]
+			if !ok {
+				return fmt.Errorf("account not found: %s", transaction.From)
 			}
+			to, ok := accountsById[transaction.To.String()]
+			if !ok {
+				return fmt.Errorf("account not found: %s", transaction.To)
+			}
+			tb.AddMetaBranch(transaction.Entity, fmt.Sprintf("\t%s\t=>\t%s\t%s\t[%s]\t(%s)",
+				from.Name,
+				to.Name,
+				transaction.Units.String(),
+				transaction.Cost.String(),
+				transaction.Price.String(),
+			))
 		}
 	}
 

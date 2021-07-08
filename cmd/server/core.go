@@ -1,7 +1,7 @@
 package server
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"net"
 
@@ -10,7 +10,10 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgtype"
+	shopspring "github.com/jackc/pgtype/ext/shopspring-numeric"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -40,15 +43,25 @@ func Core(ctx *cli.Context) error {
 
 	// create db connection
 	dbStr := ctx.String("db")
-	db, err := sql.Open(
-		"postgres",
-		dbStr,
-	)
+	connConfig, err := pgxpool.ParseConfig(dbStr)
+	connConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		conn.ConnInfo().RegisterDataType(pgtype.DataType{
+			Value: &shopspring.Numeric{},
+			Name:  "numeric",
+			OID:   pgtype.NumericOID,
+		})
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	db, err := pgxpool.ConnectConfig(ctx.Context, connConfig)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	if err := db.Ping(); err != nil {
+	if err := db.Ping(ctx.Context); err != nil {
 		return err
 	}
 

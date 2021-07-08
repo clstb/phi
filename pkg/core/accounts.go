@@ -2,13 +2,13 @@ package core
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/fin"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgx/v4"
 )
 
 func (s *Server) CreateAccount(
@@ -30,25 +30,20 @@ func (s *Server) CreateAccount(
 		return nil, err
 	}
 
-	tx, ok := ctx.Value("tx").(*sql.Tx)
+	tx, ok := ctx.Value("tx").(pgx.Tx)
 	if !ok {
 		return nil, fmt.Errorf("context: missing transaction")
 	}
 	q := db.New(tx)
 
-	accountDB, err := q.CreateAccount(ctx, account.Name)
-	if err != nil {
-		return nil, err
-	}
-	account = fin.AccountFromDB(accountDB)
-
-	_, err = q.LinkAccount(ctx, db.LinkAccountParams{
-		Account: account.ID,
-		User:    sub,
+	accountDB, err := q.CreateAccount(ctx, db.CreateAccountParams{
+		Name: account.Name,
+		User: sub,
 	})
 	if err != nil {
 		return nil, err
 	}
+	account = fin.AccountFromDB(accountDB)
 
 	return account.PB(), nil
 }
@@ -66,7 +61,7 @@ func (s *Server) GetAccounts(
 		return nil, err
 	}
 
-	tx, ok := ctx.Value("tx").(*sql.Tx)
+	tx, ok := ctx.Value("tx").(pgx.Tx)
 	if !ok {
 		return nil, fmt.Errorf("context: missing transaction")
 	}

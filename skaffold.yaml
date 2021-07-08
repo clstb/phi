@@ -5,10 +5,8 @@ metadata:
 build:
   artifacts:
   - image: clstb/phi
-    custom:
-      buildCommand: ./build.sh
 deploy:
-  kubeContext: minikube
+  kubeContext: docker-desktop
   kustomize:
     paths:
     - k8s/local

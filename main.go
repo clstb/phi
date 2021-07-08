@@ -41,9 +41,10 @@ func main() {
 						Action: server.Core,
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:    "db",
-								Usage:   "postgres compatible database connection string",
-								EnvVars: []string{"DB"},
+								Name:     "db",
+								Usage:    "postgres compatible database connection string",
+								EnvVars:  []string{"DB"},
+								Required: true,
 							},
 						},
 					},
@@ -53,14 +54,46 @@ func main() {
 						Action: server.Auth,
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:    "db",
-								Usage:   "postgres compatible database connection string",
-								EnvVars: []string{"DB"},
+								Name:     "db",
+								Usage:    "postgres compatible database connection string",
+								EnvVars:  []string{"DB"},
+								Required: true,
 							},
 							&cli.StringFlag{
 								Name:     "signing-secret",
 								Usage:    "secret to sign jwt's with",
 								EnvVars:  []string{"SIGNING_SECRET"},
+								Required: true,
+							},
+						},
+					},
+					{
+						Name:   "tinkgw",
+						Usage:  "starts the phi tinkgw microservice",
+						Action: server.TinkGW,
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:     "db",
+								Usage:    "postgres compatible database connection string",
+								EnvVars:  []string{"DB"},
+								Required: true,
+							},
+							&cli.StringFlag{
+								Name:     "tink-client-id",
+								Usage:    "client id of your tink app",
+								EnvVars:  []string{"TINK_CLIENT_ID"},
+								Required: true,
+							},
+							&cli.StringFlag{
+								Name:     "tink-client-secret",
+								Usage:    "client secret of your tink app",
+								EnvVars:  []string{"TINK_CLIENT_SECRET"},
+								Required: true,
+							},
+							&cli.StringFlag{
+								Name:     "callback-url",
+								Usage:    "url where users are redirected to after tink link flow",
+								EnvVars:  []string{"CALLBACK_URL"},
 								Required: true,
 							},
 						},
@@ -93,6 +126,11 @@ func main() {
 						Usage:  "runs migrations for the phi auth microservice",
 						Action: migrate.Auth,
 					},
+					{
+						Name:   "tinkgw",
+						Usage:  "runs the migrations for the phi tinkgw microservice",
+						Action: migrate.TinkGW,
+					},
 				},
 			},
 			{
@@ -118,18 +156,6 @@ func main() {
 					{
 						Name:   "review",
 						Action: csv.Review,
-						Flags: []cli.Flag{
-							&cli.PathFlag{
-								Name:      "file",
-								Aliases:   []string{"f"},
-								Required:  true,
-								TakesFile: true,
-							},
-						},
-					},
-					{
-						Name:   "ingest",
-						Action: csv.Ingest,
 						Flags: []cli.Flag{
 							&cli.PathFlag{
 								Name:      "file",
@@ -243,12 +269,32 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:   "link",
+				Usage:  "link bank accounts using tink",
+				Action: cmd.Link,
+			},
+			{
+				Name:   "sync",
+				Usage:  "sync bank accounts using tink",
+				Action: cmd.Sync,
+			},
+			{
+				Name:   "categorize",
+				Usage:  "categorize yet uncategorized transactions",
+				Action: cmd.Categorize,
+			},
+			{
+				Name:   "train",
+				Usage:  "train the bayesian classifier with categorized transactions",
+				Action: cmd.Train,
+			},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "core-host",
 				Usage:   "phi core server host",
-				Value:   "localhost:9000",
+				Value:   "localhost:9001",
 				EnvVars: []string{"CORE_HOST"},
 			},
 			&cli.StringFlag{
@@ -256,6 +302,12 @@ func main() {
 				Usage:   "phi auth server host",
 				Value:   "localhost:9000",
 				EnvVars: []string{"AUTH_HOST"},
+			},
+			&cli.StringFlag{
+				Name:    "tinkgw-host",
+				Usage:   "phi tinkgw server host",
+				Value:   "localhost:9002",
+				EnvVars: []string{"TINKGW_HOST"},
 			},
 			&cli.StringFlag{
 				Name:  "config",

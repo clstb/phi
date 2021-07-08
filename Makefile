@@ -15,7 +15,7 @@ test-integration:
 install-generators:
 	go get google.golang.org/protobuf/cmd/protoc-gen-go
 	go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
-	go get github.com/kyleconroy/sqlc/cmd/sqlc@v1.6.0
+	go get github.com/kyleconroy/sqlc/cmd/sqlc@main
 
 gen: gen-sql gen-proto
 

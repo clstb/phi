@@ -47,15 +47,13 @@ func (a Accounts) PB() *pb.Accounts {
 	}
 }
 
-// ById returns the first account matching given id.
-// An empty account is returned when no account is found.
-func (a Accounts) ById(id string) Account {
+// ById returns a map[id]Account
+func (a Accounts) ById() map[string]Account {
+	m := map[string]Account{}
 	for _, account := range a {
-		if account.ID.String() == id {
-			return account
-		}
+		m[account.ID.String()] = account
 	}
-	return Account{}
+	return m
 }
 
 // ByName returns the first account matching given name.

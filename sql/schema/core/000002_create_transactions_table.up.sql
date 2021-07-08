@@ -2,6 +2,16 @@ CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   date DATE NOT NULL,
   entity STRING NOT NULL,
-  reference STRING NOT NULL,
-  hash STRING NOT NULL
+  reference STRING,
+  "user" UUID NOT NULL,
+  "from" UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  "to" UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  units NUMERIC NOT NULL,
+  unitsCur STRING NOT NULL,
+  cost NUMERIC NOT NULL, 
+  costCur STRING NOT NULL,
+  price NUMERIC NOT NULL,
+  priceCur STRING NOT NULL,
+  tink_id STRING UNIQUE,
+  debit BOOLEAN NOT NULL
 );

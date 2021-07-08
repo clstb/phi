@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"fmt"
 	"net"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/clstb/phi/pkg/pb"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -22,15 +22,12 @@ func Auth(ctx *cli.Context) error {
 
 	// create db connection
 	dbStr := ctx.String("db")
-	db, err := sql.Open(
-		"postgres",
-		dbStr,
-	)
+	db, err := pgxpool.Connect(ctx.Context, dbStr)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	if err := db.Ping(); err != nil {
+	if err := db.Ping(ctx.Context); err != nil {
 		return err
 	}
 

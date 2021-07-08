@@ -2,9 +2,11 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
 	db "github.com/clstb/phi/pkg/db/auth"
 	"github.com/clstb/phi/pkg/pb"
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,9 +22,9 @@ func (s *Server) Register(
 		return nil, err
 	}
 
-	tx, err := s.db.BeginTx(ctx, nil)
-	if err != nil {
-		return nil, err
+	tx, ok := ctx.Value("tx").(pgx.Tx)
+	if !ok {
+		return nil, fmt.Errorf("context: missing database transaction")
 	}
 	q := db.New(tx)
 
@@ -31,11 +33,6 @@ func (s *Server) Register(
 		Password: password_hashed,
 	})
 	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 

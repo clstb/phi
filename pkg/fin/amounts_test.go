@@ -18,36 +18,31 @@ func TestAmountsSum(t *testing.T) {
 	add := func(t test) {
 		tests = append(tests, t)
 	}
-	fromString := func(s string) fin.Amount {
-		amount, err := fin.AmountFromString(s)
-		is.NoErr(err)
-		return amount
-	}
 	add(test{
 		do: func() (fin.Amounts, error) {
 			return fin.Amounts{
-				fromString("0.1 EUR"),
-				fromString("0.1 EUR"),
-				fromString("0.1 EUR"),
-				fromString("0.1 EUR"),
-				fromString("0.1 EUR"),
-				fromString("0.3 USD"),
-				fromString("0.3 USD"),
-				fromString("0.3 USD"),
-				fromString("0.3 USD"),
-				fromString("0.3 USD"),
-				fromString("1 CAD"),
-				fromString("1 CAD"),
-				fromString("1 CAD"),
-				fromString("1 CAD"),
-				fromString("1 CAD"),
+				fin.NewAmount(1, 1, "EUR"),
+				fin.NewAmount(1, 1, "EUR"),
+				fin.NewAmount(1, 1, "EUR"),
+				fin.NewAmount(1, 1, "EUR"),
+				fin.NewAmount(1, 1, "EUR"),
+				fin.NewAmount(3, 1, "USD"),
+				fin.NewAmount(3, 1, "USD"),
+				fin.NewAmount(3, 1, "USD"),
+				fin.NewAmount(3, 1, "USD"),
+				fin.NewAmount(3, 1, "USD"),
+				fin.NewAmount(1, 0, "CAD"),
+				fin.NewAmount(1, 0, "CAD"),
+				fin.NewAmount(1, 0, "CAD"),
+				fin.NewAmount(1, 0, "CAD"),
+				fin.NewAmount(1, 0, "CAD"),
 			}.Sum()
 		},
 		check: func(a fin.Amounts, e error) {
 			is.NoErr(e)
-			is.Equal(a.ByCurrency("EUR"), fromString("0.5 EUR"))
-			is.Equal(a.ByCurrency("USD"), fromString("1.5 USD"))
-			is.Equal(a.ByCurrency("CAD"), fromString("5 CAD"))
+			is.Equal(a.ByCurrency("EUR"), fin.NewAmount(5, 1, "EUR"))
+			is.Equal(a.ByCurrency("USD"), fin.NewAmount(15, 1, "USD"))
+			is.Equal(a.ByCurrency("CAD"), fin.NewAmount(5, 0, "CAD"))
 		},
 	})
 

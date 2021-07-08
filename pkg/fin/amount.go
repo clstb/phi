@@ -15,6 +15,14 @@ type Amount struct {
 	Currency string
 }
 
+// NewAmount creates a new amount with given value, scale and currency
+func NewAmount(value int64, scale int32, currency string) Amount {
+	return Amount{
+		Decimal:  decimal.New(value, scale),
+		Currency: currency,
+	}
+}
+
 // StringRaw returns the amount decimal as string.
 func (a Amount) StringRaw() string {
 	return a.Decimal.String()
@@ -65,9 +73,14 @@ func (a Amount) Color(invert bool) string {
 	)
 }
 
-// IsZero return true when the amounts decimal is zero or false otherwise.
+// IsZero returns true when the amounts decimal is zero or false otherwise.
 func (a Amount) IsZero() bool {
 	return a.Decimal.IsZero()
+}
+
+// IsNegative returns true when the amounts decimal is negative or false otherwise.
+func (a Amount) IsNegative() bool {
+	return a.Decimal.IsNegative()
 }
 
 // Abs returns a new amount with absolute decimal.

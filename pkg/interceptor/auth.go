@@ -10,7 +10,7 @@ import (
 
 func auth(client pb.AuthClient) func(ctx context.Context) (context.Context, error) {
 	return func(ctx context.Context) (context.Context, error) {
-		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
+		jwt, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, err
 		}
@@ -18,7 +18,7 @@ func auth(client pb.AuthClient) func(ctx context.Context) (context.Context, erro
 		claims, err := client.Verify(
 			ctx,
 			&pb.JWT{
-				AccessToken: token,
+				AccessToken: jwt,
 			},
 		)
 		if err != nil {
@@ -26,6 +26,7 @@ func auth(client pb.AuthClient) func(ctx context.Context) (context.Context, erro
 		}
 
 		ctx = context.WithValue(ctx, "sub", claims.Subject)
+		ctx = context.WithValue(ctx, "jwt", jwt)
 		return ctx, nil
 	}
 }

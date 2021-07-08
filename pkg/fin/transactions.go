@@ -1,8 +1,10 @@
 package fin
 
 import (
+	"fmt"
 	"regexp"
 
+	db "github.com/clstb/phi/pkg/db/core"
 	"github.com/clstb/phi/pkg/pb"
 	"github.com/gofrs/uuid"
 )
@@ -24,6 +26,16 @@ func TransactionsFromPB(pb *pb.Transactions) (Transactions, error) {
 	return transactions, nil
 }
 
+// TransactionsFromDB creates new transactions from their database representation.
+func TransactionsFromDB(ts []db.Transaction) Transactions {
+	var transactions Transactions
+	for _, v := range ts {
+		transactions = append(transactions, TransactionFromDB(v))
+	}
+
+	return transactions
+}
+
 // PB marshalls the transactions into their protobuf representation.
 func (t Transactions) PB() *pb.Transactions {
 	var data []*pb.Transaction
@@ -36,34 +48,41 @@ func (t Transactions) PB() *pb.Transactions {
 	}
 }
 
-// Sum calculates the sum of all transactions grouped by the account each posting belongs to.
+// Sum calculates the sum of all transactions grouped by accounts.
 func (t Transactions) Sum() (map[string]Amounts, error) {
-	sums := make(map[string]Amounts)
+	sum := make(map[string]Amounts)
 	for _, transaction := range t {
-		sum, err := transaction.Sum()
+		weight, err := transaction.Weight()
 		if err != nil {
 			return nil, err
 		}
 
-		for accountId, amounts := range sum {
-			v, ok := sums[accountId]
-			if !ok {
-				v = amounts
-			} else {
-				v = append(v, amounts...)
-			}
-			sums[accountId] = v
+		vFrom, ok := sum[transaction.From.String()]
+		if !ok {
+			vFrom = Amounts{weight.Neg()}
+		} else {
+			vFrom = append(vFrom, weight.Neg())
 		}
+		sum[transaction.From.String()] = vFrom
+
+		vTo, ok := sum[transaction.To.String()]
+		if !ok {
+			vTo = Amounts{weight}
+		} else {
+			vTo = append(vTo, weight)
+		}
+		sum[transaction.To.String()] = vTo
 	}
-	for k, v := range sums {
-		sum, err := v.Sum()
+
+	var err error
+	for k, v := range sum {
+		sum[k], err = v.Sum()
 		if err != nil {
 			return nil, err
 		}
-		sums[k] = sum
 	}
 
-	return sums, nil
+	return sum, nil
 }
 
 // Clear adds transactions to balance each income and expenses account to 0.
@@ -84,27 +103,26 @@ func (t Transactions) Clear(accounts Accounts) (Transactions, error) {
 		return Transactions{}, err
 	}
 
+	accountsById := accounts.ById()
 	var transactions Transactions
 	for accountId, amounts := range sum {
-		// these accounts always exist so we don't check for empty
-		account := accounts.ById(accountId)
+		account, ok := accountsById[accountId]
+		if !ok {
+			return Transactions{}, fmt.Errorf("account not fount: %s", accountId)
+		}
 		if !re.MatchString(account.Name) {
 			continue
 		}
 
 		for _, amount := range amounts {
 			transaction := Transaction{}
-
-			posting := Posting{}
-			posting.Account = ec.ID
-			posting.Units = amount
-			transaction.Postings = append(transaction.Postings, posting)
-
-			posting = Posting{}
-			posting.Account = uuid.FromStringOrNil(accountId) // TODO: this can break
-			posting.Units = amount.Neg()
-			transaction.Postings = append(transaction.Postings, posting)
-
+			from, err := uuid.FromString(accountId)
+			if err != nil {
+				return Transactions{}, err
+			}
+			transaction.From = from
+			transaction.To = ec.ID
+			transaction.Units = amount
 			transactions = append(transactions, transaction)
 		}
 

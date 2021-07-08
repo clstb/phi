@@ -54,6 +54,7 @@ func Categorize(ctx *cli.Context) error {
 		{Text: "Done", Description: "Push transactions and exit"},
 		{Text: "Add", Description: "Add new account"},
 		{Text: "Skip", Description: "Skip this transaction"},
+		{Text: "Exit", Description: "Exit with saving"},
 	}
 	for _, v := range accountsById {
 		suggestions = append(suggestions, prompt.Suggest{

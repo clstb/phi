@@ -58,14 +58,14 @@ JOIN
 ON
   transactions.to = accounts_to.id
 WHERE
-  date BETWEEN @from_date AND @to_date
+  transactions.date BETWEEN @from_date AND @to_date
 AND
   transactions.user = @user_id
-AND
+AND (
   accounts_from.name ~ @account_name
 OR
   accounts_to.name ~ @account_name
-ORDER BY
+) ORDER BY
   date
 DESC;
 -- name: DeleteTransaction :exec

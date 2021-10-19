@@ -1,0 +1,6 @@
+bases:
+- ./auth
+- ./tinkgw
+- ./postgres
+commonLabels:
+  app: phi

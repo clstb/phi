@@ -1,0 +1,41 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "server",
+    srcs = [
+        "login.go",
+        "register.go",
+        "server.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/services/auth/server",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/pkg/services/auth/db",
+        "//go/pkg/services/auth/pb",
+        "@com_github_dgrijalva_jwt_go//:jwt-go",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+        "@org_golang_x_crypto//bcrypt",
+    ],
+)
+
+go_test(
+    name = "server_test",
+    srcs = [
+        "login_test.go",
+        "register_test.go",
+        "server_test.go",
+    ],
+    deps = [
+        ":server",
+        "//go/pkg/services/auth/db",
+        "//go/pkg/services/auth/pb",
+        "@com_github_golang_migrate_migrate_v4//:migrate",
+        "@com_github_golang_migrate_migrate_v4//database/postgres",
+        "@com_github_golang_migrate_migrate_v4//source/file",
+        "@com_github_golang_migrate_migrate_v4//source/iofs",
+        "@com_github_jackc_pgx_v4//stdlib",
+        "@com_github_matryer_is//:is",
+        "@org_golang_x_crypto//bcrypt",
+    ],
+)

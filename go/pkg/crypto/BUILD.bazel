@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "crypto",
+    srcs = ["transcoder.go"],
+    importpath = "github.com/clstb/phi/go/pkg/crypto",
+    visibility = ["//visibility:public"],
+    deps = ["@io_filippo_age//:age"],
+)

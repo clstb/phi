@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/go/pkg/services/bookkeeper/pb";
+
+
+service Bookkeeper {
+    rpc Load(Ledger) returns (Ledger);
+    rpc Save(Ledger) returns (Ledger);
+}
+
+message Ledger {
+    string id = 1;
+    bytes data = 2;
+    bytes dk = 3;
+}

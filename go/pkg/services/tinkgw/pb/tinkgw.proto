@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "github.com/clstb/phi/go/pkg/services/tinkgw/pb";
+
+service TinkGW {
+	rpc GetLink(GetLinkReq) returns (Link);
+	rpc GetToken(Token) returns (Token);
+}
+
+message Token {
+	string access_token = 1;
+	string refresh_token = 2;
+	string token_type = 3;
+	int64 expires_at = 4;
+	string scope = 5;
+}
+
+message GetLinkReq {
+	string market = 1;
+	string locale = 2;
+}
+
+message Link {
+	string link = 1;
+}

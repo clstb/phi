@@ -1,0 +1,24 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "server",
+    srcs = [
+        "callback.go",
+        "link.go",
+        "routes.go",
+        "server.go",
+        "token.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/services/tinkgw/server",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/pkg/interceptor",
+        "//go/pkg/services/tinkgw/pb",
+        "//go/pkg/services/tinkgw/tink",
+        "@com_github_go_chi_chi//:chi",
+        "@com_github_go_chi_chi//middleware",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+        "@org_uber_go_zap//:zap",
+    ],
+)

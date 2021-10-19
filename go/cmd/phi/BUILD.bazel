@@ -1,0 +1,36 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "phi_lib",
+    srcs = [
+        "categorize.go",
+        "link.go",
+        "login.go",
+        "main.go",
+        "register.go",
+        "store.go",
+        "sync.go",
+    ],
+    importpath = "github.com/clstb/phi/go/cmd/phi",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//go/pkg/config",
+        "//go/pkg/interceptor",
+        "//go/pkg/parser",
+        "//go/pkg/services/auth/pb",
+        "//go/pkg/services/bookkeeper/pb",
+        "//go/pkg/services/tinkgw/pb",
+        "//go/pkg/services/tinkgw/tink",
+        "@com_github_jbrukh_bayesian//:bayesian",
+        "@com_github_manifoldco_promptui//:promptui",
+        "@com_github_shopspring_decimal//:decimal",
+        "@com_github_urfave_cli_v2//:cli",
+        "@org_golang_google_grpc//:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "phi",
+    embed = [":phi_lib"],
+    visibility = ["//visibility:public"],
+)

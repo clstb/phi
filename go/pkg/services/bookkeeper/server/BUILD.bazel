@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "server",
+    srcs = [
+        "load.go",
+        "save.go",
+        "server.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/services/bookkeeper/server",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/pkg/interceptor",
+        "//go/pkg/services/bookkeeper/db",
+        "//go/pkg/services/bookkeeper/pb",
+        "@com_github_gofrs_uuid//:uuid",
+        "@org_golang_google_grpc//codes",
+        "@org_golang_google_grpc//status",
+    ],
+)

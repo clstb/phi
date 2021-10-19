@@ -1,0 +1,23 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+metadata:
+  name: phi
+build:
+  local:
+   concurrency: 0
+  artifacts:
+  - image: clstb/phi-auth
+    bazel:
+      target: //go/cmd/auth:image.tar
+      args: 
+        - --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+  - image: clstb/phi-tinkgw
+    bazel:
+      target: //go/cmd/tinkgw:image.tar
+      args: 
+        - --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+deploy:
+  kubeContext: kind-kind
+  kustomize:
+    paths:
+    - k8s/local

@@ -1,0 +1,8 @@
+bases:
+  - ../base
+namespace: default
+secretGenerator:
+  - name: phi-auth
+    env: secret_auth.env
+  - name: phi-tinkgw
+    env: secret_tinkgw.env

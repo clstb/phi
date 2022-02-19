@@ -1,0 +1,5 @@
+resources:
+- service.yaml
+- statefulset.yaml
+commonLabels:
+  app: phi-auth-db

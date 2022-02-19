@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-tinkgw
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 10
+  template:
+    spec:
+      initContainers:
+        - name: wait-postgres
+          image: busybox:1.28
+          command: ['sh', '-c', "until nc -w 2 phi-tinkgw-db.default.svc.cluster.local 5432; do echo waiting for postgres; sleep 2; done"]
+        - image: ghcr.io/clstb/phi-tinkgw
+          name: phi-tinkgw-migrate
+          args: ["migrate"]
+          envFrom:
+            - secretRef:
+                name: phi-tinkgw
+                optional: false
+      containers:
+        - image: ghcr.io/clstb/phi-tinkgw
+          name: phi-tinkgw
+          args: ["server"]
+          envFrom:
+            - secretRef:
+                name: phi-tinkgw
+                optional: false
+          ports:
+            - containerPort: 9000
+              name: grpc

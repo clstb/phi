@@ -1,0 +1,29 @@
+app = "phi-tinkgw"
+
+[build]
+  image = "ghcr.io/clstb/phi-tinkgw:e4bb8692"
+
+[deploy]
+  release_command = "migrate"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.ports]]
+    handlers = ["tls"]
+    port = "443"
+
+  [services.ports.tls_options]
+    alpn = ["h2"] 
+
+  [[services.tcp_checks]]
+    interval = 10000
+    timeout = 2000
+
+[experimental]
+cmd = ["server"]

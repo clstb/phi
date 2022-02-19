@@ -1,0 +1,17 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "ledger",
+    srcs = [
+        "amount.go",
+        "ledger.go",
+        "metadata.go",
+        "open.go",
+        "posting.go",
+        "regexp.go",
+        "transaction.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/ledger",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_shopspring_decimal//:decimal"],
+)

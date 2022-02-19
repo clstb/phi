@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package authpb;
+option go_package = "github.com/clstb/phi/go/pkg/auth/pb";
+
+service Auth {
+	rpc Register(User) returns (Token);
+	rpc Login(User) returns (Token);
+}
+
+message User {
+	string id = 1;
+	string name = 2;
+	string password = 3;
+}
+
+message Token {
+	string access_token = 1;
+	string refresh_token = 2;
+	string token_type = 3;
+	int64 expires_at = 4;
+	string scope = 5;
+}

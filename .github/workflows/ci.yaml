@@ -25,15 +25,22 @@ jobs:
           - 5432:5432
     
     steps:
-    - name: Cache bazel
+    - name: Cache
       uses: actions/cache@v2.1.4
       env:
-        cache-name: bazel-cache
+        cache-name: cache
       with:
         path: |
           ~/.cache/bazelisk
           ~/.cache/bazel
+          ~/.cache/go-build
+          ~/go/pkg/mod
         key: ${{ runner.os }}-${{ env.cache-name }}-v2
+
+    - name: Setup go 
+      uses: actions/setup-go@master
+      with:
+        go-version: "1.17.7"
 
     - name: Clone
       uses: actions/checkout@v2
@@ -51,59 +58,21 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Push
+    - name: Push containers
       run: make push
 
-  release:
-    needs: ci
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    steps:
-    - name: Cache go
-      uses: actions/cache@v2.1.4
-      env:
-        cache-name: go-cache
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-${{ env.cache-name }}-v1
-
-    - name: Cache bazel
-      uses: actions/cache@v2.1.4
-      env:
-        cache-name: bazel-cache
-      with:
-        path: |
-          ~/.cache/bazelisk
-          ~/.cache/bazel
-        key: ${{ runner.os }}-${{ env.cache-name }}-v2
-
-    - name: Setup go 
-      uses: actions/setup-go@master
-      with:
-        go-version: "1.17.7"
-
-    - name: Install gox
-      run: go get github.com/mitchellh/gox
-
-    - name: Clone
-      uses: actions/checkout@v2
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Push
+    - name: Release containers
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       run: VERSION=${{github.ref_name}} make push
 
-    - name: Build
-      run: gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" ./go/cmd/phi/
+    - name: Build binaries
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      run: |
+        go get github.com/mitchellh/gox
+        gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" ./go/cmd/phi/
 
-    - name: Release
+    - name: Release binaries
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: softprops/action-gh-release@v1
       with:
         files: |

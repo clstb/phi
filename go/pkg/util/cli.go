@@ -2,7 +2,6 @@ package util
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"io/fs"
 	"net"
@@ -10,7 +9,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/jackc/pgx/v4/stdlib"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -29,13 +28,17 @@ func Chain(funcs ...func(*cli.Context) error) func(ctx *cli.Context) error {
 }
 
 func GetDB(ctx *cli.Context) error {
-	dbConfig, err := pgx.ParseConfig(ctx.String("database-url"))
+	dbConfig, err := pgxpool.ParseConfig(ctx.String("database-url"))
 	if err != nil {
 		return err
 	}
 
-	db := stdlib.OpenDB(*dbConfig)
-	if err := db.Ping(); err != nil {
+	db, err := pgxpool.ConnectConfig(ctx.Context, dbConfig)
+	if err != nil {
+		return err
+	}
+
+	if err := db.Ping(ctx.Context); err != nil {
 		return err
 	}
 
@@ -44,12 +47,13 @@ func GetDB(ctx *cli.Context) error {
 }
 
 func CloseDB(ctx *cli.Context) error {
-	db, ok := ctx.Context.Value("db").(*sql.DB)
+	db, ok := ctx.Context.Value("db").(*pgxpool.Pool)
 	if !ok {
 		return nil
 	}
+	db.Close()
 
-	return db.Close()
+	return nil
 }
 
 func GetLogger(ctx *cli.Context) error {
@@ -90,7 +94,7 @@ func ListenGRPC(server *grpc.Server, logger *zap.Logger, port int) error {
 }
 
 func Migrate(
-	db *sql.DB,
+	db *pgxpool.Pool,
 	migrations fs.FS,
 	down bool,
 ) error {
@@ -99,7 +103,7 @@ func Migrate(
 		return err
 	}
 
-	dbDriver, err := postgres.WithInstance(db, &postgres.Config{})
+	dbDriver, err := postgres.WithInstance(stdlib.OpenDB(*db.Config().ConnConfig), &postgres.Config{})
 	if err != nil {
 		return err
 	}

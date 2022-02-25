@@ -7,7 +7,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 type TinkGWClient interface {
 	GetLink(ctx context.Context, in *GetLinkReq, opts ...grpc.CallOption) (*Link, error)
 	GetToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Token, error)
-	GetConsents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Consents, error)
 }
 
 type tinkGWClient struct {
@@ -50,22 +48,12 @@ func (c *tinkGWClient) GetToken(ctx context.Context, in *Token, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *tinkGWClient) GetConsents(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Consents, error) {
-	out := new(Consents)
-	err := c.cc.Invoke(ctx, "/tinkgwpb.TinkGW/GetConsents", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // TinkGWServer is the server API for TinkGW service.
 // All implementations must embed UnimplementedTinkGWServer
 // for forward compatibility
 type TinkGWServer interface {
 	GetLink(context.Context, *GetLinkReq) (*Link, error)
 	GetToken(context.Context, *Token) (*Token, error)
-	GetConsents(context.Context, *emptypb.Empty) (*Consents, error)
 	mustEmbedUnimplementedTinkGWServer()
 }
 
@@ -78,9 +66,6 @@ func (UnimplementedTinkGWServer) GetLink(context.Context, *GetLinkReq) (*Link, e
 }
 func (UnimplementedTinkGWServer) GetToken(context.Context, *Token) (*Token, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToken not implemented")
-}
-func (UnimplementedTinkGWServer) GetConsents(context.Context, *emptypb.Empty) (*Consents, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetConsents not implemented")
 }
 func (UnimplementedTinkGWServer) mustEmbedUnimplementedTinkGWServer() {}
 
@@ -131,24 +116,6 @@ func _TinkGW_GetToken_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TinkGW_GetConsents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TinkGWServer).GetConsents(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/tinkgwpb.TinkGW/GetConsents",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TinkGWServer).GetConsents(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // TinkGW_ServiceDesc is the grpc.ServiceDesc for TinkGW service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,10 +130,6 @@ var TinkGW_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetToken",
 			Handler:    _TinkGW_GetToken_Handler,
-		},
-		{
-			MethodName: "GetConsents",
-			Handler:    _TinkGW_GetConsents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

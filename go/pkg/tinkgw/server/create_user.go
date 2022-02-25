@@ -13,7 +13,7 @@ import (
 )
 
 func (s *Server) createUser(ctx context.Context, id uuid.UUID) error {
-	tx, err := s.db.Begin()
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -37,5 +37,5 @@ func (s *Server) createUser(ctx context.Context, id uuid.UUID) error {
 		return status.Error(codes.Internal, "db: creating user")
 	}
 
-	return tx.Commit()
+	return tx.Commit(ctx)
 }

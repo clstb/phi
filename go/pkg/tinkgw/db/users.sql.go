@@ -25,7 +25,7 @@ type CreateUserParams struct {
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.queryRow(ctx, q.createUserStmt, createUser, arg.ID, arg.TinkID)
+	row := q.db.QueryRow(ctx, createUser, arg.ID, arg.TinkID)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
@@ -41,7 +41,7 @@ WHERE
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
-	row := q.queryRow(ctx, q.getUserByIDStmt, getUserByID, id)
+	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(&i.ID, &i.TinkID)
 	return i, err

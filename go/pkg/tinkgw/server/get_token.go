@@ -10,6 +10,7 @@ import (
 	"github.com/clstb/phi/go/pkg/tink"
 	"github.com/clstb/phi/go/pkg/tinkgw/db"
 	"github.com/clstb/phi/go/pkg/tinkgw/pb"
+	"github.com/jackc/pgx/v4"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,7 +25,7 @@ func (s *Server) GetToken(
 		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
 	}
 
-	tx, ok := ctx.Value("tx").(*sql.Tx)
+	tx, ok := ctx.Value("tx").(pgx.Tx)
 	if !ok {
 		return nil, status.Error(codes.Internal, "missing tx")
 	}

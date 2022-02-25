@@ -9,7 +9,6 @@ package pb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 )
@@ -20,108 +19,6 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
-
-type Consent struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	ProviderName string `protobuf:"bytes,1,opt,name=provider_name,json=providerName,proto3" json:"provider_name,omitempty"`
-	Status       string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-}
-
-func (x *Consent) Reset() {
-	*x = Consent{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_tinkgw_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Consent) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Consent) ProtoMessage() {}
-
-func (x *Consent) ProtoReflect() protoreflect.Message {
-	mi := &file_tinkgw_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Consent.ProtoReflect.Descriptor instead.
-func (*Consent) Descriptor() ([]byte, []int) {
-	return file_tinkgw_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *Consent) GetProviderName() string {
-	if x != nil {
-		return x.ProviderName
-	}
-	return ""
-}
-
-func (x *Consent) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-type Consents struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Consents []*Consent `protobuf:"bytes,1,rep,name=consents,proto3" json:"consents,omitempty"`
-}
-
-func (x *Consents) Reset() {
-	*x = Consents{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_tinkgw_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Consents) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Consents) ProtoMessage() {}
-
-func (x *Consents) ProtoReflect() protoreflect.Message {
-	mi := &file_tinkgw_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Consents.ProtoReflect.Descriptor instead.
-func (*Consents) Descriptor() ([]byte, []int) {
-	return file_tinkgw_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Consents) GetConsents() []*Consent {
-	if x != nil {
-		return x.Consents
-	}
-	return nil
-}
 
 type Token struct {
 	state         protoimpl.MessageState
@@ -138,7 +35,7 @@ type Token struct {
 func (x *Token) Reset() {
 	*x = Token{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tinkgw_proto_msgTypes[2]
+		mi := &file_tinkgw_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -151,7 +48,7 @@ func (x *Token) String() string {
 func (*Token) ProtoMessage() {}
 
 func (x *Token) ProtoReflect() protoreflect.Message {
-	mi := &file_tinkgw_proto_msgTypes[2]
+	mi := &file_tinkgw_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +61,7 @@ func (x *Token) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Token.ProtoReflect.Descriptor instead.
 func (*Token) Descriptor() ([]byte, []int) {
-	return file_tinkgw_proto_rawDescGZIP(), []int{2}
+	return file_tinkgw_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Token) GetAccessToken() string {
@@ -214,7 +111,7 @@ type GetLinkReq struct {
 func (x *GetLinkReq) Reset() {
 	*x = GetLinkReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tinkgw_proto_msgTypes[3]
+		mi := &file_tinkgw_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -227,7 +124,7 @@ func (x *GetLinkReq) String() string {
 func (*GetLinkReq) ProtoMessage() {}
 
 func (x *GetLinkReq) ProtoReflect() protoreflect.Message {
-	mi := &file_tinkgw_proto_msgTypes[3]
+	mi := &file_tinkgw_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +137,7 @@ func (x *GetLinkReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLinkReq.ProtoReflect.Descriptor instead.
 func (*GetLinkReq) Descriptor() ([]byte, []int) {
-	return file_tinkgw_proto_rawDescGZIP(), []int{3}
+	return file_tinkgw_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetLinkReq) GetMarket() string {
@@ -268,7 +165,7 @@ type Link struct {
 func (x *Link) Reset() {
 	*x = Link{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tinkgw_proto_msgTypes[4]
+		mi := &file_tinkgw_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -281,7 +178,7 @@ func (x *Link) String() string {
 func (*Link) ProtoMessage() {}
 
 func (x *Link) ProtoReflect() protoreflect.Message {
-	mi := &file_tinkgw_proto_msgTypes[4]
+	mi := &file_tinkgw_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -294,7 +191,7 @@ func (x *Link) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Link.ProtoReflect.Descriptor instead.
 func (*Link) Descriptor() ([]byte, []int) {
-	return file_tinkgw_proto_rawDescGZIP(), []int{4}
+	return file_tinkgw_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Link) GetLink() string {
@@ -308,17 +205,7 @@ var File_tinkgw_proto protoreflect.FileDescriptor
 
 var file_tinkgw_proto_rawDesc = []byte{
 	0x0a, 0x0c, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x08,
-	0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
-	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x46, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74,
-	0x12, 0x23, 0x0a, 0x0d, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d,
-	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x70, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65,
-	0x72, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x39, 0x0a,
-	0x08, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74, 0x73, 0x12, 0x2d, 0x0a, 0x08, 0x63, 0x6f, 0x6e,
-	0x73, 0x65, 0x6e, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x74, 0x69,
-	0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74, 0x52, 0x08,
-	0x63, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74, 0x73, 0x22, 0xa3, 0x01, 0x0a, 0x05, 0x54, 0x6f, 0x6b,
+	0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x22, 0xa3, 0x01, 0x0a, 0x05, 0x54, 0x6f, 0x6b,
 	0x65, 0x6e, 0x12, 0x21, 0x0a, 0x0c, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x74, 0x6f, 0x6b,
 	0x65, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x65, 0x73, 0x73,
 	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x23, 0x0a, 0x0d, 0x72, 0x65, 0x66, 0x72, 0x65, 0x73, 0x68,
@@ -334,20 +221,17 @@ var file_tinkgw_proto_rawDesc = []byte{
 	0x72, 0x6b, 0x65, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x65, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x65, 0x22, 0x1a, 0x0a, 0x04,
 	0x4c, 0x69, 0x6e, 0x6b, 0x12, 0x12, 0x0a, 0x04, 0x6c, 0x69, 0x6e, 0x6b, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x04, 0x6c, 0x69, 0x6e, 0x6b, 0x32, 0xa2, 0x01, 0x0a, 0x06, 0x54, 0x69, 0x6e,
-	0x6b, 0x47, 0x57, 0x12, 0x2f, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x4c, 0x69, 0x6e, 0x6b, 0x12, 0x14,
-	0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x69, 0x6e,
-	0x6b, 0x52, 0x65, 0x71, 0x1a, 0x0e, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e,
-	0x4c, 0x69, 0x6e, 0x6b, 0x12, 0x2c, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x54, 0x6f, 0x6b, 0x65, 0x6e,
-	0x12, 0x0f, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x6b, 0x65,
-	0x6e, 0x1a, 0x0f, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x6b,
-	0x65, 0x6e, 0x12, 0x39, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74,
-	0x73, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x12, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
-	0x67, 0x77, 0x70, 0x62, 0x2e, 0x43, 0x6f, 0x6e, 0x73, 0x65, 0x6e, 0x74, 0x73, 0x42, 0x27, 0x5a,
-	0x25, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6c, 0x73, 0x74,
-	0x62, 0x2f, 0x70, 0x68, 0x69, 0x2f, 0x67, 0x6f, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x69, 0x6e,
-	0x6b, 0x67, 0x77, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x09, 0x52, 0x04, 0x6c, 0x69, 0x6e, 0x6b, 0x32, 0x67, 0x0a, 0x06, 0x54, 0x69, 0x6e, 0x6b,
+	0x47, 0x57, 0x12, 0x2f, 0x0a, 0x07, 0x47, 0x65, 0x74, 0x4c, 0x69, 0x6e, 0x6b, 0x12, 0x14, 0x2e,
+	0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x47, 0x65, 0x74, 0x4c, 0x69, 0x6e, 0x6b,
+	0x52, 0x65, 0x71, 0x1a, 0x0e, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x4c,
+	0x69, 0x6e, 0x6b, 0x12, 0x2c, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12,
+	0x0f, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x6b, 0x65, 0x6e,
+	0x1a, 0x0f, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x70, 0x62, 0x2e, 0x54, 0x6f, 0x6b, 0x65,
+	0x6e, 0x42, 0x27, 0x5a, 0x25, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x63, 0x6c, 0x73, 0x74, 0x62, 0x2f, 0x70, 0x68, 0x69, 0x2f, 0x67, 0x6f, 0x2f, 0x70, 0x6b, 0x67,
+	0x2f, 0x74, 0x69, 0x6e, 0x6b, 0x67, 0x77, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -362,28 +246,22 @@ func file_tinkgw_proto_rawDescGZIP() []byte {
 	return file_tinkgw_proto_rawDescData
 }
 
-var file_tinkgw_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_tinkgw_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_tinkgw_proto_goTypes = []interface{}{
-	(*Consent)(nil),       // 0: tinkgwpb.Consent
-	(*Consents)(nil),      // 1: tinkgwpb.Consents
-	(*Token)(nil),         // 2: tinkgwpb.Token
-	(*GetLinkReq)(nil),    // 3: tinkgwpb.GetLinkReq
-	(*Link)(nil),          // 4: tinkgwpb.Link
-	(*emptypb.Empty)(nil), // 5: google.protobuf.Empty
+	(*Token)(nil),      // 0: tinkgwpb.Token
+	(*GetLinkReq)(nil), // 1: tinkgwpb.GetLinkReq
+	(*Link)(nil),       // 2: tinkgwpb.Link
 }
 var file_tinkgw_proto_depIdxs = []int32{
-	0, // 0: tinkgwpb.Consents.consents:type_name -> tinkgwpb.Consent
-	3, // 1: tinkgwpb.TinkGW.GetLink:input_type -> tinkgwpb.GetLinkReq
-	2, // 2: tinkgwpb.TinkGW.GetToken:input_type -> tinkgwpb.Token
-	5, // 3: tinkgwpb.TinkGW.GetConsents:input_type -> google.protobuf.Empty
-	4, // 4: tinkgwpb.TinkGW.GetLink:output_type -> tinkgwpb.Link
-	2, // 5: tinkgwpb.TinkGW.GetToken:output_type -> tinkgwpb.Token
-	1, // 6: tinkgwpb.TinkGW.GetConsents:output_type -> tinkgwpb.Consents
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: tinkgwpb.TinkGW.GetLink:input_type -> tinkgwpb.GetLinkReq
+	0, // 1: tinkgwpb.TinkGW.GetToken:input_type -> tinkgwpb.Token
+	2, // 2: tinkgwpb.TinkGW.GetLink:output_type -> tinkgwpb.Link
+	0, // 3: tinkgwpb.TinkGW.GetToken:output_type -> tinkgwpb.Token
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_tinkgw_proto_init() }
@@ -393,30 +271,6 @@ func file_tinkgw_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_tinkgw_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Consent); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_tinkgw_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Consents); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_tinkgw_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Token); i {
 			case 0:
 				return &v.state
@@ -428,7 +282,7 @@ func file_tinkgw_proto_init() {
 				return nil
 			}
 		}
-		file_tinkgw_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_tinkgw_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetLinkReq); i {
 			case 0:
 				return &v.state
@@ -440,7 +294,7 @@ func file_tinkgw_proto_init() {
 				return nil
 			}
 		}
-		file_tinkgw_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_tinkgw_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Link); i {
 			case 0:
 				return &v.state
@@ -459,7 +313,7 @@ func file_tinkgw_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_tinkgw_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -2,21 +2,22 @@ package interceptor
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/grpc"
 )
 
-func TXUnary(db *sql.DB) grpc.UnaryServerInterceptor {
+func TXUnary(db *pgxpool.Pool) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		tx, err := db.BeginTx(ctx, &sql.TxOptions{})
+		tx, err := db.BeginTx(ctx, pgx.TxOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -27,11 +28,11 @@ func TXUnary(db *sql.DB) grpc.UnaryServerInterceptor {
 			return nil, fmt.Errorf(
 				"err: %w; rollback err: %v",
 				err,
-				tx.Rollback(),
+				tx.Rollback(ctx),
 			)
 		}
 
-		if err := tx.Commit(); err != nil {
+		if err := tx.Commit(ctx); err != nil {
 			return nil, fmt.Errorf("commit err: %w", err)
 		}
 
@@ -39,14 +40,14 @@ func TXUnary(db *sql.DB) grpc.UnaryServerInterceptor {
 	}
 }
 
-func TXStream(db *sql.DB) grpc.StreamServerInterceptor {
+func TXStream(db *pgxpool.Pool) grpc.StreamServerInterceptor {
 	return func(
 		srv interface{},
 		ss grpc.ServerStream,
 		info *grpc.StreamServerInfo,
 		handler grpc.StreamHandler,
 	) error {
-		tx, err := db.BeginTx(ss.Context(), &sql.TxOptions{})
+		tx, err := db.BeginTx(ss.Context(), pgx.TxOptions{})
 		if err != nil {
 			return err
 		}
@@ -59,11 +60,11 @@ func TXStream(db *sql.DB) grpc.StreamServerInterceptor {
 			return fmt.Errorf(
 				"err: %w; rollback err: %v",
 				err,
-				tx.Rollback(),
+				tx.Rollback(ctx),
 			)
 		}
 
-		if err := tx.Commit(); err != nil {
+		if err := tx.Commit(ctx); err != nil {
 			return fmt.Errorf("commit err: %w", err)
 		}
 

@@ -1,6 +1,7 @@
 package server_test
 
 import (
+	"context"
 	"log"
 	"os"
 	"testing"
@@ -10,7 +11,9 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	db, err := util.TestDB(os.Getenv("DATABASE_URL"), "phi_auth")
+	ctx := context.Background()
+
+	db, err := util.TestDB(ctx, os.Getenv("DATABASE_URL"), "phi_auth")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -2,13 +2,13 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 	"sync"
 
 	"github.com/clstb/phi/go/pkg/tink"
 	"github.com/clstb/phi/go/pkg/tinkgw/pb"
 	"github.com/go-chi/chi"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -30,7 +30,7 @@ type Server struct {
 	r            *chi.Mux
 	logger       *zap.Logger
 	sync.RWMutex
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 func New(
@@ -39,7 +39,7 @@ func New(
 	clientID string,
 	clientSecret string,
 	callbackURL string,
-	db *sql.DB,
+	db *pgxpool.Pool,
 ) *Server {
 	config := &clientcredentials.Config{
 		ClientID:     clientID,

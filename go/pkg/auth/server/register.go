@@ -2,17 +2,17 @@ package server
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/clstb/phi/go/pkg/auth/db"
 	"github.com/clstb/phi/go/pkg/auth/pb"
+	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Server) Register(ctx context.Context, user *pb.User) (*pb.Token, error) {
-	tx, ok := ctx.Value("tx").(*sql.Tx)
+	tx, ok := ctx.Value("tx").(pgx.Tx)
 	if !ok {
 		return nil, status.Error(codes.Internal, "missing tx")
 	}

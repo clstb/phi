@@ -1,41 +1,47 @@
 package util
 
 import (
-	"database/sql"
+	"context"
 
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/stdlib"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func TestDB(
+	ctx context.Context,
 	url,
 	name string,
-) (*sql.DB, error) {
-	dbConfig, err := pgx.ParseConfig(url)
+) (*pgxpool.Pool, error) {
+	dbConfig, err := pgxpool.ParseConfig(url)
 	if err != nil {
 		return nil, err
 	}
 
-	db := stdlib.OpenDB(*dbConfig)
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec("DROP DATABASE IF EXISTS " + name)
+	db, err := pgxpool.ConnectConfig(ctx, dbConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec("CREATE DATABASE " + name)
+	if err := db.Ping(ctx); err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(ctx, "DROP DATABASE IF EXISTS "+name)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Close(); err != nil {
+	_, err = db.Exec(ctx, "CREATE DATABASE "+name)
+	if err != nil {
 		return nil, err
 	}
 
-	dbConfig.Database = name
+	db.Close()
 
-	return stdlib.OpenDB(*dbConfig), nil
+	dbConfig.ConnConfig.Database = name
+	db, err = pgxpool.ConnectConfig(ctx, dbConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

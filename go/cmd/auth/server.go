@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 
 	pb "github.com/clstb/phi/go/pkg/auth/pb"
@@ -9,13 +8,14 @@ import (
 	"github.com/clstb/phi/go/pkg/interceptor"
 	"github.com/clstb/phi/go/pkg/util"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
 func Server(ctx *cli.Context) error {
-	db, ok := ctx.Context.Value("db").(*sql.DB)
+	db, ok := ctx.Context.Value("db").(*pgxpool.Pool)
 	if !ok {
 		return fmt.Errorf("missing db")
 	}

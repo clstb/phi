@@ -77,3 +77,24 @@ jobs:
       with:
         files: |
           phi_*
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    steps:
+    - name: Clone
+      uses: actions/checkout@v2
+
+    - name: Deploy auth
+      uses: superfly/flyctl-actions@1.3
+      with:
+        args: "deploy -c ./fly/auth.toml -i ghcr.io/clstb/phi-auth:${{github.ref_name}}"
+
+    - name: Deploy tinkgw
+      uses: superfly/flyctl-actions@1.3
+      with:
+        args: "deploy -c ./fly/tinkgw.toml -i ghcr.io/clstb/phi-tinkgw:${{github.ref_name}}"

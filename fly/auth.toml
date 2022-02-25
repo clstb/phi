@@ -1,7 +1,7 @@
 app = "phi-auth"
 
 [build]
-  image = "ghcr.io/clstb/phi-auth:e4bb8692"
+  image = "ghcr.io/clstb/phi-auth"
 
 [deploy]
   release_command = "migrate"

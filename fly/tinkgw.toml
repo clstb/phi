@@ -1,7 +1,7 @@
 app = "phi-tinkgw"
 
 [build]
-  image = "ghcr.io/clstb/phi-tinkgw:e4bb8692"
+  image = "ghcr.io/clstb/phi-tinkgw"
 
 [deploy]
   release_command = "migrate"

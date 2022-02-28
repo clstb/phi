@@ -130,13 +130,13 @@ func (m authModel) View() string {
 	}
 
 	if m.focusIndex == len(m.inputs) {
-		b.WriteString(focusedStyle.Render("\n\tLogin"))
+		b.WriteString(focusedStyle.Render("\n\n\tLogin"))
 		b.WriteString(blurredStyle.Render("\tRegister"))
 	} else if m.focusIndex == len(m.inputs)+1 {
-		b.WriteString(blurredStyle.Render("\n\tLogin"))
+		b.WriteString(blurredStyle.Render("\n\n\tLogin"))
 		b.WriteString(focusedStyle.Render("\tRegister"))
 	} else {
-		b.WriteString(blurredStyle.Render("\n\tLogin\tRegister"))
+		b.WriteString(blurredStyle.Render("\n\n\tLogin\tRegister"))
 	}
 
 	return b.String()

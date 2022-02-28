@@ -53,8 +53,6 @@ func (m authModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.authClient = msg
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "esc":
-			return m, tea.Quit
 		case "tab", "shift+tab", "enter", "up", "down":
 			s := msg.String()
 

@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "client",
+    srcs = [
+        "client.go",
+        "link.go",
+        "login.go",
+        "register.go",
+        "session.go",
+        "tink.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/client",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//go/pkg/client/rt",
+        "//go/pkg/client/tink",
+        "@com_github_ory_kratos_client_go//:kratos-client-go",
+    ],
+)

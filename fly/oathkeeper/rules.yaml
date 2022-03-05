@@ -1,0 +1,66 @@
+- id: "tink:internal"
+  upstream:
+    url: "https://api.tink.com"
+    strip_path: "/tink"
+  match:
+    url: "https://127.0.0.1:4455/tink/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: hydrator
+- id: "tink:public"
+  upstream:
+    url: "http://127.0.0.1:4455"
+  match:
+    url: "https://phi.clstb.codes/tink/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+- id: "ory"
+  upstream:
+    url: "https://romantic-kapitsa-wjt1qzo59j.projects.oryapis.com/api/kratos/public"
+    strip_path: "/ory"
+  match:
+    url: "https://phi.clstb.codes/ory/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: "tinkgw:link"  
+  upstream:
+    url: "http://tinkgw.internal:8080"
+  match:
+    url: "https://phi.clstb.codes/link"
+    methods:
+      - GET
+  authenticators:
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token

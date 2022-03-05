@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "server",
+    srcs = [
+        "handlers.go",
+        "middlewares.go",
+        "routes.go",
+        "server.go",
+    ],
+    importpath = "github.com/clstb/phi/go/internal/tinkgw/server",
+    visibility = ["//go:__subpackages__"],
+    deps = [
+        "//go/pkg/client/tink",
+        "//go/pkg/middleware",
+        "@com_github_go_chi_chi_v5//:chi",
+        "@com_github_goccy_go_json//:go-json",
+        "@com_github_ory_kratos_client_go//:kratos-client-go",
+        "@org_golang_x_oauth2//:oauth2",
+        "@org_golang_x_oauth2//clientcredentials",
+        "@org_uber_go_zap//:zap",
+    ],
+)

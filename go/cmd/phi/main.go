@@ -12,14 +12,9 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "auth-host",
-				EnvVars: []string{"AUTH_HOST"},
-				Value:   "phi-auth.fly.dev:443",
-			},
-			&cli.StringFlag{
-				Name:    "tinkgw-host",
-				EnvVars: []string{"TINKGW_HOST"},
-				Value:   "phi-tinkgw.fly.dev:443",
+				Name:    "api-url",
+				EnvVars: []string{"API_URL"},
+				Value:   "https://phi.clstb.codes",
 			},
 			&cli.PathFlag{
 				Name:  "config",
@@ -28,10 +23,6 @@ func main() {
 			&cli.PathFlag{
 				Name:  "ledger",
 				Value: os.Getenv("HOME") + "/.config/phi/ledger",
-			},
-			&cli.BoolFlag{
-				Name:  "insecure",
-				Value: false,
 			},
 		},
 		Action: run,

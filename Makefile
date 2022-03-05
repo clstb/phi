@@ -16,7 +16,7 @@ endif
 	bazel test --define version=$(VERSION) --test_output=errors --test_env DATABASE_URL=$(DATABASE_URL) //...
 
 push:
-	bazel run --define version=$(VERSION) //:push
+	bazel run --define version=$(VERSION) --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //:push
 
 release:
 	gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" ./go/cmd/phi/

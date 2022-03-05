@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "tink",
+    srcs = [
+        "accounts.go",
+        "authorize_grant.go",
+        "authorize_grant_delegate.go",
+        "client.go",
+        "create_user.go",
+        "errors.go",
+        "get_user.go",
+        "providers.go",
+        "token.go",
+        "transactions.go",
+    ],
+    importpath = "github.com/clstb/phi/go/pkg/client/tink",
+    visibility = ["//visibility:public"],
+    deps = ["//go/pkg/client/rt"],
+)

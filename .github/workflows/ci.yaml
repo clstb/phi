@@ -89,12 +89,7 @@ jobs:
     - name: Clone
       uses: actions/checkout@v2
 
-    - name: Deploy auth
-      uses: superfly/flyctl-actions@1.3
-      with:
-        args: "deploy -c ./fly/auth.toml -i ghcr.io/clstb/phi-auth:${{github.ref_name}}"
-
     - name: Deploy tinkgw
       uses: superfly/flyctl-actions@1.3
       with:
-        args: "deploy -c ./fly/tinkgw.toml -i ghcr.io/clstb/phi-tinkgw:${{github.ref_name}}"
+        args: "deploy -i ghcr.io/clstb/phi-tinkgw:${{github.ref_name}} ./fly/tinkgw"

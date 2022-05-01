@@ -1,22 +1,35 @@
-VERSION ?= $(shell git rev-parse HEAD | cut -c 1-8)
-DATABASE_URL ?= None
-
-deps:
-	go mod tidy
-	bazel run  //:gazelle -- update-repos -from_file=go.mod -to_macro=deps.bzl%go_dependencies
-	bazel run //:gazelle
-
-build:
-	bazel build --define version=$(VERSION) //...
-
 test:
-ifndef DATABASE_URL
-$(error DATABASE_URL is not set)
-endif
-	bazel test --define version=$(VERSION) --test_output=errors --test_env DATABASE_URL=$(DATABASE_URL) //...
+	go test go/pkg/util/test.go
+	go test go/pkg/auth/server/server_test.go
 
-push:
-	bazel run --define version=$(VERSION) //:push
+clean_stubs: clean_stubs_auth clean_stubs_tinkgw
 
-release:
-	gox -osarch="linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64" ./go/cmd/phi/
+clean_stubs_auth:
+	rm -f go/pkg/auth/db/db.go
+	rm -f go/pkg/auth/db/models.go
+	rm -f go/pkg/auth/db/querier.go
+	rm -f go/pkg/auth/db/users.sql.go
+	rm -f go/pkg/auth/pb/auth.pb.go
+	rm -f go/pkg/auth/pb/auth_grpc.pb.go
+
+clean_stubs_tinkgw:
+	rm -f go/pkg/tinkgw/db/db.go
+	rm -f go/pkg/tinkgw/db/models.go
+	rm -f go/pkg/tinkgw/db/querier.go
+	rm -f go/pkg/tinkgw/db/users.sql.go
+	rm -f go/pkg/tinkgw/pb/tinkgw.pb.go
+	rm -f go/pkg/tinkgw/pb/tinkgw_grpc.pb.go
+
+stubs: stubs_auth stubs_tinkgw
+
+stubs_auth:
+	go generate github.com/clstb/phi/go/pkg/auth/db
+	go generate github.com/clstb/phi/go/pkg/auth/pb
+
+stubs_tinkgw:
+	go generate github.com/clstb/phi/go/pkg/tinkgw/db
+	go generate github.com/clstb/phi/go/pkg/tinkgw/pb
+
+
+
+

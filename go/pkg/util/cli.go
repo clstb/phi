@@ -27,8 +27,10 @@ func Chain(funcs ...func(*cli.Context) error) func(ctx *cli.Context) error {
 	}
 }
 
-func GetDB(ctx *cli.Context) error {
+func GetDB(ctx *cli.Context, user string, password string) error {
 	dbConfig, err := pgxpool.ParseConfig(ctx.String("database-url"))
+	dbConfig.ConnConfig.User = user
+	dbConfig.ConnConfig.Password = password
 	if err != nil {
 		return err
 	}
@@ -89,7 +91,7 @@ func ListenGRPC(server *grpc.Server, logger *zap.Logger, port int) error {
 		zap.String("host", "localhost"),
 		zap.Int("port", port),
 	)
-
+	//reflection.Register(server)
 	return server.Serve(lis)
 }
 

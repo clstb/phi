@@ -3,9 +3,15 @@ kind: StatefulSet
 metadata:
   name: phi-auth-db
 spec:
+  selector:
+    matchLabels:
+      app: db-auth
   serviceName: phi-auth-db
   replicas: 1
   template:
+    metadata:
+      labels:
+        app: db-auth
     spec:
       containers:
       - image: postgres:13
@@ -33,4 +39,4 @@ spec:
         - "ReadWriteOnce"
       resources:
         requests:
-          storage: 10Gi
+          storage: 1Gi

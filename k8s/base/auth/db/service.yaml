@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: phi-auth-db
 spec:
+  selector:
+    app: db-auth
   ports:
   - port: 5432
     name: postgres

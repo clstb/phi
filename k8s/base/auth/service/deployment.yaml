@@ -3,10 +3,16 @@ kind: Deployment
 metadata:
   name: phi-auth
 spec:
+  selector:
+    matchLabels:
+      app: phi-auth
   minReadySeconds: 10
   replicas: 1
   revisionHistoryLimit: 10
   template:
+    metadata:
+      labels:
+        app: phi-auth
     spec:
       initContainers:
         - name: wait-postgres

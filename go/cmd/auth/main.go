@@ -39,7 +39,9 @@ func main() {
 			},
 		},
 		Before: util.Chain(
-			util.GetDB,
+			func(context *cli.Context) error {
+				return util.GetDB(context, "phi_auth", "phi_auth")
+			},
 			util.GetLogger,
 		),
 		After: util.Chain(

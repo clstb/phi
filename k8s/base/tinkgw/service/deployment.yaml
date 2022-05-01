@@ -3,10 +3,16 @@ kind: Deployment
 metadata:
   name: phi-tinkgw
 spec:
+  selector:
+    matchLabels:
+      app: tinkgw-app
   minReadySeconds: 10
   replicas: 1
   revisionHistoryLimit: 10
   template:
+    metadata:
+      labels:
+        app: tinkgw-app
     spec:
       initContainers:
         - name: wait-postgres

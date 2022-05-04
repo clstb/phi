@@ -17,12 +17,12 @@ func main() {
 				Value:   "https://phi.clstb.codes",
 			},
 			&cli.PathFlag{
-				Name:  "config",
-				Value: os.Getenv("HOME") + "/.config/phi/config.yaml",
+				Name:  ".config",
+				Value: "/Users/artemsereda/Documents/GolandProjects/phi/.config/phi/.config.yaml",
 			},
 			&cli.PathFlag{
 				Name:  "ledger",
-				Value: os.Getenv("HOME") + "/.config/phi/ledger",
+				Value: "/Users/artemsereda/Documents/GolandProjects/phi/.config/phi/ledger",
 			},
 		},
 		Action: run,

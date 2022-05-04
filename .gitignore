@@ -1,2 +1,5 @@
 bazel-*
 *.env
+.idea
+.DS_Store
+.config

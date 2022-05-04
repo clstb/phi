@@ -3,9 +3,15 @@ kind: StatefulSet
 metadata:
   name: phi-tinkgw-db
 spec:
+  selector:
+    matchLabels:
+      app: phi-tinkgw-db
   serviceName: phi-tinkgw-db
   replicas: 1
   template:
+    metadata:
+      labels:
+        app: phi-tinkgw-db
     spec:
       containers:
       - image: postgres:13

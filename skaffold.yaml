@@ -1,31 +1,19 @@
-apiVersion: skaffold/v2beta10
+apiVersion: skaffold/v2beta28
 kind: Config
 metadata:
   name: phi
 build:
   local:
-   concurrency: 0
+    concurrency: 0
   artifacts:
-  - image: ghcr.io/clstb/phi-auth
-    bazel:
-      target: //go/cmd/auth:image.tar
-      args: 
-        - --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
   - image: ghcr.io/clstb/phi-tinkgw
-    bazel:
-      target: //go/cmd/tinkgw:image.tar
-      args: 
-        - --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
+    ko:
+      main: ./go/cmd/tinkgw
 deploy:
-  kubeContext: colima
   kustomize:
     paths:
     - k8s/local
 portForward:
-- resourceType: deployment
-  resourceName: phi-auth
-  namespace: default
-  port: 8080
 - resourceType: deployment
   resourceName: phi-tinkgw
   namespace: default

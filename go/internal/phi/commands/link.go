@@ -15,7 +15,6 @@ func OpenLink(client *client.Client) tea.Cmd {
 		if err != nil {
 			return err
 		}
-
 		switch runtime.GOOS {
 		case "linux":
 			err = exec.Command("xdg-open", link).Start()
@@ -29,7 +28,6 @@ func OpenLink(client *client.Client) tea.Cmd {
 		if err != nil {
 			return err
 		}
-
 		return nil
 	}
 }

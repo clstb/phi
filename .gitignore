@@ -3,3 +3,6 @@ bazel-*
 .idea
 .DS_Store
 .config
+
+ui/node_modules
+ui/package-lock.json

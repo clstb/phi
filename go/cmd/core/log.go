@@ -20,7 +20,7 @@ var logger, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
 	return _logger, _sugar
 }()
 
-func (l *Login) MarshalLogObject(enc zapcore.ObjectEncoder) error {
+func (l *LoginRequest) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("username", l.Username)
 	enc.AddString("password", l.Password)
 	return nil

@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
-	"log"
 	"os"
+	"runtime/debug"
 )
 
 func main() {
@@ -12,7 +12,8 @@ func main() {
 		Action: Serve,
 	}
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		debug.PrintStack()
+		sugar.Fatal(err)
 	}
 }
 

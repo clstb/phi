@@ -5,13 +5,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
+	"runtime/debug"
 )
 
 func doLogin(c *gin.Context) {
-	var json Login
+	var json LoginRequest
 	err := c.BindJSON(&json)
 	if err != nil {
 		sugar.Error(zap.Error(err))
+		debug.PrintStack()
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
@@ -19,12 +21,10 @@ func doLogin(c *gin.Context) {
 	newClient := client.NewClient("https://phi.clstb.codes")
 	sess, err := newClient.Login(json.Username, json.Password)
 	if err != nil {
-		sugar.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 	newClient.SetBearerToken(sess.Token)
-	putSessionIdInCache(json.Username, sess.Id)
 	putClientInCache(sess.Id, newClient)
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }

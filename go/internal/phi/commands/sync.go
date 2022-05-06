@@ -40,11 +40,11 @@ func Sync(
 			filteredTransactions = append(filteredTransactions, transaction)
 		}
 
-		return updateLedger(ledger, providers, accounts, filteredTransactions)
+		return UpdateLedger(ledger, providers, accounts, filteredTransactions)
 	}
 }
 
-func updateLedger(
+func UpdateLedger(
 	ledger beancount.Ledger,
 	providers []tink.Provider,
 	accounts []tink.Account,
@@ -125,6 +125,5 @@ func updateLedger(
 			},
 		})
 	}
-
 	return ledger
 }

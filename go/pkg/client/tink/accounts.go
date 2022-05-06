@@ -42,7 +42,7 @@ type Account struct {
 }
 
 func (c *Client) GetAccounts(pageToken string) ([]Account, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/data/v2/accounts?pageToken="+pageToken, nil)
+	req, err := http.NewRequest(http.MethodGet, c.url+"/..data/v2/accounts?pageToken="+pageToken, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -1,10 +1,7 @@
-import {TextField} from "@mui/material";
-
-
 export function Classify() {
   return (
-    <TextField>
+    <h1>
       TODO...
-    </TextField>
+    </h1>
   );
 }

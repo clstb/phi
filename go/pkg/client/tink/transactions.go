@@ -47,7 +47,7 @@ type Transaction struct {
 }
 
 func (c *Client) GetTransactions(pageToken string) ([]Transaction, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/data/v2/transactions?pageToken="+pageToken, nil)
+	req, err := http.NewRequest(http.MethodGet, c.url+"/..data/v2/transactions?pageToken="+pageToken, nil)
 	if err != nil {
 		return nil, err
 	}

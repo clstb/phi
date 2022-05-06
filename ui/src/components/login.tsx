@@ -1,14 +1,13 @@
-import React, {useState} from 'react'
-import {Navigate} from "react-router-dom";
 import {bindActionCreators} from 'redux';
 import {actionCreators} from '../actions'
 import {useDispatch, useSelector} from "react-redux";
-import {BACKEND_URI, DEFAULT_HEADERS} from "../constants";
+import {CORE_URI, DEFAULT_HEADERS} from "../constants";
 import axios from "axios";
 import {IState} from "../reducers";
 import {Button, FilledInput, FormGroup} from "@mui/material";
-import './stylesheets/login.css'
-import './stylesheets/shared.css'
+import '../styles/styles.css'
+import Home from "./home";
+import {useState} from "react";
 
 
 export function LoginPage() {
@@ -35,7 +34,7 @@ export function LoginPage() {
   const state: IState = useSelector(state1 => state1['login'])
   console.log(state)
   const dispatch = useDispatch();
-  const {phiLogin, phiRegister, saveUsername} = bindActionCreators(actionCreators, dispatch)
+  const {phiLogin} = bindActionCreators(actionCreators, dispatch)
 
 
   const login = (e: React.MouseEvent) => {
@@ -43,7 +42,7 @@ export function LoginPage() {
       return
     }
     axios.post(
-      `${BACKEND_URI}/login`,
+      `${CORE_URI}/login`,
       {
         headers: DEFAULT_HEADERS,
         username: username,
@@ -53,8 +52,7 @@ export function LoginPage() {
         res => {
           console.log(res.data)
           var id = res.data['sessionId']
-          saveUsername(username)
-          phiLogin(id)
+          phiLogin(username, id)
           resetUsername()
           resetPassword()
         }
@@ -68,7 +66,7 @@ export function LoginPage() {
       return
     }
     axios.post(
-      `${BACKEND_URI}/register`,
+      `${CORE_URI}/register`,
       {
         headers: DEFAULT_HEADERS,
         username: username,
@@ -78,8 +76,7 @@ export function LoginPage() {
         res => {
           console.log(res.data)
           var id = res.data['sessionId']
-          saveUsername(username)
-          phiRegister(id)
+          phiLogin(username, id)
           resetUsername()
           resetPassword()
         }
@@ -88,9 +85,11 @@ export function LoginPage() {
     e.preventDefault()
   }
 
+  if (state.sessionId) {
+    return <Home/>
+  }
   return (
     <div>
-      {state.sessionId ? <Navigate to={'/home'}/> : null}
       <FormGroup>
         <div className='App-body'>
           <div className="input-container">

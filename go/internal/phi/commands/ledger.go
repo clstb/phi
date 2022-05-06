@@ -13,23 +13,26 @@ import (
 
 func LoadLedger(path string) tea.Cmd {
 	return func() tea.Msg {
-		var l beancount.Ledger
-		filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-
-			f, err := os.OpenFile(path, os.O_RDONLY, info.Mode())
-			if err != nil {
-				return err
-			}
-
-			l = append(l, beancount.Parse(f)...)
-			return f.Close()
-		})
-
-		return l
+		return ParseLedger(path)
 	}
+}
+
+func ParseLedger(path string) beancount.Ledger {
+	var l beancount.Ledger
+	filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		f, err := os.OpenFile(path, os.O_RDONLY, info.Mode())
+		if err != nil {
+			return err
+		}
+
+		l = append(l, beancount.Parse(f)...)
+		return f.Close()
+	})
+	return l
 }
 
 func SaveLedger(

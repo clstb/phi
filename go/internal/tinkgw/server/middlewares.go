@@ -25,7 +25,7 @@ func (s *Server) provisionTinkUser(oryToken string) func(http.Handler) http.Hand
 	oryConf := ory.NewConfiguration()
 	oryConf.Servers = ory.ServerConfigurations{
 		{
-			URL: "https://romantic-kapitsa-wjt1qzo59j.projects.oryapis.com/api/kratos/admin",
+			URL: "https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/admin",
 		},
 	}
 	oryConf.AddDefaultHeader("Authorization", "Bearer "+oryToken)

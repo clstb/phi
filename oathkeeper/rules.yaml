@@ -1,0 +1,66 @@
+- id: "tink:internal"
+  upstream:
+    url: "https://api.tink.com"
+    strip_path: "/tink"
+  match:
+    url: "http://127.0.0.1:4455/tink/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: hydrator
+- id: "tink:public"
+  upstream:
+    url: "http://localhost:4455"
+  match:
+    url: "http://127.0.0.1:4455/tink/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+- id: "ory"
+  upstream:
+    url: "https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/public"
+    strip_path: "/ory"
+  match:
+    url: "http://localhost:4455/ory/<.*>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+- id: "tinkgw:link"
+  upstream:
+    url: "http://host.docker.internal:8080"
+  match:
+    url: "http://localhost:4455/link"
+    methods:
+      - GET
+  authenticators:
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/clstb/phi/go/internal/phi/commands"
 	"github.com/clstb/phi/go/pkg/client"
@@ -11,45 +10,34 @@ import (
 	"runtime/debug"
 )
 
-func SyncLedger(c *gin.Context) {
+func SyncLedger(c *gin.Context, client *client.Client) {
 	var json SyncLedgerRequest
 	err := c.BindJSON(&json)
 	if err != nil {
 		sugar.Error(err)
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Internal Server Error": err.Error()})
-		return
-	}
-	userClient, err := UserClientCache.Get(context.TODO(), json.SessionId)
-	if err != nil {
-		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-		return
-	}
-	if userClient == nil {
-		sugar.Error("Not logged in")
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Not logged in"})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	providers, err := userClient.(*client.Client).GetProviders("DE")
+	providers, err := client.GetProviders("DE")
 	if err != nil {
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	accounts, err := userClient.(*client.Client).GetAccounts("")
+	accounts, err := client.GetAccounts("")
 	if err != nil {
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	transactions, err := userClient.(*client.Client).GetTransactions("")
+	transactions, err := client.GetTransactions("")
 	if err != nil {
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

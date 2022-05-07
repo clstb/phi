@@ -3,28 +3,26 @@ package main
 import (
 	"github.com/clstb/phi/go/pkg/client"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net/http"
 	"runtime/debug"
 )
 
-func doLogin(c *gin.Context) {
+func doLogin(c *gin.Context, client *client.Client) {
 	var json LoginRequest
 	err := c.BindJSON(&json)
 	if err != nil {
-		sugar.Error(zap.Error(err))
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, gin.Error{Err: err})
 		return
 	}
-	logger.Info("Executing login for:", zap.Object("json", &json))
-	newClient := client.NewClient("https://phi.clstb.codes")
-	sess, err := newClient.Login(json.Username, json.Password)
+	//logger.Info("Executing login for:", zap.Object("json", &json))
+
+	sess, err := client.Login(json.Username, json.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		debug.PrintStack()
+		c.AbortWithError(http.StatusInternalServerError, gin.Error{Err: err})
 		return
 	}
-	newClient.SetBearerToken(sess.Token)
-	putClientInCache(sess.Id, newClient)
+	putClientSessionTokenInCache(sess.Id, sess.Token)
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }

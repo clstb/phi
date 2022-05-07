@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/clstb/phi/go/pkg/client"
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/v2/cache"
 	"github.com/eko/gocache/v2/store"
@@ -10,8 +9,8 @@ import (
 	"time"
 )
 
-// UserClientCache sessionId -> oryClient
-var UserClientCache = createCache()
+// UserTokenCache sessionId -> sessionToken
+var UserTokenCache = createCache()
 
 func createCache() *cache.Cache {
 	ristrettoCache, err := ristretto.NewCache(&ristretto.Config{
@@ -27,8 +26,8 @@ func createCache() *cache.Cache {
 	return cacheManager
 }
 
-func putClientInCache(id string, c *client.Client) {
-	err := UserClientCache.Set(context.TODO(), id, c, &store.Options{Cost: 2})
+func putClientSessionTokenInCache(id string, token string) {
+	err := UserTokenCache.Set(context.TODO(), id, token, &store.Options{Cost: 2})
 	if err != nil {
 		debug.PrintStack()
 	}

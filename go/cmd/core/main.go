@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/clstb/phi/go/pkg/client"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -9,8 +10,16 @@ import (
 
 func main() {
 	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "oauthkeeper-uri",
+				EnvVars:  []string{"OAUTHKEEPER_URI"},
+				Required: true,
+			},
+		},
 		Action: Serve,
 	}
+
 	if err := app.Run(os.Args); err != nil {
 		debug.PrintStack()
 		sugar.Fatal(err)
@@ -18,12 +27,22 @@ func main() {
 }
 
 func Serve(ctx *cli.Context) error {
+	authClient := client.NewClient(ctx.String("oauthkeeper-uri"))
+
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-	router.POST("/api/login", doLogin)
-	router.POST("/api/register", doRegister)
-	router.POST("/api/link-tink", getTinkLink)
-	router.POST("/api/sync-ledger", SyncLedger)
+	router.POST("/api/login", func(context *gin.Context) {
+		doLogin(context, authClient)
+	})
+	router.POST("/api/register", func(context *gin.Context) {
+		doRegister(context, authClient)
+	})
+	router.POST("/api/link-tink", func(context *gin.Context) {
+		getTinkLink(context, authClient)
+	})
+	router.POST("/api/sync-ledger", func(context *gin.Context) {
+		SyncLedger(context, authClient)
+	})
 	return router.Run("0.0.0.0:8099")
 }
 

@@ -1,0 +1,4 @@
+- Install pnpm https://pnpm.io/installation
+- export NODE_OPTIONS=--openssl-legacy-provider
+- pnpm install
+- pnpm start

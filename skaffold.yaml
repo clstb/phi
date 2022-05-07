@@ -4,11 +4,20 @@ metadata:
   name: phi
 build:
   local:
+    useBuildkit: true
     concurrency: 0
   artifacts:
   - image: ghcr.io/clstb/phi-tinkgw
     ko:
       main: ./go/cmd/tinkgw
+  - image: ghcr.io/clstb/phi-core
+    ko:
+      main: ./go/cmd/core
+  - image: ghcr.io/clstb/phi-oathkeeper
+    context: ./oathkeeper/
+  - image: ghcr.io/clstb/phi-ui
+    context: ./ui
+
 deploy:
   kustomize:
     paths:

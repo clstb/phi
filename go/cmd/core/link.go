@@ -8,31 +8,32 @@ import (
 	"runtime/debug"
 )
 
-func getTinkLink(c *gin.Context) {
+func getTinkLink(c *gin.Context, client *client.Client) {
 	var json Session
 	err := c.BindJSON(&json)
 	if err != nil {
-		sugar.Error(err)
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Internal Server Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	userClient, err := UserClientCache.Get(context.TODO(), json.SessionId)
+	token, err := UserTokenCache.Get(context.TODO(), json.SessionId)
 	if err != nil {
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	if userClient == nil {
+	if token == nil {
 		sugar.Error("Not logged in")
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Not logged in"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Error": "Not logged in"})
 		return
 	}
-	link, err := userClient.(*client.Client).GetLink()
+
+	client.SetBearerToken(token.(string))
+	link, err := client.GetLink()
 	if err != nil {
 		sugar.Error(err)
 		debug.PrintStack()
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"link": link})

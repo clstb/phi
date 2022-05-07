@@ -1,6 +1,0 @@
-bases:
-  - ../base
-namespace: default
-secretGenerator:
-  - name: phi-tinkgw
-    env: secret_tinkgw.env

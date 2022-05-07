@@ -1,17 +1,22 @@
-import React from "react";
+import React, {useContext, useState} from "react";
 import {Box, Button} from "@mui/material";
 import axios from "axios";
 import {CORE_URI, DEFAULT_HEADERS} from "../constants";
-import {IState} from "../reducers";
-import {useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import '../styles/styles.css'
+import {AppContext} from "../index";
 
 export function Home() {
 
-  // @ts-ignore
-  const state: IState = useSelector(state1 => state1['login'])
-  console.log(state)
+  const [error, setError] = useState(undefined);
+
+  if (error) {
+    throw Error(error)
+  }
+
+  const context = useContext(AppContext)
+
+  console.log(context)
   const navigate = useNavigate()
 
   const linkTinkOnClick = (e: React.MouseEvent) => {
@@ -19,12 +24,25 @@ export function Home() {
       `${CORE_URI}/link-tink`,
       {
         headers: DEFAULT_HEADERS,
-        sessionId: state.sessionId
+        sessionId: context.sessionId
       }
     ).then(res => {
       window.open(res.data['link']);
       e.preventDefault()
-    }).catch(alert)
+    }).catch(err => setError(err))
+  }
+
+  const syncLedger = (e: React.MouseEvent) => {
+    axios.post(
+      `${CORE_URI}/sync`,
+      {
+        headers: DEFAULT_HEADERS,
+        username: context.username,
+        sessionId: context.sessionId
+      }
+    )
+      .catch(err => setError(err))
+
   }
 
 
@@ -49,7 +67,9 @@ export function Home() {
         </div>
         <div className="button-container">
           <Button type={"submit"}
-                  sx={{minWidth: 300}}>
+                  sx={{minWidth: 300}}
+                  onClick={syncLedger}
+            >
             Sync Ledger
           </Button>
         </div>

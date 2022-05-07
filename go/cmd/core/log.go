@@ -19,9 +19,3 @@ var logger, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
 	_sugar := _logger.Sugar()
 	return _logger, _sugar
 }()
-
-func (l *LoginRequest) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddString("username", l.Username)
-	enc.AddString("password", l.Password)
-	return nil
-}

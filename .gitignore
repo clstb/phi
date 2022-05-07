@@ -7,3 +7,4 @@ bazel-*
 ui/node_modules
 ui/package-lock.json
 .data
+ui/pnpm-lock.yaml

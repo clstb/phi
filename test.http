@@ -1,0 +1,8 @@
+POST http://localhost:8099/api/register
+Content-Type: application/json
+
+{
+  "username": "ass",
+  "password": "AnIu0RzcIl*o",
+  "tinkId": "b534d4493183487e8e77ce3eeccaae1b"
+}

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func SyncLedger(c *gin.Context, client *client.Client) {
 	var json SyncLedgerRequest
 	err := c.BindJSON(&json)
 	if err != nil {
-		sugar.Error(err)
+		Sugar.Error(err)
 		debug.PrintStack()
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

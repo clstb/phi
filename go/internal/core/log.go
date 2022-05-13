@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"go.uber.org/zap"
@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var logger, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
+var Log, Sugar = func() (*zap.Logger, *zap.SugaredLogger) {
 	loggerConfig := zap.NewProductionConfig()
 	loggerConfig.EncoderConfig.TimeKey = "timestamp"
 	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)

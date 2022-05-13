@@ -1,6 +1,8 @@
-package main
+package core
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/clstb/phi/go/pkg/client"
 	"github.com/gin-gonic/gin"
@@ -9,7 +11,7 @@ import (
 	"runtime/debug"
 )
 
-func doRegister(c *gin.Context, client *client.Client) {
+func DoRegister(c *gin.Context, client *client.Client) {
 	var json LoginRequest
 	err := c.BindJSON(&json)
 	if err != nil {
@@ -21,6 +23,10 @@ func doRegister(c *gin.Context, client *client.Client) {
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
+	}
+	err = provisionTinkUser(sess)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 	}
 	err = createUserDir(json.Username)
 	if err != nil {
@@ -36,26 +42,50 @@ Each user needs
 .data/username/transactions/
 */
 
-var DataDirPath = ".data"
-
 func createUserDir(username string) error {
 	err := os.MkdirAll(fmt.Sprintf("%s/%s", DataDirPath, username), os.ModePerm)
 	if err != nil {
-		sugar.Error(err)
+		Sugar.Error(err)
 		debug.PrintStack()
 		return err
 	}
 	err = os.MkdirAll(fmt.Sprintf("%s/%s/transactions", DataDirPath, username), os.ModePerm)
 	if err != nil {
-		sugar.Error(err)
+		Sugar.Error(err)
 		debug.PrintStack()
 		return err
 	}
 	_, err = os.Create(fmt.Sprintf("%s/%s/accounts.bean", DataDirPath, username))
 	if err != nil {
-		sugar.Error(err)
+		Sugar.Error(err)
 		debug.PrintStack()
 		return err
 	}
+	return nil
+}
+
+// Each user needs to be registered as client in Tink organisation
+func provisionTinkUser(session client.Session) error {
+	body := PhiSessionRequest{
+		Token:   session.Token,
+		Session: session.Session,
+	}
+
+	_json, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", TinkGWUri+"/api/tink-client", bytes.NewBuffer(_json))
+
+	httpClient := &http.Client{}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	Sugar.Info("response Status:", resp.Status)
+	Sugar.Info("response Headers:", resp.Header)
+	Sugar.Info("response Body:", resp.Body)
 	return nil
 }

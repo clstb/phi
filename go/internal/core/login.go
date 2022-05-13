@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/clstb/phi/go/pkg/client"
@@ -7,7 +7,7 @@ import (
 	"runtime/debug"
 )
 
-func doLogin(c *gin.Context, client *client.Client) {
+func DoLogin(c *gin.Context, client *client.Client) {
 	var json LoginRequest
 	err := c.BindJSON(&json)
 	if err != nil {

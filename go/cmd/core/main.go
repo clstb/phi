@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/clstb/phi/go/internal/core"
 	"github.com/clstb/phi/go/pkg/client"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
@@ -22,28 +23,28 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		debug.PrintStack()
-		sugar.Fatal(err)
+		core.Sugar.Fatal(err)
 	}
 }
 
 func Serve(ctx *cli.Context) error {
-	authClient := client.NewClient(ctx.String("oauthkeeper-uri"))
+	authClient := client.NewClient(core.OauthKeeperUri)
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	router.POST("/api/login", func(context *gin.Context) {
-		doLogin(context, authClient)
+		core.DoLogin(context, authClient)
 	})
 	router.POST("/api/register", func(context *gin.Context) {
-		doRegister(context, authClient)
+		core.DoRegister(context, authClient)
 	})
 	router.POST("/api/link-tink", func(context *gin.Context) {
-		getTinkLink(context, authClient)
+		core.GetTinkLink(context, authClient)
 	})
 	router.POST("/api/sync-ledger", func(context *gin.Context) {
-		SyncLedger(context, authClient)
+		core.SyncLedger(context, authClient)
 	})
-	return router.Run("0.0.0.0:8099")
+	return router.Run("0.0.0.0:" + core.ServerPort)
 }
 
 func CORSMiddleware() gin.HandlerFunc {

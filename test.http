@@ -1,8 +1,16 @@
-POST http://localhost:8099/api/register
+POST http://localhost:8099/api/login
 Content-Type: application/json
 
 {
-  "username": "ass",
-  "password": "AnIu0RzcIl*o",
-  "tinkId": "b534d4493183487e8e77ce3eeccaae1b"
+  "username": "artem",
+  "password": "AnIu0RzcIl*o"
+}
+
+###
+POST https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/public/self-service/login?flow=7a54597e-039a-481b-b6e1-6a8402506296
+Content-Type: application/json
+
+{
+  "username": "artem",
+  "password": "AnIu0RzcIl*o"
 }

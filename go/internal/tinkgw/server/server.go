@@ -12,16 +12,6 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-type Server struct {
-	r      *chi.Mux
-	logger *zap.Logger
-
-	tinkClientId     string
-	tinkClientSecret string
-	tinkClient       *tink.Client
-	callbackURL      string
-}
-
 func NewServer(
 	tinkClientId,
 	tinkClientSecret,
@@ -41,12 +31,12 @@ func NewServer(
 	oauthConfig := &clientcredentials.Config{
 		ClientID:     tinkClientId,
 		ClientSecret: tinkClientSecret,
-		TokenURL:     "https://api.tink.com/api/v1/oauth/token",
-		Scopes:       []string{"authorization:grant,user:create"},
+		TokenURL:     TinkTokenUri,
+		Scopes:       []string{TinkAdminRoles},
 		AuthStyle:    oauth2.AuthStyleInParams,
 	}
 	tinkClient := tink.NewClient(
-		"https://api.tink.com",
+		TinkUri,
 		tink.WithHTTPClient(oauthConfig.Client(ctx)),
 	)
 
@@ -65,7 +55,7 @@ func NewServer(
 		s.provisionTinkUser(oryToken),
 	)
 
-	s.routes()
+	s.routes(oryToken)
 
 	return s, nil
 }

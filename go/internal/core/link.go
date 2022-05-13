@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"runtime/debug"
 )
 
-func getTinkLink(c *gin.Context, client *client.Client) {
-	var json Session
+func GetTinkLink(c *gin.Context, client *client.Client) {
+	var json SessionId
 	err := c.BindJSON(&json)
 	if err != nil {
 		debug.PrintStack()
@@ -23,7 +23,7 @@ func getTinkLink(c *gin.Context, client *client.Client) {
 		return
 	}
 	if token == nil {
-		sugar.Error("Not logged in")
+		Sugar.Error("Not logged in")
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Error": "Not logged in"})
 		return
 	}
@@ -31,7 +31,7 @@ func getTinkLink(c *gin.Context, client *client.Client) {
 	client.SetBearerToken(token.(string))
 	link, err := client.GetLink()
 	if err != nil {
-		sugar.Error(err)
+		Sugar.Error(err)
 		debug.PrintStack()
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return

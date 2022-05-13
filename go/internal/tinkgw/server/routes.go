@@ -1,6 +1,7 @@
 package server
 
-func (s *Server) routes() {
-	s.r.Get("/link", s.Link())
-	s.r.Post("/token", s.Token())
+func (s *Server) routes(oryToken string) {
+	s.r.Get("/api/link", s.Link())
+	s.r.Post("/api/token", s.Token())
+	s.r.Post("/api/tink-user", s.RegisterTinkUser(oryToken))
 }

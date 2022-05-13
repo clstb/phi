@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/clstb/phi/go/internal/core"
+	"github.com/clstb/phi/go/pkg"
 	"github.com/clstb/phi/go/pkg/client"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
@@ -23,7 +24,7 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		debug.PrintStack()
-		core.Sugar.Fatal(err)
+		pkg.Sugar.Fatal(err)
 	}
 }
 

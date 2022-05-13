@@ -2,8 +2,13 @@ package client
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"time"
 
 	"github.com/clstb/phi/go/pkg/client/rt"
@@ -25,20 +30,13 @@ var transport = &http.Transport{
 	DisableCompression:    true,
 }
 
-type Client struct {
-	*http.Client
-	ctx        context.Context
-	url        string
-	tinkClient *tink.Client
-	oryClient  *ory.APIClient
-}
-
 func NewClient(url string) *Client {
 	httpClient := &http.Client{Transport: transport}
 
 	tinkClient := tink.NewClient(url+"/tink", tink.WithHTTPClient(httpClient))
 
 	oryConf := ory.NewConfiguration()
+	oryConf.Debug = true
 	oryConf.HTTPClient = httpClient
 	oryConf.Servers = []ory.ServerConfiguration{{URL: url + "/ory"}}
 	oryClient := ory.NewAPIClient(oryConf)
@@ -61,4 +59,41 @@ func (c *Client) SetBearerToken(token string) {
 
 func (c *Client) URL() string {
 	return c.url
+}
+
+type Client struct {
+	*http.Client
+	ctx        context.Context
+	url        string
+	tinkClient *tink.Client
+	oryClient  *ory.APIClient
+}
+
+func debug(data []byte, err error) {
+	if err == nil {
+		fmt.Printf("%s\n\n", data)
+	} else {
+		log.Printf("Error: %s\n\n", err)
+	}
+}
+
+func (c *Client) SendRequest(method string, url string, contentType string, body io.Reader) (string, error) {
+	fmt.Println("Sending Request ------------------->")
+	req, err := http.NewRequest(method, url, body)
+	debug(httputil.DumpRequestOut(req, true))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", contentType)
+	response, err := c.Do(req)
+	if err == nil {
+		fmt.Println("Received Response <------------------")
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return "", err
+		}
+		debug(body, err)
+		return string(body), nil
+	}
+	return "", err
 }

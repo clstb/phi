@@ -22,3 +22,7 @@ type PhiSessionRequest struct {
 	Token       string `json:"token"`
 	ory.Session `json:"session"`
 }
+
+type PhiClientIdResponse struct {
+	TinkId string `json:"tink_id"`
+}

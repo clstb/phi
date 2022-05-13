@@ -1,22 +1,33 @@
-import React, {useContext} from "react";
+import React from "react";
 import './styles/styles.css'
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {AppContext, PrivateRoute} from "./index";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {Classify, Home, LoginPage} from "./components";
 
 
-function App() {
+// @ts-ignore
+export const PrivateRoute = ({children}) => {
+  if (sessionStorage.getItem("sessId")) {
+    return children
+  }
+  return <Navigate to="/login"/>
+}
 
-  const value = useContext(AppContext)
+function App() {
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path={'/'}
-               element={value.sessionId? <Home/> : <LoginPage/>}
+               element={
+                 <PrivateRoute>
+                   <Home/>
+                 </PrivateRoute>
+               }
         />
         <Route path={'/login'}
-               element={<LoginPage/>}
+               element={
+                 <LoginPage/>
+               }
         />
         <Route path={'/home'}
                element={
@@ -36,4 +47,5 @@ function App() {
     </BrowserRouter>
   )
 }
+
 export default App

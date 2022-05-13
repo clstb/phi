@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"context"
+	"github.com/gin-gonic/gin"
 	"net/http"
 
 	"github.com/lestrrat-go/jwx/jwk"
@@ -10,44 +10,37 @@ import (
 	"go.uber.org/zap"
 )
 
-func Auth(
-	ctx context.Context,
-	logger *zap.Logger,
-	jwksURL string,
-) func(http.Handler) http.Handler {
-	ar := jwk.NewAutoRefresh(ctx)
-	ar.Configure(jwksURL)
+func Auth(logger *zap.Logger, jwksURL string) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		ar := jwk.NewAutoRefresh(ctx)
+		ar.Configure(jwksURL)
 
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			ks, err := ar.Fetch(r.Context(), jwksURL)
-			if err != nil {
-				logger.Error("fetching jwks", zap.Error(err))
-				http.Error(rw, "fetching jwks", http.StatusFailedDependency)
-				return
-			}
+		ks, err := ar.Fetch(ctx, jwksURL)
+		if err != nil {
+			logger.Error("fetching jwks", zap.Error(err))
+			ctx.AbortWithError(http.StatusFailedDependency, err)
+			return
+		}
 
-			jwt, err := jwt.ParseHeader(
-				r.Header,
-				"Authorization",
-				jwt.WithKeySet(ks),
-				jwt.WithTypedClaim("session", ory.Session{}),
-			)
-			if err != nil {
-				logger.Error("invalid token", zap.Error(err))
-				http.Error(rw, "invalid token", http.StatusUnauthorized)
-				return
-			}
+		jwt, err := jwt.ParseHeader(
+			ctx.Request.Header,
+			"Authorization",
+			jwt.WithKeySet(ks),
+			jwt.WithTypedClaim("session", ory.Session{}),
+		)
+		if err != nil {
+			logger.Error("invalid token", zap.Error(err))
+			ctx.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
 
-			session, ok := jwt.Get("session")
-			if !ok || session == nil {
-				logger.Error("invalid session", zap.Error(err))
-				http.Error(rw, "invalid session", http.StatusUnauthorized)
-				return
-			}
-
-			ctx := context.WithValue(r.Context(), "session", session)
-			next.ServeHTTP(rw, r.WithContext(ctx))
-		})
+		session, ok := jwt.Get("session")
+		if !ok || session == nil {
+			logger.Error("invalid session", zap.Error(err))
+			ctx.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
+		ctx.Set("session", session)
+		ctx.Next()
 	}
 }

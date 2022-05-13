@@ -1,11 +1,7 @@
 package server
 
 import (
-	"context"
-	"net/http"
-
 	"github.com/clstb/phi/go/pkg/client/tink"
-	ory "github.com/ory/kratos-client-go"
 )
 
 func (s *Server) getUser(id string) (tink.User, error) {
@@ -22,12 +18,13 @@ func getUser(id string, tinkClient *tink.Client, tinkClientId string, tinkClient
 	return client.GetUser()
 }
 
+/*
 func (s *Server) provisionTinkUser(oryToken string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			session, ok := r.Context().Value("session").(ory.Session)
 			if !ok {
-				s.logger.Error("missing session")
+				s.Logger.Error("missing session")
 				http.Error(rw, "missing session", http.StatusUnauthorized)
 				return
 			}
@@ -35,9 +32,9 @@ func (s *Server) provisionTinkUser(oryToken string) func(http.Handler) http.Hand
 
 			tinkId, ok := traits["tink_id"]
 			if !ok || tinkId == "" {
-				err := createTinkClient(r.Context(), s.tinkClient, oryToken, s.tinkClientId, s.tinkClientSecret)
+				 err := createTinkClient(r.Context(), s.tinkClient, oryToken, s.tinkClientId, s.tinkClientSecret)
 				if err != nil {
-					http.Error(rw, err.description, err.httpCode)
+					http.Error(rw, err.Description, err.HttpCode)
 				}
 			}
 			ctx := context.WithValue(r.Context(), "session", session)
@@ -45,3 +42,4 @@ func (s *Server) provisionTinkUser(oryToken string) func(http.Handler) http.Hand
 		})
 	}
 }
+*/

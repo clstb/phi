@@ -16,17 +16,7 @@ errors:
     - json
   handlers:
     redirect:
-      enabled: true
-      config:
-        to: https://google.com
-        when:
-          - error:
-              - unauthorized
-              - forbidden
-            request:
-              header:
-                accept:
-                  - text/html
+      enabled: false
     json:
       enabled: true
       config:

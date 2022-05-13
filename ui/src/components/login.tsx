@@ -1,10 +1,10 @@
 import {CORE_URI, DEFAULT_HEADERS} from "../constants";
 import axios from "axios";
 import {Button, FilledInput, FormGroup} from "@mui/material";
-import {useContext, useState} from "react";
+import React, {useContext, useState} from "react";
 import '../styles/styles.css'
 import {AppContext} from "../index";
-import {useNavigate} from "react-router-dom";
+import {NavigateFunction, useNavigate} from "react-router-dom";
 
 
 const useInput = (initialValue: string) => {
@@ -27,9 +27,7 @@ const doLoginRegister = (path: string,
                          username: string,
                          password: string,
                          errSetter: ((err: any) => void),
-                         unameReset: (() => void),
-                         passReset: (() => void),
-                         navigate: ((path: string) => void)) => {
+                         navigate: NavigateFunction) => {
   axios.post(
     `${CORE_URI}/${path}`,
     {
@@ -43,9 +41,7 @@ const doLoginRegister = (path: string,
         const sessId = res.data['sessionId']
         sessionStorage.setItem('username', username)
         sessionStorage.setItem('sessId', sessId)
-        unameReset()
-        passReset()
-        navigate('/')
+        navigate('/home', {replace: true})
       }
     )
     .catch(errSetter)
@@ -86,13 +82,14 @@ export function LoginPage() {
             />
           </div>
           <div className="button-container">
-            <Button type={"submit"} onClick={() => doLoginRegister("login", username, password, setError,
-              resetUsername, resetPassword, navigate)
+            <Button type={"submit"} onClick={(e) => {
+              e.preventDefault()
+              doLoginRegister("login", username, password, setError, navigate)
+            }
             }>
               Login
             </Button>
-            <Button type={"submit"} onClick={() => doLoginRegister("register", username, password, setError,
-              resetUsername, resetPassword, navigate)
+            <Button type={"submit"} onClick={() => doLoginRegister("register", username, password, setError, navigate)
             }>
               Register
             </Button>

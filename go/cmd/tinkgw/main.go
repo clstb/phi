@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/clstb/phi/go/pkg/middleware"
+	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/clstb/phi/go/internal/tinkgw/server"
@@ -56,12 +56,21 @@ func run(ctx *cli.Context) error {
 		ctx.String("tink-client-id"),
 		ctx.String("tink-client-secret"),
 		ctx.String("ory-token"),
-		ctx.String("jwks-url"),
 		ctx.String("callback-url"),
 	)
 	if err != nil {
 		return err
 	}
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", ctx.Int("port")), server)
+	router := gin.Default()
+	router.Use(
+		middleware.Auth(server.Logger, ctx.String("jwks-url")),
+	)
+
+	router.GET("/api/link", server.Link)
+	router.POST("/api/token", server.Token)
+	router.POST("/api/tink-user", func(context *gin.Context) {
+		server.RegisterTinkUser(server.OryToken, context)
+	})
+	return router.Run("0.0.0.0:8080")
 }

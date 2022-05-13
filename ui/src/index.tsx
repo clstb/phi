@@ -1,5 +1,4 @@
-import React, {useContext} from 'react';
-import {Navigate} from "react-router-dom";
+import React from 'react';
 import {Alert, AlertTitle, Button, CssBaseline} from "@mui/material";
 import * as ReactDOM from 'react-dom/client';
 import {ErrorBoundary} from "react-error-boundary";
@@ -12,16 +11,7 @@ export const AppContext = React.createContext({
   }
 );
 
-// @ts-ignore
-export const PrivateRoute = ({children}) => {
-  const context = useContext(AppContext)
-  console.log(context)
 
-  if (context.sessionId) {
-    return children
-  }
-  return <Navigate to="/login"/>
-}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

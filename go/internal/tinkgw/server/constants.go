@@ -8,8 +8,6 @@ const TinkAdminRoles = "authorization:grant,user:create"
 
 const LinkBankAccountUriFormat = "https://link.tink.com/1.0/transactions/connect-accounts?client_id=%s&redirect_uri=%s&market=%s&locale=%s&authorization_code=%s"
 
-const OriUrl = "https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/admin"
-
 const GetAuthorizeGrantDelegateCodeRoles = "authorization:read,authorization:grant,credentials:refresh,credentials:read,credentials:write,providers:read,user:read"
 
 const GetAuthorizeGrantCodeRoles = "transactions:read,accounts:read,provider-consents:read,user:read"

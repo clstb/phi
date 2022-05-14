@@ -1,13 +1,6 @@
 package pkg
 
-import (
-	ory "github.com/ory/kratos-client-go"
-)
-
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
+import "github.com/clstb/phi/go/core/pkg/client"
 
 type SessionId struct {
 	SessionId string `json:"sessionId"`
@@ -18,12 +11,6 @@ type SyncLedgerRequest struct {
 	SessionId string `json:"sessionId"`
 }
 
-type PhiSessionRequest struct {
-	Token string `json:"token"`
-	// mb we don't need to send whole session
-	ory.Session `json:"session"`
-}
-
-type PhiClientIdResponse struct {
-	TinkId string `json:"tink_id"`
+type CoreServer struct {
+	authClient *client.AuthClient
 }

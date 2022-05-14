@@ -3,14 +3,13 @@ package client
 import (
 	"context"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/rt"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	ory "github.com/ory/kratos-client-go"
 	"net"
 	"net/http"
 	"time"
 )
 
-type Client struct {
+type AuthClient struct {
 	*http.Client
 	ctx       context.Context
 	url       string
@@ -31,10 +30,8 @@ var transport = &http.Transport{
 	DisableCompression:    true,
 }
 
-func NewClient(url string) *Client {
+func NewClient(url string) *AuthClient {
 	httpClient := &http.Client{Transport: transport}
-
-	tinkClient := tink.NewClient(url+"/tink", tink.WithHTTPClient(httpClient))
 
 	oryConf := ory.NewConfiguration()
 	oryConf.Debug = true
@@ -42,22 +39,21 @@ func NewClient(url string) *Client {
 	oryConf.Servers = []ory.ServerConfiguration{{URL: url + "/ory"}}
 	oryClient := ory.NewAPIClient(oryConf)
 
-	return &Client{
-		Client:     httpClient,
-		ctx:        context.Background(),
-		url:        url,
-		tinkClient: tinkClient,
-		oryClient:  oryClient,
+	return &AuthClient{
+		Client:    httpClient,
+		ctx:       context.Background(),
+		url:       url,
+		oryClient: oryClient,
 	}
 }
 
-func (c *Client) SetBearerToken(token string) {
+func (c *AuthClient) SetBearerToken(token string) {
 	c.Transport = rt.AuthorizationRoundTripper{
 		Token: token,
 		Next:  transport,
 	}
 }
 
-func (c *Client) URL() string {
+func (c *AuthClient) URL() string {
 	return c.url
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
 	"net"
 	"os"
 )
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		pkg.Sugar.Fatal(err)
+		log.Fatal(err)
 	}
 }
 

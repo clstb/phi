@@ -6,8 +6,11 @@ import (
 	pb "github.com/clstb/phi/go/proto"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
+	"log"
+	"time"
 )
 
 type Server struct {
@@ -18,6 +21,19 @@ type Server struct {
 	tinkClient       *tink.Client
 	callbackURL      string
 }
+
+var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
+	loggerConfig := zap.NewProductionConfig()
+	loggerConfig.EncoderConfig.TimeKey = "timestamp"
+	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
+
+	_logger, err := loggerConfig.Build()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_sugar := _logger.Sugar()
+	return _logger, _sugar
+}()
 
 func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 
@@ -34,7 +50,7 @@ func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 	tinkClient := tink.NewClient(TinkUri, tink.WithHTTPClient(oauthConfig.Client(ctx)))
 
 	s := &Server{
-		Logger:           Sugar,
+		Logger:           sugar,
 		tinkClientId:     tinkClientId,
 		tinkClientSecret: tinkClientSecret,
 		tinkClient:       tinkClient,

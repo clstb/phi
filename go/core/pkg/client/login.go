@@ -9,7 +9,7 @@ type Session struct {
 	Token string
 }
 
-func (c *Client) Login(
+func (c *AuthClient) Login(
 	username string,
 	password string,
 ) (Session, error) {

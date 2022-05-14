@@ -1,30 +1,14 @@
 package main
 
 import (
+	"github.com/clstb/phi/go/core/pkg"
 	"github.com/clstb/phi/go/core/pkg/client"
-	"github.com/clstb/phi/go/core/pkg/handlers"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"log"
 	"os"
 	"runtime/debug"
-	"time"
 )
-
-var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
-	loggerConfig := zap.NewProductionConfig()
-	loggerConfig.EncoderConfig.TimeKey = "timestamp"
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
-
-	_logger, err := loggerConfig.Build()
-	if err != nil {
-		log.Fatal(err)
-	}
-	_sugar := _logger.Sugar()
-	return _logger, _sugar
-}()
 
 func main() {
 	app := &cli.App{
@@ -40,14 +24,14 @@ func main() {
 
 	if err := app.Run(os.Args); err != nil {
 		debug.PrintStack()
-		sugar.Fatal(err)
+		log.Fatal(err)
 	}
 }
 
 func Serve(ctx *cli.Context) error {
 
 	authClient := client.NewClient(ctx.String("oauthkeeper-uri"))
-	server := handlers.CoreServer{AuthClient: authClient, Logger: sugar}
+	server := pkg.NewServer(authClient)
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())

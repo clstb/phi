@@ -16,40 +16,6 @@ import (
 	"runtime/debug"
 )
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type TinkGwClient struct {
-	cc grpc.ClientConnInterface
-}
-
-type CoreServer struct {
-	AuthClient *client.AuthClient
-	Logger     *zap.SugaredLogger
-}
-
-func (s *CoreServer) DoLogin(c *gin.Context) {
-	var json LoginRequest
-	err := c.BindJSON(&json)
-	if err != nil {
-		s.Logger.Error(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	s.Logger.Debug("Executing login for: %s: $s\n", json.Username, json.Password)
-
-	sess, err := s.AuthClient.Login(json.Username, json.Password)
-	if err != nil {
-		s.Logger.Error(err)
-		c.AbortWithError(s.mapErrorToHttpCode(err), err)
-		return
-	}
-	PutClientSessionTokenInCache(sess.Id, sess.Token)
-	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
-}
-
 func (s *CoreServer) DoRegister(c *gin.Context) {
 	var json LoginRequest
 	err := c.BindJSON(&json)
@@ -79,7 +45,7 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	PutClientSessionTokenInCache(sess.Id, sess.Token)
+	s.PutClientSessionTokenInCache(sess.Id, sess.Token)
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }
 

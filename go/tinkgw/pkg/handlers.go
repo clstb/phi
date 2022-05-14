@@ -1,5 +1,38 @@
 package pkg
 
+import (
+	"context"
+	"errors"
+	pb "github.com/clstb/phi/go/proto"
+	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (s *Server) PrivisionTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
+	createdUser, err := s.tinkClient.CreateUser(
+		r.Id,
+		"DE",
+		"de_DE",
+	)
+	if err == nil {
+		return &pb.ProvisionTinkUserResponse{TinkId: createdUser.UserID}, nil
+	}
+	if errors.Is(err, tink.ErrUserExists) {
+		user, err := s.getUser(r.Id)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+		createdUser.UserID = user.Id
+		return &pb.ProvisionTinkUserResponse{TinkId: user.Id}, status.Error(codes.AlreadyExists, err.Error())
+	}
+	return nil, status.Error(codes.Internal, err.Error())
+}
+
+func (s *Server) PrivisionMockTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
+	return &pb.ProvisionTinkUserResponse{TinkId: "b534d4493183487e8e77ce3eeccaae1b"}, nil
+}
+
 /*
 func (s *Server) Link(context *gin.Context) {
 	logger := s.Logger.With(
@@ -91,41 +124,4 @@ func GetToken(id string, tinkClient *tink.Client, tinkClientId string, tinkClien
 	return token, nil
 }
 
-func (s *Server) RegisterTinkUser(oryToken string, context *gin.Context) {
-	id, err := createTinkClient(context, s.tinkClient, oryToken, s.tinkClientId, s.tinkClientSecret)
-	if err != nil {
-		context.AbortWithError(http.StatusInternalServerError, err)
-	}
-	context.JSON(http.StatusOK, gin.H{"tink_id": id})
-}
-
-func createTinkClient(ctx context.Context, tinkClient *tink.Client, oryToken string, tinkClientId string, tinkClientSecret string) (string, *client.NestedHttpError) {
-	/*
-		oryConf := ory.NewConfiguration()
-		oryConf.Servers = ory.ServerConfigurations{{URL: OriUrl}}
-		oryConf.AddDefaultHeader("Authorization", "Bearer "+oryToken)
-		oryConf.HTTPClient = &http.Client{}
-		oryClient := ory.NewAPIClient(oryConf)
-
-		session, ok := ctx.Value("session").(ory.Session)
-		if !ok {
-			return nil, &client.NestedHttpError{HttpCode: http.StatusUnauthorized, Description: "missing session"}
-		}
-			createdUser, err := tinkClient.CreateUser(
-				session.Identity.Id,
-				"DE",
-				"de_DE",
-			)
-			if err != nil {
-				if !errors.Is(err, tink.ErrUserExists) {
-					return &client.NestedHttpError{HttpCode: http.StatusFailedDependency, Description: "tink: creating user"}
-				}
-				user, err := getUser(session.Identity.Id, tinkClient, tinkClientId, tinkClientSecret)
-				if err != nil {
-					return &client.NestedHttpError{HttpCode: http.StatusFailedDependency, Description: "tink: getting user"}
-				}
-				createdUser.UserID = user.Id
-			}
-	return "b534d4493183487e8e77ce3eeccaae1b", nil
-}
 */

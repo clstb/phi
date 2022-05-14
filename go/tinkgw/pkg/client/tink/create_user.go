@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/clstb/phi/go/tinkgw/pkg"
 	"net/http"
 )
 
@@ -29,7 +28,6 @@ func (c *Client) CreateUser(
 
 	res, err := c.Post(c.url+"/api/v1/user/create", "application/json", b)
 	if err != nil {
-		pkg.Sugar.Error(err)
 		return user, err
 	}
 	defer res.Body.Close()

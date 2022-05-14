@@ -41,20 +41,22 @@ func main() {
 	}
 }
 
-type Server struct {
-	pb.TinkGWServiceServer
-}
-
 func run(ctx *cli.Context) error {
 	addr := "0.0.0.0:" + ctx.String("port")
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
-	pkg.Sugar.Info("----> GRPC listeninng on %s", addr)
+
+	s := pkg.NewServer(
+		ctx.String("tink-client-id"),
+		ctx.String("tink-client-secret"),
+		ctx.String("callback-url"))
+
+	s.Logger.Info("----> GRPC listeninng on %s", addr)
 
 	server := grpc.NewServer()
-	pb.RegisterTinkGWServiceServer(server, &Server{})
+	pb.RegisterTinkGWServiceServer(server, s)
 	reflection.Register(server)
 	if err = server.Serve(listener); err != nil {
 		return err

@@ -15,5 +15,7 @@ message ProvisionTinkUserResponse {
 
 
 service TinkGWService {
+
   rpc PrivisionTinkUser (ProvisionTinkUserRequest) returns (ProvisionTinkUserResponse);
+  rpc PrivisionMockTinkUser (ProvisionTinkUserRequest) returns (ProvisionTinkUserResponse);
 }

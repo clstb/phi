@@ -4,7 +4,7 @@ const TinkUri = "https://api.tink.com"
 
 const TinkTokenUri = "https://api.tink.com/api/v1/oauth/token"
 
-const TinkAdminRoles = "authorization:grant,user:create"
+const TinkAdminRoles = "authorization:grant" //,user:create"
 
 const LinkBankAccountUriFormat = "https://link.tink.com/1.0/transactions/connect-accounts?client_id=%s&redirect_uri=%s&market=%s&locale=%s&authorization_code=%s"
 

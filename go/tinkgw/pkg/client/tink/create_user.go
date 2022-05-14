@@ -26,7 +26,7 @@ func (c *Client) CreateUser(market, locale string) (user CreateUserResponse, err
 		return
 	}
 
-	res, err := c.Post(c.url+config.UserCreateEndpoint, config.JsonMediaType, b)
+	res, err := c.httpClient.Post(c.url+config.UserCreateEndpoint, config.JsonMediaType, b)
 	if err != nil {
 		return user, err
 	}

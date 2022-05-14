@@ -21,6 +21,11 @@ func (s *CoreServer) DoLogin(c *gin.Context) {
 		c.AbortWithError(s.mapErrorToHttpCode(err), err)
 		return
 	}
-	s.PutClientSessionTokenInCache(sess.Id, sess.Token)
+
+	traits := sess.Identity.Traits.(map[string]string)
+	s.PutUserInCache(sess.Id, UserDetails{
+		tinkId:   traits["tink_id"],
+		username: traits["username"],
+	})
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }

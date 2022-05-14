@@ -36,7 +36,7 @@ func (c *Client) GetToken(
 		form.Add("code", code)
 	}
 
-	res, err := c.PostForm(c.url+"/api/v1/oauth/token", form)
+	res, err := c.httpClient.httpClient.PostForm(c.url+"/api/v1/oauth/token", form)
 	if err != nil {
 		return token, err
 	}

@@ -10,8 +10,8 @@ message ProvisionTinkUserResponse {
   string TinkId = 2;
 }
 
-message UserIdMessage {
-  string UserId = 1;
+message TinkIdMessage {
+  string TinkId = 1;
 }
 
 message TinkLinkMessage {
@@ -24,6 +24,6 @@ service TinkGWService {
 
   rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
   rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
-  rpc CreateTinkLink (UserIdMessage) returns (TinkLinkMessage);
+  rpc CreateTinkLink (TinkIdMessage) returns (TinkLinkMessage);
 
 }

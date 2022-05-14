@@ -11,7 +11,7 @@ type User struct {
 }
 
 func (c *Client) GetUser() (user User, err error) {
-	res, err := c.Get(c.url + "/api/v1/user")
+	res, err := c.httpClient.Get(c.url + "/api/v1/user")
 	if err != nil {
 		return user, err
 	}

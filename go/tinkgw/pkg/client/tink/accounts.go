@@ -47,7 +47,7 @@ func (c *Client) GetAccounts(pageToken string) ([]Account, error) {
 		return nil, err
 	}
 
-	res, err := c.Do(req)
+	res, err := c.httpClient.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

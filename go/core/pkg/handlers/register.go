@@ -38,14 +38,18 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	//err = createUserDir(json.Username)
-	//if err != nil {
-	//	s.Logger.Error(err)
-	//	c.AbortWithError(http.StatusInternalServerError, err)
-	//	return
-	//}
+	err = createUserDir(json.Username)
+	if err != nil {
+		s.Logger.Error(err)
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
-	s.PutClientSessionTokenInCache(sess.Id, sess.Token)
+	traits := sess.Identity.Traits.(map[string]string)
+	s.PutUserInCache(sess.Id, UserDetails{
+		tinkId:   traits["tink_id"],
+		username: traits["username"],
+	})
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }
 
@@ -82,7 +86,8 @@ func (s *CoreServer) provisionTinkUser() (*string, error) {
 
 	gwServiceClient := pb.NewTinkGWServiceClient(connection)
 
-	res, err := gwServiceClient.ProvisionMockTinkUser(context.TODO(), &emptypb.Empty{})
+	//res, err := gwServiceClient.ProvisionMockTinkUser(context.TODO(), &emptypb.Empty{})
+	res, err := gwServiceClient.ProvisionTinkUser(context.TODO(), &emptypb.Empty{})
 	if err != nil {
 		return nil, err
 	}

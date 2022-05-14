@@ -12,7 +12,7 @@ func (c *Client) GetAuthorizeGrantCode(
 	externalUserId,
 	scope string,
 ) (s string, err error) {
-	res, err := c.PostForm(c.url+"/api/v1/oauth/authorization-grant", url.Values{
+	res, err := c.httpClient.PostForm(c.url+"/api/v1/oauth/authorization-grant", url.Values{
 		"user_id":          {userId},
 		"external_user_id": {externalUserId},
 		"scope":            {scope},

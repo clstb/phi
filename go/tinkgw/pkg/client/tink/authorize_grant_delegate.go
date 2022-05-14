@@ -12,8 +12,8 @@ type Code struct {
 	Code string `json:"code"`
 }
 
-func (c *Client) GetDelegatedAutorizationCode(actorClientId string, userId string) (s string, err error) {
-	res, err := c.PostForm(c.url+config.DelegatedAuthorizationEndpoint, url.Values{
+func (c *Client) GetDelegatedAuthorizationCode(actorClientId string, userId string) (s string, err error) {
+	res, err := c.httpClient.PostForm(c.url+config.DelegatedAuthorizationEndpoint, url.Values{
 		"actor_client_id": {actorClientId},
 		"user_id":         {userId},
 		"id_hint":         {config.GetAuthorizeGrantDelegateCodeRoles},

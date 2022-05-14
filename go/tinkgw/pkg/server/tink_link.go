@@ -11,10 +11,10 @@ import (
 	"os"
 )
 
-func (s *Server) CreateTinkLink(ctx context.Context, in *pb.UserIdMessage) (*pb.TinkLinkMessage, error) {
+func (s *Server) CreateTinkLink(ctx context.Context, in *pb.TinkIdMessage) (*pb.TinkLinkMessage, error) {
 
 	tinkClientId := os.Getenv("TINK_CLIENT_ID")
-	code, err := s.tinkClient.GetDelegatedAutorizationCode(tinkClientId, in.UserId)
+	code, err := s.tinkClient.GetDelegatedAuthorizationCode(tinkClientId, in.TinkId)
 	if err != nil {
 		s.Logger.Error("tink: authorize grant delegate", zap.Error(err))
 		return nil, status.Error(codes.FailedPrecondition, err.Error())

@@ -12,9 +12,9 @@ import (
 )
 
 type Client struct {
-	*http.Client
-	ctx context.Context
-	url string
+	httpClient *LoggingClient
+	ctx        context.Context
+	url        string
 }
 
 func (c *Client) GetLink() (s string, err error) {
@@ -23,7 +23,7 @@ func (c *Client) GetLink() (s string, err error) {
 		return
 	}
 
-	httpResp, err := c.Get(url.String())
+	httpResp, err := c.httpClient.Get(url.String())
 	if err != nil {
 		return
 	}
@@ -58,7 +58,7 @@ type Opt func(*Client)
 
 func WithHTTPClient(httpClient *http.Client) func(*Client) {
 	return func(c *Client) {
-		c.Client = httpClient
+		c.httpClient = &LoggingClient{httpClient: httpClient}
 	}
 }
 
@@ -66,8 +66,8 @@ func NewClient(url string, opts ...Opt) *Client {
 	httpClient := &http.Client{Transport: transport}
 
 	client := &Client{
-		Client: httpClient,
-		url:    url,
+		httpClient: &LoggingClient{httpClient: httpClient},
+		url:        url,
 	}
 
 	for _, opt := range opts {
@@ -78,7 +78,7 @@ func NewClient(url string, opts ...Opt) *Client {
 }
 
 func (c *Client) SetBearerToken(token string) {
-	c.Transport = rt.AuthorizationRoundTripper{
+	c.httpClient.httpClient.Transport = rt.AuthorizationRoundTripper{
 		Token: token,
 		Next:  transport,
 	}

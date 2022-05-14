@@ -34,11 +34,6 @@ mutators:
         {
           "session": {{ .Extra | toJson }}
         }
-  hydrator:
-    enabled: true
-    config:
-      api:
-        url: http://localhost:8080/token
 
 authenticators:
   anonymous:
@@ -48,7 +43,7 @@ authenticators:
   bearer_token:
     enabled: true
     config:
-      check_session_url: https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/public/sessions/whoami
+      check_session_url: https://intelligent-carver-9wwhrnif5g.projects.oryapis.com/api/kratos/public/sessions/whoami
       preserve_path: true
       extra_from: "@this"
       subject_from: "identity.id"

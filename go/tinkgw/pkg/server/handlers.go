@@ -1,43 +1,4 @@
-package pkg
-
-import (
-	"context"
-	"errors"
-	pb "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
-)
-
-func (s *Server) ProvisionTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
-	createdUser, err := s.tinkClient.CreateUser(
-		r.Id,
-		"DE",
-		"de_DE",
-	)
-	if err == nil {
-		s.Logger.Info("OK ---> ", createdUser.UserID)
-		return &pb.ProvisionTinkUserResponse{TinkId: createdUser.UserID}, nil
-	}
-	if errors.Is(err, tink.ErrUserExists) {
-		s.Logger.Warn(err)
-		user, err := s.getUser(r.Id)
-		if err != nil {
-			s.Logger.Error(err)
-			return nil, status.Error(codes.FailedPrecondition, err.Error())
-		}
-		createdUser.UserID = user.Id
-		return &pb.ProvisionTinkUserResponse{TinkId: user.Id}, status.Error(codes.AlreadyExists, err.Error())
-	}
-	s.Logger.Error(err)
-	return nil, status.Error(codes.Internal, err.Error())
-}
-
-func (s *Server) ProvisionMockTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.ProvisionTinkUserResponse, error) {
-	s.Logger.Info("OK ---> b534d4493183487e8e77ce3eeccaae1b")
-	return &pb.ProvisionTinkUserResponse{TinkId: "b534d4493183487e8e77ce3eeccaae1b"}, nil
-}
+package server
 
 /*
 func (s *Server) Link(context *gin.Context) {
@@ -52,7 +13,7 @@ func (s *Server) Link(context *gin.Context) {
 		return
 	}
 
-	code, err := s.tinkClient.GetAuthorizeGrantDelegateCode(
+	code, err := s.tinkClient.GetDelegatedAutorizationCode(
 		"code",
 		"",
 		session.Identity.Id,

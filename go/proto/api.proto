@@ -5,18 +5,25 @@ option go_package = "github.com/clstb/phi/proto";
 import "google/protobuf/empty.proto";
 
 
-message ProvisionTinkUserRequest {
-  string id = 1;
+message ProvisionTinkUserResponse {
+  string ExternalUserId = 1;
+  string TinkId = 2;
 }
 
-message ProvisionTinkUserResponse {
-  string tink_id = 1;
+message UserIdMessage {
+  string UserId = 1;
+}
+
+message TinkLinkMessage {
+  string TinkLink = 1;
 }
 
 
 
 service TinkGWService {
 
-  rpc ProvisionTinkUser (ProvisionTinkUserRequest) returns (ProvisionTinkUserResponse);
+  rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
   rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
+  rpc CreateTinkLink (UserIdMessage) returns (TinkLinkMessage);
+
 }

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/clstb/phi/go/tinkgw/pkg/config"
 	"net/http"
 )
 
@@ -12,21 +13,20 @@ type CreateUserResponse struct {
 	UserID         string `json:"user_id"`
 }
 
-func (c *Client) CreateUser(
-	externalUserId,
-	market,
-	locale string,
-) (user CreateUserResponse, err error) {
+func (c *Client) CreateUserWithDefaults() (user CreateUserResponse, err error) {
+	return c.CreateUser(config.DefaultMarket, config.DefaultLocale)
+}
+
+func (c *Client) CreateUser(market, locale string) (user CreateUserResponse, err error) {
 	b := &bytes.Buffer{}
 	if err = json.NewEncoder(b).Encode(map[string]string{
-		"external_user_id": externalUserId,
-		"market":           market,
-		"locale":           locale,
+		"market": market,
+		"locale": locale,
 	}); err != nil {
 		return
 	}
 
-	res, err := c.Post(c.url+"/api/v1/user/create", "application/json", b)
+	res, err := c.Post(c.url+config.UserCreateEndpoint, config.JsonMediaType, b)
 	if err != nil {
 		return user, err
 	}

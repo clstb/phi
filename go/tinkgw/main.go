@@ -2,7 +2,7 @@ package main
 
 import (
 	pb "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg"
+	"github.com/clstb/phi/go/tinkgw/pkg/server"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -49,7 +49,7 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	s := pkg.NewServer(
+	s := server.NewServer(
 		ctx.String("tink-client-id"),
 		ctx.String("tink-client-secret"),
 		ctx.String("callback-url"))

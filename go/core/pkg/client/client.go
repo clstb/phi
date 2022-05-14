@@ -4,12 +4,18 @@ import (
 	"context"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/rt"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
+	ory "github.com/ory/kratos-client-go"
 	"net"
 	"net/http"
 	"time"
-
-	ory "github.com/ory/kratos-client-go"
 )
+
+type Client struct {
+	*http.Client
+	ctx       context.Context
+	url       string
+	oryClient *ory.APIClient
+}
 
 var transport = &http.Transport{
 	Proxy: http.ProxyFromEnvironment,
@@ -54,12 +60,4 @@ func (c *Client) SetBearerToken(token string) {
 
 func (c *Client) URL() string {
 	return c.url
-}
-
-type Client struct {
-	*http.Client
-	ctx        context.Context
-	url        string
-	tinkClient *tink.Client
-	oryClient  *ory.APIClient
 }

@@ -1,11 +1,44 @@
 package tink
 
 import (
+	"context"
+	"fmt"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/rt"
+	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 )
+
+type Client struct {
+	*http.Client
+	ctx context.Context
+	url string
+}
+
+func (c *Client) GetLink() (s string, err error) {
+	url, err := url.Parse(c.url + "/link")
+	if err != nil {
+		return
+	}
+
+	httpResp, err := c.Get(url.String())
+	if err != nil {
+		return
+	}
+
+	switch httpResp.StatusCode {
+	case http.StatusOK:
+		var b []byte
+		b, err = ioutil.ReadAll(httpResp.Body)
+		s = string(b)
+	default:
+		err = fmt.Errorf("unhandled status: %d", httpResp.StatusCode)
+	}
+
+	return
+}
 
 var transport = &http.Transport{
 	Proxy: http.ProxyFromEnvironment,
@@ -21,32 +54,14 @@ var transport = &http.Transport{
 	DisableCompression:    true,
 }
 
-type Client struct {
-	*http.Client
-	url string
-}
-
-type Opt func(*Client)
-
-func WithHTTPClient(httpClient *http.Client) func(*Client) {
-	return func(c *Client) {
-		c.Client = httpClient
-	}
-}
-
-func NewClient(url string, opts ...Opt) *Client {
+func NewClient(url string) *Client {
 	httpClient := &http.Client{Transport: transport}
 
-	client := &Client{
+	return &Client{
 		Client: httpClient,
+		ctx:    context.Background(),
 		url:    url,
 	}
-
-	for _, opt := range opts {
-		opt(client)
-	}
-
-	return client
 }
 
 func (c *Client) SetBearerToken(token string) {
@@ -54,4 +69,8 @@ func (c *Client) SetBearerToken(token string) {
 		Token: token,
 		Next:  transport,
 	}
+}
+
+func (c *Client) URL() string {
+	return c.url
 }

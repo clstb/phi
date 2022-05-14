@@ -4,7 +4,7 @@ import (
 	ory "github.com/ory/kratos-client-go"
 )
 
-func (c *Client) Register(
+func (c *client.Client) Register(
 	username string,
 	password string,
 ) (Session, error) {

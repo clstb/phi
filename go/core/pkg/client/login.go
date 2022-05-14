@@ -4,6 +4,11 @@ import (
 	ory "github.com/ory/kratos-client-go"
 )
 
+type Session struct {
+	ory.Session
+	Token string
+}
+
 func (c *Client) Login(
 	username string,
 	password string,

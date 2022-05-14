@@ -1,10 +1,13 @@
 package pkg
 
 import (
+	"context"
 	"fmt"
 	pb "github.com/clstb/phi/go/proto"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type Server struct {
@@ -18,7 +21,17 @@ type Server struct {
 
 func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 
-	tinkClient := tink.NewClient(TinkUri)
+	oauthConfig := &clientcredentials.Config{
+		ClientID:     tinkClientId,
+		ClientSecret: tinkClientSecret,
+		TokenURL:     TinkTokenUri,
+		Scopes:       []string{TinkAdminRoles},
+		AuthStyle:    oauth2.AuthStyleInParams,
+	}
+
+	ctx := context.Background()
+
+	tinkClient := tink.NewClient(TinkUri, tink.WithHTTPClient(oauthConfig.Client(ctx)))
 
 	s := &Server{
 		Logger:           Sugar,

@@ -16,20 +16,25 @@ func (s *Server) PrivisionTinkUser(ctx context.Context, r *pb.ProvisionTinkUserR
 		"de_DE",
 	)
 	if err == nil {
+		s.Logger.Info("OK ---> ", createdUser.UserID)
 		return &pb.ProvisionTinkUserResponse{TinkId: createdUser.UserID}, nil
 	}
 	if errors.Is(err, tink.ErrUserExists) {
+		s.Logger.Warn(err)
 		user, err := s.getUser(r.Id)
 		if err != nil {
+			s.Logger.Error(err)
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
 		createdUser.UserID = user.Id
 		return &pb.ProvisionTinkUserResponse{TinkId: user.Id}, status.Error(codes.AlreadyExists, err.Error())
 	}
+	s.Logger.Error(err)
 	return nil, status.Error(codes.Internal, err.Error())
 }
 
 func (s *Server) PrivisionMockTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
+	s.Logger.Info("OK ---> b534d4493183487e8e77ce3eeccaae1b")
 	return &pb.ProvisionTinkUserResponse{TinkId: "b534d4493183487e8e77ce3eeccaae1b"}, nil
 }
 

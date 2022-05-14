@@ -54,14 +54,27 @@ var transport = &http.Transport{
 	DisableCompression:    true,
 }
 
-func NewClient(url string) *Client {
+type Opt func(*Client)
+
+func WithHTTPClient(httpClient *http.Client) func(*Client) {
+	return func(c *Client) {
+		c.Client = httpClient
+	}
+}
+
+func NewClient(url string, opts ...Opt) *Client {
 	httpClient := &http.Client{Transport: transport}
 
-	return &Client{
+	client := &Client{
 		Client: httpClient,
-		ctx:    context.Background(),
 		url:    url,
 	}
+
+	for _, opt := range opts {
+		opt(client)
+	}
+
+	return client
 }
 
 func (c *Client) SetBearerToken(token string) {

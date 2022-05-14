@@ -13,12 +13,12 @@ func (c *AuthClient) Login(
 	username string,
 	password string,
 ) (Session, error) {
-	flow, _, err := c.oryClient.V0alpha2Api.InitializeSelfServiceLoginFlowWithoutBrowser(c.ctx).Execute()
+	flow, _, err := c.OryClient.V0alpha2Api.InitializeSelfServiceLoginFlowWithoutBrowser(c.ctx).Execute()
 	if err != nil {
 		return Session{}, err
 	}
 
-	result, _, err := c.oryClient.V0alpha2Api.SubmitSelfServiceLoginFlow(c.ctx).Flow(flow.Id).SubmitSelfServiceLoginFlowBody(
+	result, _, err := c.OryClient.V0alpha2Api.SubmitSelfServiceLoginFlow(c.ctx).Flow(flow.Id).SubmitSelfServiceLoginFlowBody(
 		ory.SubmitSelfServiceLoginFlowWithPasswordMethodBodyAsSubmitSelfServiceLoginFlowBody(&ory.SubmitSelfServiceLoginFlowWithPasswordMethodBody{
 			Method:             "password",
 			Password:           password,

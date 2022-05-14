@@ -13,7 +13,7 @@ type AuthClient struct {
 	*http.Client
 	ctx       context.Context
 	url       string
-	oryClient *ory.APIClient
+	OryClient *ory.APIClient
 }
 
 var transport = &http.Transport{
@@ -43,7 +43,7 @@ func NewClient(url string) *AuthClient {
 		Client:    httpClient,
 		ctx:       context.Background(),
 		url:       url,
-		oryClient: oryClient,
+		OryClient: oryClient,
 	}
 }
 

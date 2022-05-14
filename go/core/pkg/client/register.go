@@ -8,12 +8,12 @@ func (c *AuthClient) Register(
 	username string,
 	password string,
 ) (Session, error) {
-	flow, _, err := c.oryClient.V0alpha2Api.InitializeSelfServiceRegistrationFlowWithoutBrowser(c.ctx).Execute()
+	flow, _, err := c.OryClient.V0alpha2Api.InitializeSelfServiceRegistrationFlowWithoutBrowser(c.ctx).Execute()
 	if err != nil {
 		return Session{}, err
 	}
 
-	result, _, err := c.oryClient.V0alpha2Api.SubmitSelfServiceRegistrationFlow(c.ctx).Flow(flow.Id).SubmitSelfServiceRegistrationFlowBody(
+	result, _, err := c.OryClient.V0alpha2Api.SubmitSelfServiceRegistrationFlow(c.ctx).Flow(flow.Id).SubmitSelfServiceRegistrationFlowBody(
 		ory.SubmitSelfServiceRegistrationFlowWithPasswordMethodBodyAsSubmitSelfServiceRegistrationFlowBody(&ory.SubmitSelfServiceRegistrationFlowWithPasswordMethodBody{
 			Method:   "password",
 			Password: password,

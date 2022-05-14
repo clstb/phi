@@ -18,8 +18,7 @@ const useInput = (initialValue: string) => {
       onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value);
       }
-    },
-
+    }
   };
 };
 
@@ -44,7 +43,9 @@ const doLoginRegister = (path: string,
         navigate('/home', {replace: true})
       }
     )
-    .catch(errSetter)
+    .catch(err => {
+      errSetter(err.response.statusText)
+    })
 }
 
 
@@ -69,16 +70,16 @@ export function LoginPage() {
         <div className='App-body'>
           <div className="input-container">
             <FilledInput type="text"
-                         {...bindUsername}
+                         required={true}
                          placeholder={"username"}
-                         required
+                         {...bindUsername}
             />
           </div>
           <div className="input-container">
             <FilledInput type="password"
                          placeholder={"password"}
+                         required={true}
                          {...bindPassword}
-                         required
             />
           </div>
           <div className="button-container">

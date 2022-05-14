@@ -47,16 +47,12 @@ func main() {
 func Serve(ctx *cli.Context) error {
 
 	authClient := client.NewClient(ctx.String("oauthkeeper-uri"))
+	server := handlers.CoreServer{AuthClient: authClient, Logger: sugar}
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
-	router.POST("/api/login", func(context *gin.Context) {
-		handlers.DoLogin(context, sugar, authClient)
-	})
-
-	router.POST("/api/register", func(context *gin.Context) {
-		handlers.DoRegister(context, sugar, authClient)
-	})
+	router.POST("/api/login", server.DoLogin)
+	router.POST("/api/register", server.DoRegister)
 
 	/*
 		router.POST("/api/link-tink", func(context *gin.Context) {

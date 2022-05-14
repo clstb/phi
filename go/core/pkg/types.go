@@ -1,7 +1,5 @@
 package pkg
 
-import "github.com/clstb/phi/go/core/pkg/client"
-
 type SessionId struct {
 	SessionId string `json:"sessionId"`
 }
@@ -9,8 +7,4 @@ type SessionId struct {
 type SyncLedgerRequest struct {
 	Username  string `json:"username"`
 	SessionId string `json:"sessionId"`
-}
-
-type CoreServer struct {
-	authClient *client.AuthClient
 }

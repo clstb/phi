@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package phi;
 option go_package = "github.com/clstb/phi/proto";
+import "google/protobuf/empty.proto";
 
 
 message ProvisionTinkUserRequest {
@@ -17,5 +18,5 @@ message ProvisionTinkUserResponse {
 service TinkGWService {
 
   rpc ProvisionTinkUser (ProvisionTinkUserRequest) returns (ProvisionTinkUserResponse);
-  rpc ProvisionMockTinkUser (ProvisionTinkUserRequest) returns (ProvisionTinkUserResponse);
+  rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
 }

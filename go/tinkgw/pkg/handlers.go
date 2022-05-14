@@ -7,6 +7,7 @@ import (
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *Server) ProvisionTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
@@ -33,7 +34,7 @@ func (s *Server) ProvisionTinkUser(ctx context.Context, r *pb.ProvisionTinkUserR
 	return nil, status.Error(codes.Internal, err.Error())
 }
 
-func (s *Server) ProvisionMockTinkUser(ctx context.Context, r *pb.ProvisionTinkUserRequest) (*pb.ProvisionTinkUserResponse, error) {
+func (s *Server) ProvisionMockTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.ProvisionTinkUserResponse, error) {
 	s.Logger.Info("OK ---> b534d4493183487e8e77ce3eeccaae1b")
 	return &pb.ProvisionTinkUserResponse{TinkId: "b534d4493183487e8e77ce3eeccaae1b"}, nil
 }

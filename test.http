@@ -2,7 +2,7 @@ POST http://localhost:8081/api/register
 Content-Type: application/json
 
 {
-  "username": "ass3",
+  "username": "ass4",
   "password": "AnIu0RzcIl*o"
 }
 
@@ -12,15 +12,6 @@ POST http://localhost:8081/api/login
 Content-Type: application/json
 
 {
-  "username": "artem",
-  "password": "AnIu0RzcIl*o"
-}
-
-###
-POST https://youthful-colden-lom8uboh9g.projects.oryapis.com/api/kratos/public/self-service/login?flow=7a54597e-039a-481b-b6e1-6a8402506296
-Content-Type: application/json
-
-{
-  "username": "artem",
+  "username": "ass4",
   "password": "AnIu0RzcIl*o"
 }

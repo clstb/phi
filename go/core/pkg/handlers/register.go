@@ -3,12 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/clstb/phi/go/core/pkg/client"
 	"github.com/clstb/phi/go/core/pkg/config"
 	pb "github.com/clstb/phi/go/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"
 	"os"
 	"runtime/debug"
@@ -23,13 +23,15 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	sess, err := s.AuthClient.Register(json.Username, json.Password)
+	tinkId, err := s.provisionTinkUser()
+
+	sess, err := s.AuthClient.Register(json.Username, json.Password, *tinkId)
 	if err != nil {
 		s.Logger.Error(err)
 		c.AbortWithError(s.mapErrorToHttpCode(err), err)
 		return
 	}
-	err = s.provisionTinkUser(sess)
+
 	if err != nil {
 		s.Logger.Error(err)
 		c.AbortWithError(s.mapGRPCErrorToHttpCode(err), err)
@@ -70,28 +72,19 @@ func createUserDir(username string) error {
 	return nil
 }
 
-func (s *CoreServer) provisionTinkUser(sess client.Session) error {
+func (s *CoreServer) provisionTinkUser() (*string, error) {
 	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer connection.Close()
 
 	gwServiceClient := pb.NewTinkGWServiceClient(connection)
 
-	res, err := gwServiceClient.ProvisionMockTinkUser(context.TODO(), &pb.ProvisionTinkUserRequest{Id: sess.Id})
+	res, err := gwServiceClient.ProvisionMockTinkUser(context.TODO(), &emptypb.Empty{})
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	traits := sess.Identity.Traits.(map[string]interface{})
-
-	traits["tink_id"] = res.TinkId
-
-	_, err = s.AuthClient.UpdateTraits(&sess, traits)
-	if err != nil {
-		return err
-	}
-	return nil
+	return &res.TinkId, nil
 }

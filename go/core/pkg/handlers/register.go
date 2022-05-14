@@ -3,12 +3,10 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"github.com/clstb/phi/go/core/pkg"
 	"github.com/clstb/phi/go/core/pkg/client"
+	"github.com/clstb/phi/go/core/pkg/config"
 	pb "github.com/clstb/phi/go/proto"
 	"github.com/gin-gonic/gin"
-	ory "github.com/ory/kratos-client-go"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
@@ -38,12 +36,12 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	err = createUserDir(json.Username)
-	if err != nil {
-		s.Logger.Error(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	//err = createUserDir(json.Username)
+	//if err != nil {
+	//	s.Logger.Error(err)
+	//	c.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
 
 	s.PutClientSessionTokenInCache(sess.Id, sess.Token)
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
@@ -54,17 +52,17 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 //.data/username/transactions/
 
 func createUserDir(username string) error {
-	err := os.MkdirAll(fmt.Sprintf("%s/%s", pkg.DataDirPath, username), os.ModePerm)
+	err := os.MkdirAll(fmt.Sprintf("%s/%s", config.DataDirPath, username), os.ModePerm)
 	if err != nil {
 		debug.PrintStack()
 		return err
 	}
-	err = os.MkdirAll(fmt.Sprintf("%s/%s/transactions", pkg.DataDirPath, username), os.ModePerm)
+	err = os.MkdirAll(fmt.Sprintf("%s/%s/transactions", config.DataDirPath, username), os.ModePerm)
 	if err != nil {
 		debug.PrintStack()
 		return err
 	}
-	_, err = os.Create(fmt.Sprintf("%s/%s/accounts.bean", pkg.DataDirPath, username))
+	_, err = os.Create(fmt.Sprintf("%s/%s/accounts.bean", config.DataDirPath, username))
 	if err != nil {
 		debug.PrintStack()
 		return err
@@ -73,7 +71,7 @@ func createUserDir(username string) error {
 }
 
 func (s *CoreServer) provisionTinkUser(sess client.Session) error {
-	connection, err := grpc.Dial(pkg.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		return err
@@ -90,15 +88,9 @@ func (s *CoreServer) provisionTinkUser(sess client.Session) error {
 	traits := sess.Identity.Traits.(map[string]interface{})
 
 	traits["tink_id"] = res.TinkId
-	_, _, err = s.AuthClient.OryClient.V0alpha2Api.AdminUpdateIdentity(
-		context.Background(),
-		sess.Identity.Id,
-	).AdminUpdateIdentityBody(ory.AdminUpdateIdentityBody{
-		State:  *sess.Identity.State,
-		Traits: traits,
-	}).Execute()
+
+	_, err = s.AuthClient.UpdateTraits(&sess, traits)
 	if err != nil {
-		s.Logger.Error("ory: updating identity", zap.Error(err))
 		return err
 	}
 	return nil

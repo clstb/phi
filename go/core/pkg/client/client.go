@@ -16,6 +16,11 @@ type AuthClient struct {
 	OryClient *ory.APIClient
 }
 
+type Session struct {
+	ory.Session
+	Token string
+}
+
 var transport = &http.Transport{
 	Proxy: http.ProxyFromEnvironment,
 	DialContext: (&net.Dialer{

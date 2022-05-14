@@ -1,4 +1,4 @@
-package pkg
+package config
 
 const DataDirPath = ".data"
 

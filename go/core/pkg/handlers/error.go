@@ -4,6 +4,9 @@ func (s *CoreServer) mapErrorToHttpCode(err error) int {
 	if err.Error() == "400 Bad Request" {
 		return 400
 	}
+	if err.Error() == "404 Not Found" {
+		return 404
+	}
 	s.Logger.Warn("Unmapped error: ", err)
 	return 500
 }

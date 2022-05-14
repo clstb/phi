@@ -1,9 +1,9 @@
 - id: "ory"
   upstream:
     url: https://intelligent-carver-9wwhrnif5g.projects.oryapis.com/api/kratos/public
-    strip_path: "/ory"
+    strip_path: /ory
   match:
-    url: "http://localhost:4455/ory/<.*>"
+    url: http://localhost:4455/ory/<.*>
     methods:
       - GET
       - POST

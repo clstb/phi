@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "gw.proto";
 
 package phi;
 option go_package = "github.com/clstb/phi/proto";
@@ -28,10 +29,6 @@ message TinkTransactionMessage {
   string Reference = 5;
   string Description = 6;
   string Status = 7;
-}
-
-message StringMessage {
-  string str = 1;
 }
 
 message ProviderMessage {

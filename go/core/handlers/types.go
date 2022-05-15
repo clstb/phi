@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/clstb/phi/go/core/pkg/auth"
+	"github.com/clstb/phi/go/core/auth"
 	"github.com/eko/gocache/v2/cache"
 	"go.uber.org/zap"
 )
@@ -19,4 +19,12 @@ type CoreServer struct {
 
 type SessionId struct {
 	SessionId string `json:"sessionId"`
+}
+
+type LinkRequest struct {
+	Test bool `json:"test"`
+}
+
+type AccessCodeRequest struct {
+	AccessCode string `json:"access_code"`
 }

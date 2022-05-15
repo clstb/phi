@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"github.com/clstb/phi/go/core/pkg/config"
+	"github.com/clstb/phi/go/core/config"
 	proto2 "github.com/clstb/phi/go/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"

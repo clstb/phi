@@ -1,0 +1,13 @@
+# GET token
+# curl -v https://api.tink.com/api/v1/oauth/token
+#                -d 'code=9f556ac47def4ceeae65bc2ac6e330b1'
+#                -d 'client_id=b534d4493183487e8e77ce3eeccaae1b'
+#                -d 'client_secret=fcbdf733d6fd4c219dff0d728e2ae107'
+#                -d 'grant_type=authorization_code'
+POST https://api.tink.com/api/v1/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+code=b8dd713e146e40a58f5c39891bc0b6da&client_id=b534d4493183487e8e77ce3eeccaae1b&client_secret=fcbdf733d6fd4c219dff0d728e2ae107&grant_type=authorization_code
+
+###
+

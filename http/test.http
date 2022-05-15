@@ -15,3 +15,15 @@ Content-Type: application/json
   "username": "ass4",
   "password": "AnIu0RzcIl*o"
 }
+
+
+
+###
+POST http://localhost:8081/api/auth/token
+Content-Type: application/json
+
+{
+  "access_code": "d2e8f1a0b98f454cb3aaf76a61d65cce"
+}
+
+

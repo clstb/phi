@@ -10,12 +10,12 @@ message ProvisionTinkUserResponse {
   string TinkId = 2;
 }
 
-message TinkIdMessage {
-  string TinkId = 1;
+message StringMessage {
+  string value = 1;
 }
 
-message TinkLinkMessage {
-  string TinkLink = 1;
+message BytesMessage {
+  bytes arr = 1;
 }
 
 
@@ -23,7 +23,12 @@ service TinkGWService {
 
   rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
   rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
-  rpc CreateTinkLink (TinkIdMessage) returns (TinkLinkMessage);
+
+  rpc GetTinkAuthLink (google.protobuf.Empty) returns (BytesMessage);
+  rpc GetTestAuthLink (google.protobuf.Empty) returns (BytesMessage);
+
+  rpc ExchangeAuthCodeToToken (StringMessage) returns (StringMessage);
+  rpc CreateTinkLink (StringMessage) returns (StringMessage);
 
 }
 

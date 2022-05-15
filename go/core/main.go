@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/clstb/phi/go/core/pkg"
-	"github.com/clstb/phi/go/core/pkg/auth"
+	"github.com/clstb/phi/go/core/auth"
+	"github.com/clstb/phi/go/core/util"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"log"
+	"net/http"
 	"os"
 	"runtime/debug"
 )
@@ -31,14 +32,15 @@ func main() {
 func Serve(ctx *cli.Context) error {
 
 	authClient := auth.NewClient(ctx.String("oauthkeeper-uri"))
-	server := pkg.NewServer(authClient)
+	server := util.NewServer(authClient)
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 	router.POST("/api/login", server.DoLogin)
 	router.POST("/api/register", server.DoRegister)
 
-	router.POST("/api/link-tink", server.LinkBank)
+	router.GET("/api/auth/link", server.AuthCodeLink)
+	router.POST("/api/auth/token", server.ExchangeToToken)
 	router.POST("/api/sync-ledger", server.SyncLedger)
 
 	return router.Run("0.0.0.0:8081")
@@ -52,7 +54,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Header("Access-Control-Allow-Methods", "*")
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 		c.Next()

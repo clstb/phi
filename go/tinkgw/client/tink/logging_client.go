@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -45,6 +46,7 @@ func (c *LoggingClient) Post(url string, contentType string, body io.Reader) (re
 		fmt.Println("------------------")
 		fmt.Printf("Error: %v\n", err)
 		fmt.Println("------------------")
+		return res, err
 	}
 
 	fmt.Printf("Status code ------> %v\n", res.StatusCode)
@@ -57,7 +59,7 @@ func (c *LoggingClient) Post(url string, contentType string, body io.Reader) (re
 	return res, err
 }
 
-func (c *LoggingClient) PostForm(url string, data url.Values) (resp *http.Response, err error) {
+func (c *LoggingClient) PostForm(url string, data url.Values) ([]byte, error) {
 	fmt.Printf("POST -------> %s\n", url)
 	fmt.Printf("Body: %v\n", data)
 	res, err := c.httpClient.PostForm(url, data)
@@ -65,14 +67,14 @@ func (c *LoggingClient) PostForm(url string, data url.Values) (resp *http.Respon
 		fmt.Println("------------------")
 		fmt.Printf("Error: %v\n", err)
 		fmt.Println("------------------")
+		return nil, err
 	}
 	fmt.Printf("Status code ------> %v\n", res.StatusCode)
-	var bb bytes.Buffer
-	_, err = bb.ReadFrom(res.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("Response Body: %s\n", bb.String())
-	return res, err
 
+	buf, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Response Body: %s\n", buf)
+	return buf, err
 }

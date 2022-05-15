@@ -3,8 +3,10 @@ package tink
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/clstb/phi/go/tinkgw/config"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type Token struct {
@@ -50,4 +52,31 @@ func (c *Client) GetToken(
 	}
 
 	return
+}
+
+type TokenResponse struct {
+	TokenType    string `json:"token_type"`
+	ExpiresIn    string `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	IdHint       string `json:"id_hint"`
+}
+
+func (c *Client) ExchangeAccessCodeForToken(code string) (string, error) {
+	data := url.Values{
+		"code":          {code},
+		"client_id":     {os.Getenv("TINK_CLIENT_ID")},
+		"client_secret": {os.Getenv("TINK_CLIENT_SECRET")},
+		"grant_type":    {config.AuthorizationCodeGrantType},
+	}
+
+	res, err := c.httpClient.PostForm(config.TinkTokenUri, data)
+	if err != nil {
+		return "", err
+	}
+
+	var respBody TokenResponse
+	err = json.Unmarshal(res, &respBody)
+	return respBody.AccessToken, nil
 }

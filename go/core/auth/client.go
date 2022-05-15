@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"github.com/clstb/phi/go/core/config"
 	"github.com/clstb/phi/go/tinkgw/client/rt"
 	ory "github.com/ory/kratos-client-go"
 	"net"
@@ -41,7 +42,7 @@ func NewClient(url string) *AuthClient {
 	oryConf := ory.NewConfiguration()
 	oryConf.Debug = true
 	oryConf.HTTPClient = httpClient
-	oryConf.Servers = []ory.ServerConfiguration{{URL: url + "/ory"}}
+	oryConf.Servers = []ory.ServerConfiguration{{URL: url + config.OryPath}}
 	oryClient := ory.NewAPIClient(oryConf)
 
 	return &AuthClient{

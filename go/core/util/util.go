@@ -1,8 +1,8 @@
-package pkg
+package util
 
 import (
-	"github.com/clstb/phi/go/core/pkg/auth"
-	"github.com/clstb/phi/go/core/pkg/handlers"
+	"github.com/clstb/phi/go/core/auth"
+	"github.com/clstb/phi/go/core/handlers"
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/v2/cache"
 	"github.com/eko/gocache/v2/store"

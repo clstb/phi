@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"github.com/clstb/phi/go/core/pkg/config"
+	"github.com/clstb/phi/go/core/config"
 	proto2 "github.com/clstb/phi/go/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -22,6 +22,12 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 
 	tinkId, err := s.provisionTinkUser()
 
+	if err != nil {
+		s.Logger.Error(err)
+		c.AbortWithError(s.mapErrorToHttpCode(err), err)
+		return
+	}
+
 	sess, err := s.AuthClient.Register(json.Username, json.Password, *tinkId)
 	if err != nil {
 		s.Logger.Error(err)
@@ -31,14 +37,14 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 
 	if err != nil {
 		s.Logger.Error(err)
-		c.AbortWithError(s.mapGRPCErrorToHttpCode(err), err)
+		c.AbortWithError(s.mapErrorToHttpCode(err), err)
 		return
 	}
 
 	err = provisionFS(json.Username)
 	if err != nil {
 		s.Logger.Error(err)
-		c.AbortWithError(http.StatusInternalServerError, err)
+		c.AbortWithError(s.mapErrorToHttpCode(err), err)
 		return
 	}
 

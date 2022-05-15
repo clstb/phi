@@ -36,3 +36,9 @@
     pnpm install
     export NODE_OPTIONS=--openssl-legacy-provider
     pnpm start
+
+
+### Do not work, unless TINK admin account used
+    rpc ProvisionTinkUser
+    rpc GetProviders
+

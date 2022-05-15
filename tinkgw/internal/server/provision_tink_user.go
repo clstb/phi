@@ -21,8 +21,3 @@ func (s *Server) ProvisionTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.
 		TinkId:         createdUser.UserID,
 	}, nil
 }
-
-func (s *Server) ProvisionMockTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.ProvisionTinkUserResponse, error) {
-	s.Logger.Info("OK ---> b534d4493183487e8e77ce3eeccaae1b")
-	return &pb.ProvisionTinkUserResponse{TinkId: "b534d4493183487e8e77ce3eeccaae1b"}, nil
-}

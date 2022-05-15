@@ -22,13 +22,11 @@ message BytesMessage {
 service TinkGWService {
 
   rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
-  rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
 
   rpc GetTinkAuthLink (google.protobuf.Empty) returns (BytesMessage);
   rpc GetTestAuthLink (google.protobuf.Empty) returns (BytesMessage);
 
   rpc ExchangeAuthCodeToToken (StringMessage) returns (StringMessage);
-  rpc CreateTinkLink (StringMessage) returns (StringMessage);
 
 }
 

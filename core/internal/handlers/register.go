@@ -20,7 +20,7 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	tinkId, err := s.provisionTinkUser()
+	tinkId, err := s.provisionMockTinkUser()
 
 	if err != nil {
 		s.Logger.Error(err)
@@ -35,7 +35,7 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	sess, err := s.AuthClient.Register(json.Username, json.Password, *tinkId)
+	sess, err := s.AuthClient.Register(json.Username, json.Password, tinkId)
 	if err != nil {
 		s.Logger.Error(err)
 		c.AbortWithError(s.mapErrorToHttpCode(err), err)
@@ -53,26 +53,32 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		s.PutUserInCache(sess.Id, UserDetails{
 			tinkId:   traits["tink_id"],
 			username: traits["username"],
-		})*/
+		})
+	*/
+
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }
 
-func (s *CoreServer) provisionTinkUser() (*string, error) {
+func (s *CoreServer) provisionMockTinkUser() (string, error) {
+	return "b534d4493183487e8e77ce3eeccaae1b", nil
+}
+
+// Doesn't work with TINK admin account :(
+func (s *CoreServer) provisionTinkUser() (string, error) {
 	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer connection.Close()
 
 	gwServiceClient := proto2.NewTinkGWServiceClient(connection)
 
-	res, err := gwServiceClient.ProvisionMockTinkUser(context.TODO(), &emptypb.Empty{})
-	//res, err := gwServiceClient.ProvisionTinkUser(context.TODO(), &emptypb.Empty{})
+	res, err := gwServiceClient.ProvisionTinkUser(context.TODO(), &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return &res.TinkId, nil
+	return res.TinkId, nil
 }
 
 func provisionFS(username string) error {
@@ -91,5 +97,4 @@ func provisionFS(username string) error {
 		return err
 	}
 	return nil
-
 }

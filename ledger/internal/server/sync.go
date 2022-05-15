@@ -41,7 +41,7 @@ func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
 	defer connection.Close()
 	gwServiceClient := pb.NewTransactionGWServiceClient(connection)
 
-	providers, err := GetProvidersRPC(gwServiceClient, token)
+	providers, err := GetMockProvidersRPC()
 	if err != nil {
 		return err
 	}
@@ -68,6 +68,12 @@ func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
 	return nil
 }
 
+func GetMockProvidersRPC() ([]beanacount.Provider, error) {
+	var slice []beanacount.Provider
+	return slice, nil
+}
+
+// GetProvidersRPC Doesn't work with TINK admin account :(
 func GetProvidersRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.Provider, error) {
 	stream, err := client.GetProviders(context.Background(), &pb.StringMessage{Value: token})
 	if err != nil {

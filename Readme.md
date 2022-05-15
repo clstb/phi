@@ -1,16 +1,24 @@
 ### TinkGW microservice
-- is a compatability layer to Tink API
+- Compatability layer for Tink API
 
 ### Core microservice
-- handles user creation, login and main features presented in UI
+- Registration
+- Login
+- REST API for UI
 
 ### UI microservice
-- nuff said
+- Nuff said
 
-### oathkeeper microservice
-- proxy to actual ory cloud project
+### Oathkeeper microservice
+- Proxy to actual ORY cloud project
+
+### Ledger microservice
+- Provisions FS for user
+- Fills FS with users bean account data
+
 
 ### Compile stubs
+    make clean
     make proto
 
 ### Run oauthkeeper
@@ -18,4 +26,8 @@
     docker build --tag  phi-oathkeeper --no-cache .
     docker run --name phi-oathkeeper -p 4455:4455 -p 4456:4456 --env LOG_LEAK_SENSITIVE_VALUES=true phi-oathkeeper
 
-
+### Run UI
+    cd ui
+    pnpm install
+    export NODE_OPTIONS=--openssl-legacy-provider
+    pnpm start

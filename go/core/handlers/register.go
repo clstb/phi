@@ -28,6 +28,13 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
+	err = provisionFS(json.Username)
+	if err != nil {
+		s.Logger.Error(err)
+		c.AbortWithError(s.mapErrorToHttpCode(err), err)
+		return
+	}
+
 	sess, err := s.AuthClient.Register(json.Username, json.Password, *tinkId)
 	if err != nil {
 		s.Logger.Error(err)
@@ -35,13 +42,6 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	if err != nil {
-		s.Logger.Error(err)
-		c.AbortWithError(s.mapErrorToHttpCode(err), err)
-		return
-	}
-
-	err = provisionFS(json.Username)
 	if err != nil {
 		s.Logger.Error(err)
 		c.AbortWithError(s.mapErrorToHttpCode(err), err)
@@ -85,7 +85,7 @@ func provisionFS(username string) error {
 
 	gwServiceClient := proto2.NewBeanAccountServiceClient(connection)
 
-	_, err = gwServiceClient.ProvisionFSStructure(context.TODO(), &proto2.UserNameMessage{Username: username})
+	_, err = gwServiceClient.ProvisionFSStructure(context.TODO(), &proto2.StringMessage{Value: username})
 	if err != nil {
 		return err
 	}

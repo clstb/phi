@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/clstb/phi/go/ledger/beanacount"
 	"github.com/clstb/phi/go/ledger/config"
-	"github.com/clstb/phi/go/ledger/internal"
 	pb "github.com/clstb/phi/go/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,7 +19,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.UserNameMessage) (
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 
-	userLedger := internal.NewLedger(file)
+	userLedger := beanacount.NewLedger(file)
 	err = s.Sync(userLedger)
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -27,7 +27,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.UserNameMessage) (
 	return &emptypb.Empty{}, nil
 }
 
-func (s *LedgerServer) Sync(ledger internal.Ledger) error {
+func (s *LedgerServer) Sync(ledger beanacount.Ledger) error {
 
 	providers, err := GetProvidersRPC()
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *LedgerServer) Sync(ledger internal.Ledger) error {
 		return err
 	}
 
-	var filteredTransactions []internal.TinkTransaction
+	var filteredTransactions []beanacount.TinkTransaction
 	for _, transaction := range transactions {
 		if transaction.Status != "BOOKED" {
 			continue
@@ -56,14 +56,14 @@ func (s *LedgerServer) Sync(ledger internal.Ledger) error {
 	return nil
 }
 
-func GetProvidersRPC() ([]internal.Provider, error) {
+func GetProvidersRPC() ([]beanacount.Provider, error) {
 	return nil, nil
 }
 
-func GetTransactionRPC() ([]internal.TinkTransaction, error) {
+func GetTransactionRPC() ([]beanacount.TinkTransaction, error) {
 	return nil, nil
 }
 
-func GetAccountsRPC() ([]internal.Account, error) {
+func GetAccountsRPC() ([]beanacount.Account, error) {
 	return nil, nil
 }

@@ -1,4 +1,4 @@
-package internal
+package beanacount
 
 import (
 	"github.com/shopspring/decimal"

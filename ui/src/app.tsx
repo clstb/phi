@@ -1,7 +1,7 @@
 import React from "react";
 import './styles/styles.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import {Classify, Home, LoginPage} from "./components";
+import {Classify, Home, LoginPage, TokenPage} from "./components";
 
 
 // @ts-ignore
@@ -21,6 +21,13 @@ function App() {
                element={
                  <PrivateRoute>
                    <Home/>
+                 </PrivateRoute>
+               }
+        />
+        <Route path={'/token'}
+               element={
+                 <PrivateRoute>
+                   <TokenPage/>
                  </PrivateRoute>
                }
         />

@@ -7,7 +7,7 @@ import {AppContext} from "../index";
 import {NavigateFunction, useNavigate} from "react-router-dom";
 
 
-const useInput = (initialValue: string) => {
+export const useInput = (initialValue: string) => {
   const [value, setValue] = useState(initialValue);
   return {
     value,
@@ -40,7 +40,7 @@ const doLoginRegister = (path: string,
         const sessId = res.data['sessionId']
         sessionStorage.setItem('username', username)
         sessionStorage.setItem('sessId', sessId)
-        navigate('/home', {replace: true})
+        navigate('/token', {replace: true})
       }
     )
     .catch(err => {

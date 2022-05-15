@@ -30,7 +30,7 @@ func (s *Server) GetTinkAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.By
 
 }
 
-func (s *Server) GetTestTinkAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.BytesMessage, error) {
+func (s *Server) GetTestAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.BytesMessage, error) {
 
 	clientId := os.Getenv("TINK_CLIENT_ID")
 	link := buildLink(clientId, true)

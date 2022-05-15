@@ -39,7 +39,7 @@ func Serve(ctx *cli.Context) error {
 	router.POST("/api/login", server.DoLogin)
 	router.POST("/api/register", server.DoRegister)
 
-	router.GET("/api/auth/link", server.AuthCodeLink)
+	router.POST("/api/auth/link", server.AuthCodeLink)
 	router.POST("/api/auth/token", server.ExchangeToToken)
 	router.POST("/api/sync-ledger", server.SyncLedger)
 

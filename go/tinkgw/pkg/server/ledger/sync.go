@@ -1,74 +1,34 @@
-package commands
+package ledger
 
 import (
 	"fmt"
-	beancount2 "github.com/clstb/phi/go/phi-cli/pkg/beancount"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
+	"github.com/shopspring/decimal"
 	"strconv"
 	"time"
-
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/shopspring/decimal"
 )
 
-func Sync(
-	ledger beancount2.Ledger,
-	client *client.Client,
-) tea.Cmd {
-	return func() tea.Msg {
-		providers, err := client.GetProviders("DE")
-		if err != nil {
-			return err
-		}
-
-		accounts, err := client.GetAccounts("")
-		if err != nil {
-			return err
-		}
-
-		transactions, err := client.GetTransactions("")
-		if err != nil {
-			return err
-		}
-
-		var filteredTransactions []tink.Transaction
-		for _, transaction := range transactions {
-			if transaction.Status != "BOOKED" {
-				continue
-			}
-			filteredTransactions = append(filteredTransactions, transaction)
-		}
-
-		return UpdateLedger(ledger, providers, accounts, filteredTransactions)
-	}
-}
-
-func UpdateLedger(
-	ledger beancount2.Ledger,
-	providers []tink.Provider,
-	accounts []tink.Account,
-	transactions []tink.Transaction,
-) beancount2.Ledger {
+func (l *Ledger) UpdateLedger(providers []tink.Provider, accounts []tink.Account, transactions []tink.Transaction) {
 	providersById := map[string]tink.Provider{}
 	for _, provider := range providers {
 		providersById[provider.FinancialInstitutionID] = provider
 	}
 
-	opensByTinkId := ledger.Opens().ByTinkId()
+	opensByTinkId := l.Opens().ByTinkId()
 	for _, account := range accounts {
 		_, ok := opensByTinkId[account.ID]
 		if ok {
 			continue
 		}
 
-		ledger = append(ledger, beancount2.Open{
+		*l = append(*l, Open{
 			Date: "1970-01-01",
 			Account: fmt.Sprintf(
 				"Assets:%s:%s",
 				providersById[account.FinancialInstitutionID].DisplayName,
 				account.Name,
 			),
-			Metadata: []beancount2.Metadata{
+			Metadata: []Metadata{
 				{
 					Key:   "tink_id",
 					Value: strconv.Quote(account.ID),
@@ -76,16 +36,16 @@ func UpdateLedger(
 			},
 		})
 	}
-	opensByTinkId = ledger.Opens().ByTinkId()
+	opensByTinkId = l.Opens().ByTinkId()
 
-	transactionsByTinkId := ledger.Transactions().ByTinkId()
+	transactionsByTinkId := l.Transactions().ByTinkId()
 	for _, transaction := range transactions {
 		_, ok := transactionsByTinkId[transaction.ID]
 		if ok {
 			continue
 		}
 
-		amount := beancount2.Amount{
+		amount := Amount{
 			Decimal: decimal.New(
 				transaction.Amount.Value.UnscaledValue,
 				transaction.Amount.Value.Scale*-1,
@@ -101,18 +61,18 @@ func UpdateLedger(
 
 		date, _ := time.Parse("2006-01-02", transaction.Dates.Booked)
 
-		ledger = append(ledger, beancount2.Transaction{
+		*l = append(*l, Transaction{
 			Date:      date,
 			Type:      "*",
 			Payee:     transaction.Reference,
 			Narration: transaction.Descriptions.Display,
-			Metadata: []beancount2.Metadata{
+			Metadata: []Metadata{
 				{
 					Key:   "tink_id",
 					Value: strconv.Quote(transaction.ID),
 				},
 			},
-			Postings: []beancount2.Posting{
+			Postings: []Posting{
 				{
 					Account: balanceAccount,
 					Units:   amount.Neg(),
@@ -124,5 +84,4 @@ func UpdateLedger(
 			},
 		})
 	}
-	return ledger
 }

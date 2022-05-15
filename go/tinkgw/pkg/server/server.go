@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	pb "github.com/clstb/phi/go/proto"
+	proto2 "github.com/clstb/phi/go/proto"
 	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	"github.com/clstb/phi/go/tinkgw/pkg/config"
 	"go.uber.org/zap"
@@ -15,7 +15,8 @@ import (
 )
 
 type Server struct {
-	pb.TinkGWServiceServer
+	proto2.TinkGWServiceServer
+	proto2.BeanAccountServiceServer
 	Logger           *zap.SugaredLogger
 	tinkClientId     string
 	tinkClientSecret string

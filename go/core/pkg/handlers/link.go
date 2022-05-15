@@ -3,14 +3,14 @@ package handlers
 import (
 	"context"
 	"github.com/clstb/phi/go/core/pkg/config"
-	pb "github.com/clstb/phi/go/proto"
+	proto2 "github.com/clstb/phi/go/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 )
 
-func (s *CoreServer) linkBank(ctx *gin.Context) {
+func (s *CoreServer) LinkBank(ctx *gin.Context) {
 
 	var json SessionId
 	err := ctx.BindJSON(&json)
@@ -28,7 +28,7 @@ func (s *CoreServer) linkBank(ctx *gin.Context) {
 		return
 	}
 
-	gwServiceClient := pb.NewTinkGWServiceClient(connection)
+	gwServiceClient := proto2.NewTinkGWServiceClient(connection)
 
 	user, err := s.GetUserFromCache(json.SessionId)
 	if err != nil {
@@ -36,7 +36,7 @@ func (s *CoreServer) linkBank(ctx *gin.Context) {
 		return
 	}
 
-	res, err := gwServiceClient.CreateTinkLink(context.TODO(), &pb.TinkIdMessage{TinkId: user.tinkId})
+	res, err := gwServiceClient.CreateTinkLink(context.TODO(), &proto2.TinkIdMessage{TinkId: user.tinkId})
 	if err != nil {
 		ctx.AbortWithError(http.StatusFailedDependency, err)
 		return

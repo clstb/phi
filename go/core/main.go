@@ -38,15 +38,9 @@ func Serve(ctx *cli.Context) error {
 	router.POST("/api/login", server.DoLogin)
 	router.POST("/api/register", server.DoRegister)
 
-	/*
-		router.POST("/api/link-tink", func(context *gin.Context) {
-			handlers.GetTinkLink(context, authClient)
-		})
-		router.POST("/api/sync-ledger", func(context *gin.Context) {
-			handlers.SyncLedger(context, authClient)
-		})
+	router.POST("/api/link-tink", server.LinkBank)
+	router.POST("/api/sync-ledger", server.SyncLedger)
 
-	*/
 	return router.Run("0.0.0.0:8081")
 }
 

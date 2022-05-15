@@ -1,0 +1,20 @@
+
+syntax = "proto3";
+
+package phi;
+option go_package = "github.com/clstb/phi/proto";
+import "google/protobuf/empty.proto";
+
+
+message UserNameMessage {
+  string username = 1;
+}
+
+
+service BeanAccountService {
+
+  rpc ProvisionFSStructure (UserNameMessage) returns (google.protobuf.Empty);
+  rpc SyncLedger (UserNameMessage) returns (google.protobuf.Empty);
+
+
+}

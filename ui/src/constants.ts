@@ -5,4 +5,4 @@ export const DEFAULT_HEADERS = {
   'content-type': 'application/json'
 }
 
-export const FAVA_URI = "http://localhost:500"
+export const FAVA_URI = "http://localhost:5000"

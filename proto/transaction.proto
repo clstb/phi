@@ -52,5 +52,4 @@ service TransactionGWService {
   rpc GetAccounts (StringMessage) returns (stream AccountMessage);
 
 
-
 }

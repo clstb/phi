@@ -30,9 +30,9 @@ func (t Transaction) String() string {
 	}
 	s = fmt.Sprintf(`%s "%s"`, s, t.Narration) + "\n"
 
-	for _, md := range t.Metadata {
-		s += md.String()
-	}
+	//for _, md := range t.Metadata {
+	//	s += md.String()
+	//}
 
 	for _, posting := range t.Postings {
 		s += posting.String()

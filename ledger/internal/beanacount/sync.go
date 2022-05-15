@@ -1,8 +1,11 @@
 package beanacount
 
 import (
+	"bufio"
 	"fmt"
+	"github.com/clstb/phi/ledger/internal/config"
 	"github.com/shopspring/decimal"
+	"os"
 	"strconv"
 	"time"
 )
@@ -83,4 +86,22 @@ func (l *Ledger) UpdateLedger(providers []Provider, accounts []Account, transact
 			},
 		})
 	}
+}
+
+func (l *Ledger) PersistLedger(username string) error {
+	filePath := fmt.Sprintf("%s/%s/transactions.beancount", config.DataDirPath, username)
+	file, err := os.OpenFile(filePath, os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+
+	datawriter := bufio.NewWriter(file)
+	defer datawriter.Flush()
+	defer file.Close()
+
+	for _, i := range *l {
+		_, _ = datawriter.WriteString(i.String() + "\n")
+	}
+
+	return nil
 }

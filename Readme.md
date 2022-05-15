@@ -16,11 +16,13 @@
 - Provisions FS for user
 - Fills FS with users bean account data
 
-
-### Fava microservice
+### FAVA microservice
 - UI to visualize bean account data
 - hosted in separate repo [FAVA](https://github.com/Goofy-Goof/fava)
 
+### Launch FAVA
+    bean-example > .data/example.beancount
+    fava .data/example.beancount
 
 ### Compile stubs
     make clean
@@ -36,7 +38,6 @@
     pnpm install
     export NODE_OPTIONS=--openssl-legacy-provider
     pnpm start
-
 
 ### Do not work, unless TINK admin account used
     rpc ProvisionTinkUser

@@ -23,7 +23,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 	}
 
 	userLedger := beanacount.NewLedger(file)
-	err = s.Sync(userLedger, in.Token)
+	err = s.Sync(userLedger, in.Token, in.Username)
 	if err != nil {
 		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -31,7 +31,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 	return &emptypb.Empty{}, nil
 }
 
-func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
+func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string, username string) error {
 	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
@@ -65,6 +65,11 @@ func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
 	}
 
 	ledger.UpdateLedger(providers, accounts, filteredTransactions)
+	err = ledger.PersistLedger(username)
+	if err != nil {
+		s.Logger.Error(err)
+		return err
+	}
 	return nil
 }
 

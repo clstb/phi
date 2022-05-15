@@ -1,17 +1,9 @@
-package ledger
+package internal
 
 import (
 	"fmt"
 	"github.com/shopspring/decimal"
 )
-
-type Posting struct {
-	Account   string
-	Units     Amount
-	Cost      Amount
-	PriceType string
-	Price     Amount
-}
 
 func parsePosting(
 	s string,
@@ -24,7 +16,7 @@ func parsePosting(
 
 	if len(matches[2]) != 0 {
 		units, _ := decimal.NewFromString(matches[2])
-		posting.Units = Amount{
+		posting.Units = AmountType{
 			Decimal:  units,
 			Currency: matches[3],
 		}
@@ -32,7 +24,7 @@ func parsePosting(
 
 	if len(matches[4]) != 0 {
 		cost, _ := decimal.NewFromString(matches[4])
-		posting.Cost = Amount{
+		posting.Cost = AmountType{
 			Decimal:  cost,
 			Currency: matches[5],
 		}
@@ -40,7 +32,7 @@ func parsePosting(
 
 	if len(matches[6]) != 0 {
 		price, _ := decimal.NewFromString(matches[7])
-		posting.Price = Amount{
+		posting.Price = AmountType{
 			Decimal:  price,
 			Currency: matches[8],
 		}

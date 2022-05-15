@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package phi;
+option go_package = "github.com/clstb/phi/proto";
+
+
+message ValueMessage {
+  int32 Scale = 1;
+  int64 UnscaledValue = 2;
+}
+
+message AmountMessage {
+  string CurrencyCode = 1;
+  ValueMessage Value = 2;
+}
+
+message DatesMessage {
+  string Booked = 1;
+  string Value = 2;
+}
+
+
+message TinkTransactionMessage {
+  string AccountID = 1;
+  string ID = 2;
+  AmountMessage Amount = 3;
+  DatesMessage Dates = 4;
+  string Reference = 5;
+  string Description = 6;
+  string Status = 7;
+}
+
+message StringMessage {
+  string str = 1;
+}
+
+message ProviderMessage {
+  string FinancialInstitutionId = 1;
+  string DisplayName = 2;
+}
+
+
+message AccountMessage {
+  string FinancialInstitutionId = 1;
+  string ID = 2;
+  string Name = 3;
+}
+
+
+service TransactionGWService {
+
+
+  rpc GetTransactions (StringMessage) returns (stream TinkTransactionMessage);
+  rpc GetProviders (StringMessage) returns (stream ProviderMessage);
+  rpc GetAccounts (StringMessage) returns (stream AccountMessage);
+}

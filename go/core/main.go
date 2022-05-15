@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/clstb/phi/go/core/pkg"
-	"github.com/clstb/phi/go/core/pkg/client"
+	"github.com/clstb/phi/go/core/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -30,7 +30,7 @@ func main() {
 
 func Serve(ctx *cli.Context) error {
 
-	authClient := client.NewClient(ctx.String("oauthkeeper-uri"))
+	authClient := auth.NewClient(ctx.String("oauthkeeper-uri"))
 	server := pkg.NewServer(authClient)
 
 	router := gin.Default()

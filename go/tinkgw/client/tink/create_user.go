@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/clstb/phi/go/tinkgw/pkg/config"
+	"github.com/clstb/phi/go/tinkgw/config"
 	"net/http"
 )
 

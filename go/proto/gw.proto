@@ -19,9 +19,6 @@ message TinkLinkMessage {
 }
 
 
-
-
-
 service TinkGWService {
 
   rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);

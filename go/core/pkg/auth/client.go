@@ -1,8 +1,8 @@
-package client
+package auth
 
 import (
 	"context"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/rt"
+	"github.com/clstb/phi/go/tinkgw/client/rt"
 	ory "github.com/ory/kratos-client-go"
 	"net"
 	"net/http"

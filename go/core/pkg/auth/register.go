@@ -1,4 +1,4 @@
-package client
+package auth
 
 import (
 	ory "github.com/ory/kratos-client-go"

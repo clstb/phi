@@ -70,7 +70,7 @@ func (s *CoreServer) provisionTinkUser() (*string, error) {
 
 func provisionFS(username string) error {
 
-	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.Dial(config.LedgerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		return err

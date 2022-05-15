@@ -21,5 +21,3 @@ const DefaultMarket = "DE"
 const DefaultLocale = "de_DE"
 
 const DelegatedAuthorizationEndpoint = "/api/v1/oauth/authorization-grant/delegate"
-
-const DataDirPath = ".data"

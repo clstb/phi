@@ -1,17 +1,16 @@
-package ledger
+package internal
 
 import (
 	"fmt"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
 	"github.com/shopspring/decimal"
 	"strconv"
 	"time"
 )
 
-func (l *Ledger) UpdateLedger(providers []tink.Provider, accounts []tink.Account, transactions []tink.Transaction) {
-	providersById := map[string]tink.Provider{}
+func (l *Ledger) UpdateLedger(providers []Provider, accounts []Account, transactions []TinkTransaction) {
+	providersById := map[string]string{}
 	for _, provider := range providers {
-		providersById[provider.FinancialInstitutionID] = provider
+		providersById[provider.FinancialInstitutionId] = provider.DisplayName
 	}
 
 	opensByTinkId := l.Opens().ByTinkId()
@@ -25,7 +24,7 @@ func (l *Ledger) UpdateLedger(providers []tink.Provider, accounts []tink.Account
 			Date: "1970-01-01",
 			Account: fmt.Sprintf(
 				"Assets:%s:%s",
-				providersById[account.FinancialInstitutionID].DisplayName,
+				providersById[account.FinancialInstitutionId],
 				account.Name,
 			),
 			Metadata: []Metadata{
@@ -45,7 +44,7 @@ func (l *Ledger) UpdateLedger(providers []tink.Provider, accounts []tink.Account
 			continue
 		}
 
-		amount := Amount{
+		amount := AmountType{
 			Decimal: decimal.New(
 				transaction.Amount.Value.UnscaledValue,
 				transaction.Amount.Value.Scale*-1,
@@ -65,7 +64,7 @@ func (l *Ledger) UpdateLedger(providers []tink.Provider, accounts []tink.Account
 			Date:      date,
 			Type:      "*",
 			Payee:     transaction.Reference,
-			Narration: transaction.Descriptions.Display,
+			Narration: transaction.Descriptions,
 			Metadata: []Metadata{
 				{
 					Key:   "tink_id",

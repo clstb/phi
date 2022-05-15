@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	proto2 "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
-	"github.com/clstb/phi/go/tinkgw/pkg/config"
+	tink2 "github.com/clstb/phi/go/tinkgw/client/tink"
+	"github.com/clstb/phi/go/tinkgw/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/oauth2"
@@ -20,7 +20,7 @@ type Server struct {
 	Logger           *zap.SugaredLogger
 	tinkClientId     string
 	tinkClientSecret string
-	tinkClient       *tink.Client
+	tinkClient       *tink2.Client
 	callbackURL      string
 }
 
@@ -49,7 +49,7 @@ func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 
 	ctx := context.Background()
 
-	tinkClient := tink.NewClient(config.TinkUri, tink.WithHTTPClient(oauthConfig.Client(ctx)))
+	tinkClient := tink2.NewClient(config.TinkUri, tink2.WithHTTPClient(oauthConfig.Client(ctx)))
 
 	s := &Server{
 		Logger:           sugar,
@@ -62,24 +62,24 @@ func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 	return s
 }
 
-func (s *Server) getUser(id string) (tink.User, error) {
+func (s *Server) getUser(id string) (tink2.User, error) {
 	token, err := s.getToken(id)
 	if err != nil {
-		return tink.User{}, err
+		return tink2.User{}, err
 	}
-	client := tink.NewClient(config.TinkUri)
+	client := tink2.NewClient(config.TinkUri)
 	client.SetBearerToken(token.AccessToken)
 	return client.GetUser()
 }
 
-func (s *Server) getToken(id string) (tink.Token, error) {
+func (s *Server) getToken(id string) (tink2.Token, error) {
 	code, err := s.tinkClient.GetAuthorizeGrantCode(
 		"",
 		id,
 		config.GetAuthorizeGrantCodeRoles,
 	)
 	if err != nil {
-		return tink.Token{}, fmt.Errorf("tink: authorize grant: %w", err)
+		return tink2.Token{}, fmt.Errorf("tink: authorize grant: %w", err)
 	}
 	token, err := s.tinkClient.GetToken(
 		code,
@@ -90,7 +90,7 @@ func (s *Server) getToken(id string) (tink.Token, error) {
 		config.GetAuthorizeGrantCodeRoles,
 	)
 	if err != nil {
-		return tink.Token{}, fmt.Errorf("tink: oauth token: %w", err)
+		return tink2.Token{}, fmt.Errorf("tink: oauth token: %w", err)
 	}
 	return token, nil
 }

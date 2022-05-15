@@ -1,13 +1,8 @@
-package ledger
+package internal
 
 import (
 	"fmt"
 )
-
-type Metadata struct {
-	Key   string
-	Value string
-}
 
 func parseMetadata(s string) Metadata {
 	matches := MetadataRE.FindStringSubmatch(s)

@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"github.com/clstb/phi/go/core/pkg/client"
+	"github.com/clstb/phi/go/core/pkg/auth"
 	"github.com/clstb/phi/go/core/pkg/handlers"
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/v2/cache"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func NewServer(authClient *client.AuthClient) *handlers.CoreServer {
+func NewServer(authClient *auth.AuthClient) *handlers.CoreServer {
 	return &handlers.CoreServer{
 		AuthClient:     authClient,
 		Logger:         createLogger(),

@@ -3,25 +3,23 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/clstb/phi/go/ledger/config"
+	"github.com/clstb/phi/go/ledger/internal"
 	pb "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/tink"
-	"github.com/clstb/phi/go/tinkgw/pkg/config"
-	"github.com/clstb/phi/go/tinkgw/pkg/server/ledger"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"os"
 )
 
-func (s *Server) SyncLedger(ctx context.Context, in *pb.UserNameMessage, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.UserNameMessage) (*emptypb.Empty, error) {
 
 	file, err := os.Open(fmt.Sprintf("%s/%s", config.DataDirPath, in.Username))
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 
-	userLedger := ledger.NewLedger(file)
+	userLedger := internal.NewLedger(file)
 	err = s.Sync(userLedger)
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -29,24 +27,24 @@ func (s *Server) SyncLedger(ctx context.Context, in *pb.UserNameMessage, opts ..
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Server) Sync(ledger ledger.Ledger) error {
+func (s *LedgerServer) Sync(ledger internal.Ledger) error {
 
-	providers, err := s.tinkClient.GetProviders("DE")
+	providers, err := GetProvidersRPC()
 	if err != nil {
 		return err
 	}
 
-	accounts, err := s.tinkClient.GetAccounts("")
+	accounts, err := GetAccountsRPC()
 	if err != nil {
 		return err
 	}
 
-	transactions, err := s.tinkClient.GetTransactions("")
+	transactions, err := GetTransactionRPC()
 	if err != nil {
 		return err
 	}
 
-	var filteredTransactions []tink.Transaction
+	var filteredTransactions []internal.TinkTransaction
 	for _, transaction := range transactions {
 		if transaction.Status != "BOOKED" {
 			continue
@@ -56,4 +54,16 @@ func (s *Server) Sync(ledger ledger.Ledger) error {
 
 	ledger.UpdateLedger(providers, accounts, filteredTransactions)
 	return nil
+}
+
+func GetProvidersRPC() ([]internal.Provider, error) {
+	return nil, nil
+}
+
+func GetTransactionRPC() ([]internal.TinkTransaction, error) {
+	return nil, nil
+}
+
+func GetAccountsRPC() ([]internal.Account, error) {
+	return nil, nil
 }

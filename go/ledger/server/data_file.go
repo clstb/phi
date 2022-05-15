@@ -3,9 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/clstb/phi/go/ledger/config"
 	pb "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg/config"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -13,7 +12,7 @@ import (
 	"runtime/debug"
 )
 
-func (s *Server) ProvisionFSStructure(ctx context.Context, in *pb.UserNameMessage, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (s *LedgerServer) ProvisionFSStructure(ctx context.Context, in *pb.UserNameMessage) (*emptypb.Empty, error) {
 	err := createUserDir(in.Username)
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())

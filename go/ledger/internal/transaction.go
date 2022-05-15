@@ -1,18 +1,9 @@
-package ledger
+package internal
 
 import (
 	"fmt"
 	"time"
 )
-
-type Transaction struct {
-	Date      time.Time
-	Type      string
-	Payee     string
-	Narration string
-	Postings  []Posting
-	Metadata  []Metadata
-}
 
 func parseTransaction(s string) Transaction {
 	matches := TransactionRE.FindStringSubmatch(s)

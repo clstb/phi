@@ -3,7 +3,7 @@ package tink
 import (
 	"context"
 	"fmt"
-	"github.com/clstb/phi/go/tinkgw/pkg/client/rt"
+	"github.com/clstb/phi/go/tinkgw/client/rt"
 	"io/ioutil"
 	"net"
 	"net/http"

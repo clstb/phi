@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/clstb/phi/go/proto"
-	"github.com/clstb/phi/go/tinkgw/pkg/config"
+	"github.com/clstb/phi/go/tinkgw/config"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -1,4 +1,4 @@
-package ledger
+package internal
 
 import (
 	"bufio"

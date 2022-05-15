@@ -1,14 +1,8 @@
-package ledger
+package internal
 
 import (
 	"fmt"
 )
-
-type Open struct {
-	Date     string
-	Account  string
-	Metadata []Metadata
-}
 
 func parseOpen(s string) Open {
 	matches := OpenRE.FindStringSubmatch(s)

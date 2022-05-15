@@ -48,11 +48,12 @@ func (s *CoreServer) DoRegister(c *gin.Context) {
 		return
 	}
 
-	traits := sess.Identity.Traits.(map[string]string)
-	s.PutUserInCache(sess.Id, UserDetails{
-		tinkId:   traits["tink_id"],
-		username: traits["username"],
-	})
+	/*
+		traits := sess.Identity.Traits.(map[string]string)
+		s.PutUserInCache(sess.Id, UserDetails{
+			tinkId:   traits["tink_id"],
+			username: traits["username"],
+		})*/
 	c.JSON(http.StatusOK, gin.H{"sessionId": sess.Id})
 }
 

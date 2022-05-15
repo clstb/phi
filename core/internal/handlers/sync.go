@@ -5,6 +5,7 @@ import (
 	"github.com/clstb/phi/core/internal/config"
 	proto2 "github.com/clstb/phi/proto"
 	"github.com/gin-gonic/gin"
+	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
@@ -26,17 +27,20 @@ func (s *CoreServer) SyncLedger(ctx *gin.Context) {
 	//	return
 	//}
 
-	err = doSyncRPC(json.Username, json.AccessToken)
+	err = s.doSyncRPC(json.Username, json.AccessToken)
 
 	if err != nil {
+		s.Logger.Error(err)
 		ctx.AbortWithStatusJSON(http.StatusFailedDependency, err)
 		return
 	}
 	ctx.Status(http.StatusOK)
 }
 
-func doSyncRPC(username string, token string) error {
-	connection, err := grpc.Dial(config.LedgerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (s *CoreServer) doSyncRPC(username string, token string) error {
+	connection, err := grpc.Dial(config.LedgerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
+	)
 	if err != nil {
 		return err
 	}

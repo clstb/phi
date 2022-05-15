@@ -15,7 +15,7 @@ import (
 func NewServer(authClient *auth.AuthClient) *handlers.CoreServer {
 	return &handlers.CoreServer{
 		AuthClient:     authClient,
-		Logger:         createLogger(),
+		Logger:         createLogger().Named("CORE"),
 		UserTokenCache: createCache(),
 	}
 }

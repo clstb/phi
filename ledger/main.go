@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/clstb/phi/ledger/internal/server"
 	pb "github.com/clstb/phi/proto"
+	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -38,10 +39,14 @@ func run(ctx *cli.Context) error {
 
 	s.Logger.Info("----> GRPC listeninng on %s", addr)
 
-	server := grpc.NewServer()
-	pb.RegisterBeanAccountServiceServer(server, s)
-	reflection.Register(server)
-	if err = server.Serve(listener); err != nil {
+	_server := grpc.NewServer(
+		grpc.StreamInterceptor(
+			grpczap.StreamServerInterceptor(s.Logger.Desugar())),
+		grpc.UnaryInterceptor(grpczap.UnaryServerInterceptor(s.Logger.Desugar())),
+	)
+	pb.RegisterBeanAccountServiceServer(_server, s)
+	reflection.Register(_server)
+	if err = _server.Serve(listener); err != nil {
 		return err
 	}
 	return nil

@@ -6,6 +6,7 @@ import (
 	"github.com/clstb/phi/ledger/internal/beanacount"
 	"github.com/clstb/phi/ledger/internal/config"
 	pb "github.com/clstb/phi/proto"
+	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,7 +17,6 @@ import (
 )
 
 func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emptypb.Empty, error) {
-
 	file, err := os.Open(fmt.Sprintf("%s/%s", config.DataDirPath, in.Username))
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -25,14 +25,16 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 	userLedger := beanacount.NewLedger(file)
 	err = s.Sync(userLedger, in.Token)
 	if err != nil {
+		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
 
 func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
-
-	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
+	)
 	if err != nil {
 		return err
 	}

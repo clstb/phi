@@ -52,7 +52,7 @@ func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 	tinkClient := tink2.NewClient(config.TinkUri, tink2.WithHTTPClient(oauthConfig.Client(ctx)))
 
 	s := &Server{
-		Logger:           sugar,
+		Logger:           sugar.Named("tinkGW"),
 		tinkClientId:     tinkClientId,
 		tinkClientSecret: tinkClientSecret,
 		tinkClient:       tinkClient,

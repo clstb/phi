@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"github.com/clstb/phi/core/internal/config"
-	"github.com/clstb/phi/tinkgw/internal/client/rt"
 	ory "github.com/ory/kratos-client-go"
 	"net"
 	"net/http"
@@ -50,13 +49,6 @@ func NewClient(url string) *AuthClient {
 		ctx:       context.Background(),
 		url:       url,
 		OryClient: oryClient,
-	}
-}
-
-func (c *AuthClient) SetBearerToken(token string) {
-	c.Transport = rt.AuthorizationRoundTripper{
-		Token: token,
-		Next:  transport,
 	}
 }
 

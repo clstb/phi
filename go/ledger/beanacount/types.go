@@ -49,21 +49,29 @@ type Transaction struct {
 	Metadata  []Metadata
 }
 
+type Transactions []Transaction
+
+type Value struct {
+	Scale         int32
+	UnscaledValue int64
+}
+
+type Amount struct {
+	CurrencyCode string
+	Value        Value
+}
+
+type Dates struct {
+	Booked string
+	Value  string
+}
+
 type TinkTransaction struct {
-	Status    string
-	AccountID string
-	ID        string
-	Amount    struct {
-		CurrencyCode string
-		Value        struct {
-			Scale         int32
-			UnscaledValue int64
-		}
-	}
-	Dates struct {
-		Booked string
-		Value  string
-	}
+	Status       string
+	AccountID    string
+	ID           string
+	Amount       Amount
+	Dates        Dates
 	Reference    string
 	Descriptions string
 }

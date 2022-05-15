@@ -22,13 +22,13 @@ func (c *LoggingClient) Get(url string) (resp *http.Response, err error) {
 		fmt.Printf("Error: %v\n", err)
 		fmt.Println("------------------")
 	}
-	fmt.Printf("Status code ------> %v\n", res.StatusCode)
-	var b bytes.Buffer
-	_, err = b.ReadFrom(res.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Printf("Response Body: %s\n", b.String())
+	fmt.Printf("Status code <----- %v\n", res.StatusCode)
+	//var b bytes.Buffer
+	//_, err = b.ReadFrom(res.Body)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//fmt.Printf("Response Body: %s\n", b.String())
 	return res, err
 }
 

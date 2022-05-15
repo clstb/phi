@@ -6,13 +6,16 @@ import (
 	"github.com/clstb/phi/go/ledger/beanacount"
 	"github.com/clstb/phi/go/ledger/config"
 	pb "github.com/clstb/phi/go/proto"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"io"
 	"os"
 )
 
-func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.UserNameMessage) (*emptypb.Empty, error) {
+func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emptypb.Empty, error) {
 
 	file, err := os.Open(fmt.Sprintf("%s/%s", config.DataDirPath, in.Username))
 	if err != nil {
@@ -20,26 +23,33 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.UserNameMessage) (
 	}
 
 	userLedger := beanacount.NewLedger(file)
-	err = s.Sync(userLedger)
+	err = s.Sync(userLedger, in.Token)
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *LedgerServer) Sync(ledger beanacount.Ledger) error {
+func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string) error {
 
-	providers, err := GetProvidersRPC()
+	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	defer connection.Close()
+	gwServiceClient := pb.NewTransactionGWServiceClient(connection)
+
+	providers, err := GetProvidersRPC(gwServiceClient, token)
 	if err != nil {
 		return err
 	}
 
-	accounts, err := GetAccountsRPC()
+	accounts, err := GetAccountsRPC(gwServiceClient, token)
 	if err != nil {
 		return err
 	}
 
-	transactions, err := GetTransactionRPC()
+	transactions, err := GetTransactionRPC(gwServiceClient, token)
 	if err != nil {
 		return err
 	}
@@ -56,14 +66,93 @@ func (s *LedgerServer) Sync(ledger beanacount.Ledger) error {
 	return nil
 }
 
-func GetProvidersRPC() ([]beanacount.Provider, error) {
-	return nil, nil
+func GetProvidersRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.Provider, error) {
+	stream, err := client.GetProviders(context.Background(), &pb.StringMessage{Value: token})
+	if err != nil {
+		return nil, err
+	}
+
+	var providers []beanacount.Provider
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		a := mapProvider(in)
+		providers = append(providers, a)
+	}
+	return providers, nil
 }
 
-func GetTransactionRPC() ([]beanacount.TinkTransaction, error) {
-	return nil, nil
+func mapProvider(pr *pb.ProviderMessage) beanacount.Provider {
+	return beanacount.Provider{
+		FinancialInstitutionId: pr.FinancialInstitutionId,
+		DisplayName:            pr.DisplayName,
+	}
 }
 
-func GetAccountsRPC() ([]beanacount.Account, error) {
-	return nil, nil
+func GetTransactionRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.TinkTransaction, error) {
+	stream, err := client.GetTransactions(context.Background(), &pb.StringMessage{Value: token})
+	if err != nil {
+		return nil, err
+	}
+
+	var transaction []beanacount.TinkTransaction
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		a := mapTransaction(in)
+		transaction = append(transaction, a)
+	}
+	return transaction, nil
+}
+
+func mapTransaction(tr *pb.TinkTransactionMessage) beanacount.TinkTransaction {
+	return beanacount.TinkTransaction{
+		Status:    tr.Status,
+		AccountID: tr.AccountID,
+		ID:        tr.ID,
+		Amount: beanacount.Amount{
+			CurrencyCode: tr.Amount.CurrencyCode,
+			Value: beanacount.Value{
+				Scale:         tr.Amount.Value.Scale,
+				UnscaledValue: tr.Amount.Value.UnscaledValue,
+			},
+		},
+		Dates: beanacount.Dates{
+			Booked: tr.Dates.Booked,
+			Value:  tr.Dates.Value,
+		},
+		Reference:    tr.Reference,
+		Descriptions: tr.Description,
+	}
+
+}
+
+func GetAccountsRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.Account, error) {
+	stream, err := client.GetAccounts(context.Background(), &pb.StringMessage{Value: token})
+	if err != nil {
+		return nil, err
+	}
+
+	var accounts []beanacount.Account
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		a := mapAccount(in)
+		accounts = append(accounts, a)
+	}
+	return accounts, nil
+}
+
+func mapAccount(acc *pb.AccountMessage) beanacount.Account {
+	return beanacount.Account{
+		FinancialInstitutionId: acc.FinancialInstitutionId,
+		ID:                     acc.ID,
+		Name:                   acc.Name,
+	}
 }

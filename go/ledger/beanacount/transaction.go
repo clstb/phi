@@ -41,8 +41,6 @@ func (t Transaction) String() string {
 	return s
 }
 
-type Transactions []Transaction
-
 func (t Transactions) ByTinkId() map[string]Transaction {
 	m := map[string]Transaction{}
 	for _, transaction := range t {

@@ -12,8 +12,8 @@ import (
 	"runtime/debug"
 )
 
-func (s *LedgerServer) ProvisionFSStructure(ctx context.Context, in *pb.UserNameMessage) (*emptypb.Empty, error) {
-	err := createUserDir(in.Username)
+func (s *LedgerServer) ProvisionFSStructure(ctx context.Context, in *pb.StringMessage) (*emptypb.Empty, error) {
+	err := createUserDir(in.Value)
 	if err != nil {
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}

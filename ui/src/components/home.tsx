@@ -1,14 +1,19 @@
 import React, {useContext, useState} from "react";
 import {Box, Button} from "@mui/material";
-import axios from "axios";
-import {CORE_URI, DEFAULT_HEADERS} from "../constants";
 import {useNavigate} from "react-router-dom";
 import '../styles/styles.css'
 import {AppContext} from "../index";
+import axios from "axios";
+import {CORE_URI, DEFAULT_HEADERS, FAVA_URI} from "../constants";
+
+
+const username = sessionStorage.getItem("username")!!
+const token = sessionStorage.getItem("access_token")!!
 
 export function Home() {
 
   const [error, setError] = useState(undefined);
+  const [synced, setSynced] = useState(false)
 
   if (error) {
     throw Error(error)
@@ -19,30 +24,22 @@ export function Home() {
   console.log(context)
   const navigate = useNavigate()
 
-  const linkTinkOnClick = (e: React.MouseEvent) => {
+  const sync = () => {
     axios.post(
-      `${CORE_URI}/link-tink`,
+      `${CORE_URI}/sync-ledger`,
       {
         headers: DEFAULT_HEADERS,
-        sessionId: context.sessionId
-      }
-    ).then(res => {
-      window.open(res.data['link']);
-      e.preventDefault()
-    }).catch(err => setError(err))
-  }
-
-  const syncLedger = (e: React.MouseEvent) => {
-    axios.post(
-      `${CORE_URI}/sync`,
-      {
-        headers: DEFAULT_HEADERS,
-        username: context.username,
-        sessionId: context.sessionId
-      }
-    )
-      .catch(err => setError(err))
-
+        username: username,
+        access_token: token
+      })
+      .then(
+        res => {
+          console.log(res.data)
+          setSynced(true)
+          alert("sync OK")
+        }
+      )
+      .catch(setError)
   }
 
 
@@ -59,16 +56,8 @@ export function Home() {
       >
         <div className="button-container">
           <Button type={"submit"}
-                  onClick={linkTinkOnClick}
                   sx={{minWidth: 300}}
-          >
-            Link Tink
-          </Button>
-        </div>
-        <div className="button-container">
-          <Button type={"submit"}
-                  sx={{minWidth: 300}}
-                  onClick={syncLedger}
+                  onClick={sync}
             >
             Sync Ledger
           </Button>
@@ -84,6 +73,7 @@ export function Home() {
         <div className="button-container">
           <Button type={"submit"}
                   sx={{minWidth: 300}}
+                  onClick={() => window.open(FAVA_URI)}
           >
             Open Fava
           </Button>

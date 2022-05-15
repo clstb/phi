@@ -3,7 +3,8 @@ package tink
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"github.com/clstb/phi/go/tinkgw/config"
+	"io/ioutil"
 	"time"
 )
 
@@ -41,38 +42,44 @@ type Account struct {
 	Type string `json:"type"`
 }
 
-func (c *Client) GetAccounts(pageToken string) ([]Account, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/data/v2/accounts?pageToken="+pageToken, nil)
-	if err != nil {
-		return nil, err
-	}
+type Accounts struct {
+	Accounts      []Account `json:"accounts"`
+	NextPageToken string    `json:"nextPageToken"`
+}
 
-	res, err := c.httpClient.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
+func (c *Client) GetAccounts() ([]Account, error) {
+	res, err := c.httpClient.Get(c.url + config.AccountsPath)
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("unhandled status: %d", res.StatusCode)
+		return nil, fmt.Errorf(res.Status)
 	}
 
-	type Accounts struct {
-		Accounts      []Account `json:"accounts"`
-		NextPageToken string    `json:"nextPageToken"`
-	}
-	accounts := Accounts{}
-	if err := json.NewDecoder(res.Body).Decode(&accounts); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	if accounts.NextPageToken != "" {
-		nextAccounts, err := c.GetAccounts(accounts.NextPageToken)
-		if err != nil {
-			return nil, err
-		}
-		accounts.Accounts = append(accounts.Accounts, nextAccounts...)
+	defer res.Body.Close()
+
+	byteArr, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var accounts Accounts
+	err = json.Unmarshal(byteArr, &accounts)
+	fmt.Println(string(byteArr))
+	if err != nil {
+		return nil, err
 	}
 
 	return accounts.Accounts, nil
+
+	/*
+		if accounts.NextPageToken != "" {
+			nextAccounts, err := c.GetAccounts(accounts.NextPageToken)
+			if err != nil {
+				return nil, err
+			}
+			accounts.Accounts = append(accounts.Accounts, nextAccounts...)
+		}*/
 }

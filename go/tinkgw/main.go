@@ -58,6 +58,7 @@ func run(ctx *cli.Context) error {
 
 	server := grpc.NewServer()
 	pb.RegisterTinkGWServiceServer(server, s)
+	pb.RegisterTransactionGWServiceServer(server, s)
 	reflection.Register(server)
 	if err = server.Serve(listener); err != nil {
 		return err

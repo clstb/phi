@@ -23,3 +23,7 @@ const DefaultLocale = "de_DE"
 const DelegatedAuthorizationEndpoint = "/api/v1/oauth/authorization-grant/delegate"
 
 const AuthorizationCodeGrantType = "authorization_code"
+
+const TransactionsPath = "/data/v2/transactions"
+
+const AccountsPath = "/data/v2/accounts"

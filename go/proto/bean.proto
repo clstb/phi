@@ -5,17 +5,19 @@ option go_package = "github.com/clstb/phi/proto";
 
 
 import "google/protobuf/empty.proto";
+import "gw.proto";
 
 
-message UserNameMessage {
-  string username = 1;
+message SyncMessage {
+  string Username = 1;
+  string token = 2;
 }
 
 
 service BeanAccountService {
 
-  rpc ProvisionFSStructure (UserNameMessage) returns (google.protobuf.Empty);
-  rpc SyncLedger (UserNameMessage) returns (google.protobuf.Empty);
+  rpc ProvisionFSStructure (StringMessage) returns (google.protobuf.Empty);
+  rpc SyncLedger (SyncMessage) returns (google.protobuf.Empty);
 
 
 }

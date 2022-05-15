@@ -3,7 +3,8 @@ package tink
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"github.com/clstb/phi/go/tinkgw/config"
+	"io/ioutil"
 )
 
 type Transaction struct {
@@ -46,38 +47,36 @@ type Transaction struct {
 	} `json:"types"`
 }
 
-func (c *Client) GetTransactions(pageToken string) ([]Transaction, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/data/v2/transactions?pageToken="+pageToken, nil)
+type Transactions struct {
+	Transactions  []Transaction `json:"transactions"`
+	NextPageToken string        `json:"nextPageToken"`
+}
+
+func (c *Client) GetTransactions() ([]Transaction, error) {
+
+	res, err := c.httpClient.Get(c.url + config.TransactionsPath)
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf(res.Status)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := c.httpClient.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unhandled status: %d", res.StatusCode)
-	}
-
-	type Transactions struct {
-		Transactions  []Transaction `json:"transactions"`
-		NextPageToken string        `json:"nextPageToken"`
-	}
-	transactions := Transactions{}
-	if err := json.NewDecoder(res.Body).Decode(&transactions); err != nil {
+	byteArr, err := ioutil.ReadAll(res.Body)
+	if err != nil {
 		return nil, err
 	}
 
-	if transactions.NextPageToken != "" {
-		nextTransactions, err := c.GetTransactions(transactions.NextPageToken)
-		if err != nil {
-			return nil, err
-		}
-		transactions.Transactions = append(transactions.Transactions, nextTransactions...)
+	var transaction Transactions
+	err = json.Unmarshal(byteArr, &transaction)
+	fmt.Println(string(byteArr))
+	if err != nil {
+		return nil, err
 	}
 
-	return transactions.Transactions, nil
+	return transaction.Transactions, nil
 }

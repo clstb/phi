@@ -12,7 +12,7 @@ import (
 
 func (s *CoreServer) SyncLedger(ctx *gin.Context) {
 
-	var json SessionId
+	var json SyncRequest
 	err := ctx.BindJSON(&json)
 	if err != nil {
 		s.Logger.Error(err)
@@ -20,13 +20,13 @@ func (s *CoreServer) SyncLedger(ctx *gin.Context) {
 		return
 	}
 
-	user, err := s.GetUserFromCache(json.SessionId)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, err)
-		return
-	}
+	//user, err := s.GetUserFromCache(json.)
+	//if err != nil {
+	//	ctx.AbortWithStatusJSON(http.StatusNotFound, err)
+	//	return
+	//}
 
-	err = doSyncRPC(user.username)
+	err = doSyncRPC(json.Username, json.AccessToken)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusFailedDependency, err)
@@ -35,7 +35,7 @@ func (s *CoreServer) SyncLedger(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func doSyncRPC(username string) error {
+func doSyncRPC(username string, token string) error {
 	connection, err := grpc.Dial(config.LedgerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func doSyncRPC(username string) error {
 	defer connection.Close()
 
 	gwServiceClient := proto2.NewBeanAccountServiceClient(connection)
-	_, err = gwServiceClient.SyncLedger(context.TODO(), &proto2.UserNameMessage{Username: username})
+	_, err = gwServiceClient.SyncLedger(context.TODO(), &proto2.SyncMessage{Username: username, Token: token})
 	if err != nil {
 		return err
 	}

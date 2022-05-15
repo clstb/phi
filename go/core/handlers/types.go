@@ -17,14 +17,15 @@ type CoreServer struct {
 	UserTokenCache *cache.Cache
 }
 
-type SessionId struct {
-	SessionId string `json:"sessionId"`
-}
-
 type LinkRequest struct {
 	Test bool `json:"test"`
 }
 
 type AccessCodeRequest struct {
 	AccessCode string `json:"access_code"`
+}
+
+type SyncRequest struct {
+	AccessToken string `json:"access_token"`
+	Username    string `json:"username"`
 }

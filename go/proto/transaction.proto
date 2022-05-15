@@ -50,4 +50,5 @@ service TransactionGWService {
   rpc GetTransactions (StringMessage) returns (stream TinkTransactionMessage);
   rpc GetProviders (StringMessage) returns (stream ProviderMessage);
   rpc GetAccounts (StringMessage) returns (stream AccountMessage);
+
 }

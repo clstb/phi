@@ -17,6 +17,11 @@
 - Fills FS with users bean account data
 
 
+### Fava microservice
+- UI to visualize bean account data
+- hosted in separate repo [FAVA](https://github.com/Goofy-Goof/fava)
+
+
 ### Compile stubs
     make clean
     make proto

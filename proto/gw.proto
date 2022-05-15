@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package phi;
+option go_package = "github.com/clstb/phi/proto";
+import "google/protobuf/empty.proto";
+
+
+message ProvisionTinkUserResponse {
+  string ExternalUserId = 1;
+  string TinkId = 2;
+}
+
+message StringMessage {
+  string value = 1;
+}
+
+message BytesMessage {
+  bytes arr = 1;
+}
+
+
+service TinkGWService {
+
+  rpc ProvisionTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
+  rpc ProvisionMockTinkUser (google.protobuf.Empty) returns (ProvisionTinkUserResponse);
+
+  rpc GetTinkAuthLink (google.protobuf.Empty) returns (BytesMessage);
+  rpc GetTestAuthLink (google.protobuf.Empty) returns (BytesMessage);
+
+  rpc ExchangeAuthCodeToToken (StringMessage) returns (StringMessage);
+  rpc CreateTinkLink (StringMessage) returns (StringMessage);
+
+}
+
+
+

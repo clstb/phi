@@ -1,8 +1,0 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "rt",
-    srcs = ["authorization.go"],
-    importpath = "github.com/clstb/phi/go/pkg/client/rt",
-    visibility = ["//visibility:public"],
-)

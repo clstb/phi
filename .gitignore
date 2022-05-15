@@ -1,2 +1,11 @@
 bazel-*
 *.env
+.idea
+.DS_Store
+.config
+.data
+
+ui/node_modules
+ui/package-lock.json
+ui/pnpm-lock.yaml
+http

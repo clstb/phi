@@ -14,4 +14,4 @@ proto:
 	${PROTO_DIR}/*.proto
 
 clean:
-		rm ${PROTO_DIR}/*.go
+		rm -f ${PROTO_DIR}/*.go

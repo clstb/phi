@@ -13,13 +13,6 @@ import (
 
 func main() {
 	app := &cli.App{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "oauthkeeper-uri",
-				EnvVars:  []string{"OAUTHKEEPER_URI"},
-				Required: true,
-			},
-		},
 		Action: Serve,
 	}
 

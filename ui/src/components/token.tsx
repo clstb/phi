@@ -109,13 +109,13 @@ export function TokenPage() {
           <div className="input-container">
             <FilledInput type="text"
                          required={true}
-                         placeholder={"Paste your access code here"}
+                         placeholder={"Access code"}
                          {...bindAccessCode}
 
             />
           </div>
           <Button type={"submit"} onClick={exchangeCodeForToken}>
-            OK
+            Exchange to access token
           </Button>
         </Box>
       </div>

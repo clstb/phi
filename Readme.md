@@ -9,7 +9,7 @@
 ### UI microservice
 - Nuff said
 
-### Oathkeeper microservice
+### User authentication is handled by [ORY](https://console.ory.sh/)
 - Proxy to actual ORY cloud project
 
 ### Ledger microservice
@@ -20,18 +20,9 @@
 - UI to visualize bean account data
 - hosted in separate repo [FAVA](https://github.com/Goofy-Goof/fava)
 
-### Launch FAVA
-    bean-example > .data/example.beancount
-    fava .data/example.beancount
-
 ### Compile stubs
     make clean
     make proto
-
-### Run oauthkeeper
-    cd oathkeeper
-    docker build --tag  phi-oathkeeper --no-cache .
-    docker run --name phi-oathkeeper -p 4455:4455 -p 4456:4456 --env LOG_LEAK_SENSITIVE_VALUES=true phi-oathkeeper
 
 ### Run UI
     cd ui

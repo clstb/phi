@@ -34,7 +34,7 @@ func NewClient() *Client {
 	oryConf := ory.NewConfiguration()
 	oryConf.Debug = true
 	oryConf.HTTPClient = httpClient
-	oryConf.Servers = []ory.ServerConfiguration{{URL: config.AuthKeeperHost + config.OryPath}}
+	oryConf.Servers = []ory.ServerConfiguration{{URL: config.OryUri}}
 	oryClient := ory.NewAPIClient(oryConf)
 
 	return &Client{

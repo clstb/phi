@@ -5,14 +5,6 @@ import {ErrorBoundary} from "react-error-boundary";
 import App from "./app";
 
 
-export const AppContext = React.createContext({
-    sessionId: sessionStorage.getItem("sessId") || undefined,
-    username: sessionStorage.getItem("username") || undefined,
-  }
-);
-
-
-
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

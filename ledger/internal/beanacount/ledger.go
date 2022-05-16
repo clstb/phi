@@ -3,70 +3,15 @@ package beanacount
 import (
 	"bufio"
 	"fmt"
-	"io"
+	"github.com/clstb/phi/ledger/internal/config"
+	"os"
 )
-
-type stringer string
-
-func (s stringer) String() string {
-	return string(s)
-}
 
 type Ledger []fmt.Stringer
 
-func NewLedger(r io.Reader) Ledger {
-	s := bufio.NewScanner(r)
-
-	var ledger Ledger
-	parse := func(t string) {
-		switch {
-		case TransactionRE.MatchString(t):
-			ledger = append(ledger, parseTransaction(t))
-		case OpenRE.MatchString(t):
-			ledger = append(ledger, parseOpen(t))
-		default:
-			i := len(ledger) - 1
-			if i < 0 {
-				ledger = append(ledger, stringer(t))
-				return
-			}
-
-			switch v := ledger[i].(type) {
-			case Transaction:
-				switch {
-				case PostingRE.MatchString(t):
-					v.Postings = append(v.Postings, parsePosting(t))
-					ledger[i] = v
-				case MetadataRE.MatchString(t):
-					v.Metadata = append(v.Metadata, parseMetadata(t))
-					ledger[i] = v
-				default:
-					ledger = append(ledger, stringer(t))
-				}
-			case Open:
-				switch {
-				case MetadataRE.MatchString(t):
-					v.Metadata = append(v.Metadata, parseMetadata(t))
-					ledger[i] = v
-				default:
-					ledger = append(ledger, stringer(t))
-				}
-			default:
-				ledger = append(ledger, stringer(t))
-			}
-		}
-	}
-
-	for s.Scan() {
-		parse(s.Text())
-	}
-
-	return ledger
-}
-
-func (l Ledger) Transactions() Transactions {
+func (l *Ledger) Transactions() Transactions {
 	var transactions Transactions
-	for _, v := range l {
+	for _, v := range *l {
 		transaction, ok := v.(Transaction)
 		if !ok {
 			continue
@@ -86,4 +31,27 @@ func (l Ledger) Opens() Opens {
 		opens = append(opens, open)
 	}
 	return opens
+}
+
+func (l *Ledger) PersistLedger(username string) error {
+	filePath := fmt.Sprintf("%s/%s/transactions.beancount", config.DataDirPath, username)
+	file, err := os.OpenFile(filePath, os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+
+	datawriter := bufio.NewWriter(file)
+	defer datawriter.Flush()
+	defer file.Close()
+
+	// add default accounts
+	datawriter.WriteString(config.DefaultOperatingCurrency)
+	datawriter.WriteString(config.UnassignedIncomeAccount)
+	datawriter.WriteString(config.UnassignedExpensesAccount)
+
+	for _, i := range *l {
+		_, _ = datawriter.WriteString(i.String() + "\n")
+
+	}
+	return nil
 }

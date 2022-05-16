@@ -5,15 +5,15 @@ import (
 	"go.uber.org/zap"
 )
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 type CoreServer struct {
 	AuthClient *auth.Client
 	Logger     *zap.SugaredLogger
 	//UserTokenCache *cache.Cache
+}
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type LinkRequest struct {

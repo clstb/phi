@@ -4,19 +4,8 @@ import (
 	"fmt"
 )
 
-func parseOpen(s string) Open {
-	matches := OpenRE.FindStringSubmatch(s)
-
-	open := Open{
-		Date:    matches[1],
-		Account: matches[2],
-	}
-
-	return open
-}
-
 func (o Open) String() string {
-	s := fmt.Sprintf("%s open %s\n", o.Date, o.Account)
+	s := fmt.Sprintf("%s open %s\n", o.Date, o.Account.String())
 
 	for _, md := range o.Metadata {
 		s += md.String()

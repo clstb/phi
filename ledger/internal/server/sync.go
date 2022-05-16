@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/clstb/phi/ledger/internal/beanacount"
 	"github.com/clstb/phi/ledger/internal/config"
 	pb "github.com/clstb/phi/proto"
@@ -13,17 +12,16 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
-	"os"
 )
 
 func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emptypb.Empty, error) {
-	file, err := os.Open(fmt.Sprintf("%s/%s", config.DataDirPath, in.Username))
+	var userLedger beanacount.Ledger
+	err := s.Sync(&userLedger, in.Token)
 	if err != nil {
+		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
-
-	userLedger := beanacount.NewLedger(file)
-	err = s.Sync(userLedger, in.Token, in.Username)
+	err = userLedger.PersistLedger(in.Username)
 	if err != nil {
 		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -31,7 +29,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 	return &emptypb.Empty{}, nil
 }
 
-func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string, username string) error {
+func (s *LedgerServer) Sync(ledger *beanacount.Ledger, token string) error {
 	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
@@ -65,11 +63,6 @@ func (s *LedgerServer) Sync(ledger beanacount.Ledger, token string, username str
 	}
 
 	ledger.UpdateLedger(providers, accounts, filteredTransactions)
-	err = ledger.PersistLedger(username)
-	if err != nil {
-		s.Logger.Error(err)
-		return err
-	}
 	return nil
 }
 
@@ -144,13 +137,13 @@ func mapTransaction(tr *pb.TinkTransactionMessage) beanacount.TinkTransaction {
 
 }
 
-func GetAccountsRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.Account, error) {
+func GetAccountsRPC(client pb.TransactionGWServiceClient, token string) ([]beanacount.AccountType, error) {
 	stream, err := client.GetAccounts(context.Background(), &pb.StringMessage{Value: token})
 	if err != nil {
 		return nil, err
 	}
 
-	var accounts []beanacount.Account
+	var accounts []beanacount.AccountType
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -162,8 +155,8 @@ func GetAccountsRPC(client pb.TransactionGWServiceClient, token string) ([]beana
 	return accounts, nil
 }
 
-func mapAccount(acc *pb.AccountMessage) beanacount.Account {
-	return beanacount.Account{
+func mapAccount(acc *pb.AccountMessage) beanacount.AccountType {
+	return beanacount.AccountType{
 		FinancialInstitutionId: acc.FinancialInstitutionId,
 		ID:                     acc.ID,
 		Name:                   acc.Name,

@@ -4,11 +4,14 @@ import {Box, Button, FilledInput, Input, TextField, Typography} from "@mui/mater
 import axios from "axios";
 import {CORE_URI, DEFAULT_HEADERS} from "../constants";
 import {useInput} from "./login";
+import {useNavigate} from "react-router-dom";
 
 
 export function TokenPage() {
 
   const [error, setError] = useState();
+
+  const navigate = useNavigate()
 
   if (error) {
     throw Error(error)
@@ -68,6 +71,9 @@ export function TokenPage() {
         <div className={'token-container'}>
           {token}
         </div>
+        <Button type={"submit"} sx={{minWidth: "350px"}} onClick={() => navigate("/home")}>
+          Take me home ...
+        </Button>
       </div>
     );
   }
@@ -84,7 +90,7 @@ export function TokenPage() {
 
             />
           </div>
-          <Button type={"submit"} sx={{minWidth: "350px"}} onClick={exchangeCodeForToken}>
+          <Button type={"submit"} onClick={exchangeCodeForToken}>
             OK
           </Button>
         </Box>

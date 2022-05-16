@@ -27,6 +27,6 @@ var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
 }()
 
 func NewServer() *LedgerServer {
-	s := &LedgerServer{Logger: sugar}
+	s := &LedgerServer{Logger: sugar.Named("Ledger")}
 	return s
 }

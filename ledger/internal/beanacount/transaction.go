@@ -30,9 +30,9 @@ func (t Transaction) String() string {
 	}
 	s = fmt.Sprintf(`%s "%s"`, s, t.Narration) + "\n"
 
-	for _, md := range t.Metadata {
-		s += md.String()
-	}
+	//for _, md := range t.Metadata {
+	//	s += md.String()
+	//}
 
 	for _, posting := range t.Postings {
 		s += posting.String()
@@ -70,10 +70,10 @@ func (t Transactions) ByMonth() map[string]Transactions {
 	return m
 }
 
-func (t Transactions) AccountsByPayee() map[string][]string {
-	m := map[string][]string{}
+func (t Transactions) AccountsByPayee() map[string][]AccountType {
+	m := map[string][]AccountType{}
 	for _, transaction := range t {
-		var accounts []string
+		var accounts []AccountType
 		for _, posting := range transaction.Postings {
 			accounts = append(accounts, posting.Account)
 		}
@@ -81,8 +81,8 @@ func (t Transactions) AccountsByPayee() map[string][]string {
 	}
 
 	for k, v := range m {
-		keys := map[string]bool{}
-		var unique []string
+		keys := map[AccountType]bool{}
+		var unique []AccountType
 		for _, s := range v {
 			if _, ok := keys[s]; !ok {
 				keys[s] = true

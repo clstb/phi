@@ -3,7 +3,7 @@ bazel-*
 .idea
 .DS_Store
 .config
-.data
+ledger/.data
 
 ui/node_modules
 ui/package-lock.json

@@ -1,28 +1,37 @@
 import React, {useState} from "react";
 import '../styles/styles.css'
-import {Box, Button, FilledInput, Input, TextField, Typography} from "@mui/material";
+import {Box, Button, FilledInput, Typography} from "@mui/material";
 import axios from "axios";
-import {CORE_URI, DEFAULT_HEADERS} from "../constants";
-import {useInput} from "./login";
+import {
+  ACCESS_TOKEN,
+  CORE_URI,
+  DEFAULT_HEADERS,
+  FAVA_URI,
+  LINK_PATH,
+  SYNC_PATH,
+  TOKEN_PATH,
+  USERNAME
+} from "../constants";
+import {useInput} from "./util";
 
 
 export function TokenPage() {
 
-  const [error, setError] = useState();
+  const [error, setError] = useState<string>();
 
   if (error) {
     throw Error(error)
   }
 
 
-  const [codeRequested, setCodeRequested] = useState(false)
-  const {value: accessCode, bind: bindAccessCode} = useInput("")
-  const [token, setToken] = useState(sessionStorage.getItem('access_token'))
+  const [codeRequested, setCodeRequested] = useState<boolean>(false)
+  const {value: accessCode, bind: bindAccessCode} = useInput()
+  const [token, setToken] = useState(sessionStorage.getItem(ACCESS_TOKEN))
 
 
   const getLink = () => {
     axios.post(
-      `${CORE_URI}/auth/link`,
+      `${CORE_URI}${LINK_PATH}`,
       {
         headers: DEFAULT_HEADERS,
         test: true
@@ -42,7 +51,7 @@ export function TokenPage() {
 
   const exchangeCodeForToken = () => {
     axios.post(
-      `${CORE_URI}/auth/token`,
+      `${CORE_URI}${TOKEN_PATH}`,
       {
         headers: DEFAULT_HEADERS,
         access_code: accessCode
@@ -51,7 +60,7 @@ export function TokenPage() {
         res => {
           console.log(res.data)
           const token = res.data['access_token']
-          sessionStorage.setItem('access_token', token)
+          sessionStorage.setItem(ACCESS_TOKEN, token)
           setToken(token)
         }
       )
@@ -61,6 +70,24 @@ export function TokenPage() {
 
   }
 
+  const openFava = () => {
+    const uname = sessionStorage.getItem(USERNAME)
+    axios.post(
+      `${CORE_URI}${SYNC_PATH}`,
+      {
+        headers: DEFAULT_HEADERS,
+        username : uname,
+        access_token: token
+      })
+      .then(
+        res => {
+          console.log(res.data)
+          window.open(FAVA_URI)
+        }
+      )
+      .catch(setError)
+  }
+
   if (token) {
     return (
       <div className='token-body'>
@@ -68,6 +95,9 @@ export function TokenPage() {
         <div className={'token-container'}>
           {token}
         </div>
+        <Button type={"submit"} sx={{minWidth: "350px"}} onClick={openFava}>
+          OK, take me to FAVA ...
+        </Button>
       </div>
     );
   }
@@ -79,13 +109,13 @@ export function TokenPage() {
           <div className="input-container">
             <FilledInput type="text"
                          required={true}
-                         placeholder={"Paste your access code here"}
+                         placeholder={"Access code"}
                          {...bindAccessCode}
 
             />
           </div>
-          <Button type={"submit"} sx={{minWidth: "350px"}} onClick={exchangeCodeForToken}>
-            OK
+          <Button type={"submit"} onClick={exchangeCodeForToken}>
+            Exchange to access token
           </Button>
         </Box>
       </div>

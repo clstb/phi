@@ -10,14 +10,20 @@ type Metadata struct {
 	Value string
 }
 
+type AccountType struct {
+	FinancialInstitutionId string
+	ID                     string
+	Name                   string
+}
+
 type Open struct {
 	Date     string
-	Account  string
+	Account  AccountType
 	Metadata []Metadata
 }
 
 type Posting struct {
-	Account   string
+	Account   AccountType
 	Units     AmountType
 	Cost      AmountType
 	PriceType string
@@ -32,12 +38,6 @@ type AmountType struct {
 type Provider struct {
 	FinancialInstitutionId string
 	DisplayName            string
-}
-
-type Account struct {
-	FinancialInstitutionId string
-	ID                     string
-	Name                   string
 }
 
 type Transaction struct {

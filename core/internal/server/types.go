@@ -1,20 +1,19 @@
-package handlers
+package server
 
 import (
 	"github.com/clstb/phi/core/internal/auth"
-	"github.com/eko/gocache/v2/cache"
 	"go.uber.org/zap"
 )
+
+type CoreServer struct {
+	AuthClient *auth.Client
+	Logger     *zap.SugaredLogger
+	//UserTokenCache *cache.Cache
+}
 
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-type CoreServer struct {
-	AuthClient     *auth.AuthClient
-	Logger         *zap.SugaredLogger
-	UserTokenCache *cache.Cache
 }
 
 type LinkRequest struct {

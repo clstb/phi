@@ -1,12 +1,13 @@
 import React from "react";
 import './styles/styles.css'
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
-import {Classify, Home, LoginPage, TokenPage} from "./components";
+import {LoginPage, TokenPage} from "./components";
+import {SESS_ID} from "./constants";
 
 
 // @ts-ignore
 export const PrivateRoute = ({children}) => {
-  if (sessionStorage.getItem("sessId")) {
+  if (sessionStorage.getItem(SESS_ID)) {
     return children
   }
   return <Navigate to="/login"/>
@@ -20,7 +21,7 @@ function App() {
         <Route path={'/'}
                element={
                  <PrivateRoute>
-                   <Home/>
+                   <TokenPage/>
                  </PrivateRoute>
                }
         />
@@ -34,20 +35,6 @@ function App() {
         <Route path={'/login'}
                element={
                  <LoginPage/>
-               }
-        />
-        <Route path={'/home'}
-               element={
-                 <PrivateRoute>
-                   <Home/>
-                 </PrivateRoute>
-               }
-        />
-        <Route path={'/classify'}
-               element={
-                 <PrivateRoute>
-                   <Classify/>
-                 </PrivateRoute>
                }
         />
       </Routes>

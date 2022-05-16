@@ -13,11 +13,14 @@ message SyncMessage {
   string token = 2;
 }
 
+message FileChunkMessage {
+  bytes Chunk = 1;
+}
+
 
 service BeanAccountService {
 
-  rpc ProvisionFSStructure (StringMessage) returns (google.protobuf.Empty);
   rpc SyncLedger (SyncMessage) returns (google.protobuf.Empty);
-
+  rpc DownLoadBeanAccountFile (StringMessage) returns (stream FileChunkMessage);
 
 }

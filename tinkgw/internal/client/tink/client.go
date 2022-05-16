@@ -1,89 +1,55 @@
 package tink
 
 import (
-	"context"
 	"fmt"
-	"github.com/clstb/phi/tinkgw/internal/client/rt"
-	"io/ioutil"
-	"net"
+	"github.com/clstb/phi/pkg"
+	"github.com/jobala/middleware_pipeline/pipeline"
+	"go.uber.org/zap"
+	"log"
 	"net/http"
-	"net/url"
+	"net/http/httputil"
 	"time"
 )
 
 type Client struct {
-	httpClient *LoggingClient
-	ctx        context.Context
-	url        string
+	*http.Client
+	logger *zap.SugaredLogger
+}
+type AuthorizationMiddleware struct {
+	bearerToken string
 }
 
-func (c *Client) GetLink() (s string, err error) {
-	url, err := url.Parse(c.url + "/link")
-	if err != nil {
-		return
-	}
-
-	httpResp, err := c.httpClient.Get(url.String())
-	if err != nil {
-		return
-	}
-
-	switch httpResp.StatusCode {
-	case http.StatusOK:
-		var b []byte
-		b, err = ioutil.ReadAll(httpResp.Body)
-		s = string(b)
-	default:
-		err = fmt.Errorf("unhandled status: %d", httpResp.StatusCode)
-	}
-
-	return
+func (s AuthorizationMiddleware) Intercept(pipeline pipeline.Pipeline, req *http.Request) (*http.Response, error) {
+	req.Header.Add("Authorization", "Bearer "+s.bearerToken)
+	body, _ := httputil.DumpRequest(req, true)
+	log.Println(fmt.Sprintf("%s", string(body)))
+	return pipeline.Next(req)
 }
 
-var transport = &http.Transport{
-	Proxy: http.ProxyFromEnvironment,
-	DialContext: (&net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
-	}).DialContext,
-	ForceAttemptHTTP2:     true,
-	MaxIdleConns:          100,
-	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   10 * time.Second,
-	ExpectContinueTimeout: 1 * time.Second,
-	DisableCompression:    true,
-}
+func NewAuthorizedClient(token string, logger *zap.SugaredLogger) *Client {
+	transport := pipeline.NewCustomTransport(&AuthorizationMiddleware{token}, &pkg.LoggingMiddleware{})
+	transport.ForceAttemptHTTP2 = true
+	transport.MaxIdleConns = 10
+	transport.IdleConnTimeout = 30 * time.Second
+	transport.IdleConnTimeout = 90 * time.Second
 
-type Opt func(*Client)
-
-func WithHTTPClient(httpClient *http.Client) func(*Client) {
-	return func(c *Client) {
-		c.httpClient = &LoggingClient{httpClient: httpClient}
-	}
-}
-
-func NewClient(url string, opts ...Opt) *Client {
 	httpClient := &http.Client{Transport: transport}
-
-	client := &Client{
-		httpClient: &LoggingClient{httpClient: httpClient},
-		url:        url,
-	}
-
-	for _, opt := range opts {
-		opt(client)
-	}
-
-	return client
-}
-
-func (c *Client) SetBearerToken(token string) {
-	c.httpClient.httpClient.Transport = rt.AuthorizationRoundTripper{
-		Token: token,
-		Next:  transport,
+	return &Client{
+		Client: httpClient,
+		logger: logger.Named("tink-client-authorized"),
 	}
 }
 
-func (c *Client) URL() string {
-	return c.url
+func NewClient(logger *zap.SugaredLogger) *Client {
+	transport := pipeline.NewCustomTransport(&pkg.LoggingMiddleware{})
+	transport.ForceAttemptHTTP2 = true
+	transport.MaxIdleConns = 10
+	transport.IdleConnTimeout = 30 * time.Second
+	transport.IdleConnTimeout = 90 * time.Second
+
+	httpClient := &http.Client{Transport: transport}
+	return &Client{
+		Client: httpClient,
+		logger: logger.Named("tink-client-basic"),
+	}
 }

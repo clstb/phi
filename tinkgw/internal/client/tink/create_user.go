@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+var ErrUserExists = fmt.Errorf("user exists")
+
 type CreateUserResponse struct {
 	ExternalUserID string `json:"external_user_id"`
 	UserID         string `json:"user_id"`
@@ -26,7 +28,7 @@ func (c *Client) CreateUser(market, locale string) (user CreateUserResponse, err
 		return
 	}
 
-	res, err := c.httpClient.Post(c.url+config.UserCreateEndpoint, config.JsonMediaType, b)
+	res, err := c.Post(config.TinkApiUri+config.UserCreatePath, config.JsonMediaType, b)
 	if err != nil {
 		return user, err
 	}

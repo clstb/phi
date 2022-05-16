@@ -6,6 +6,8 @@ require (
 	github.com/dgraph-io/ristretto v0.1.0
 	github.com/eko/gocache/v2 v2.3.0
 	github.com/gin-gonic/gin v1.6.3
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/motemen/go-loghttp v0.0.0-20170804080138-974ac5ceac27
 	github.com/ory/kratos-client-go v0.8.2-alpha.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/urfave/cli/v2 v2.3.0
@@ -31,12 +33,14 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/jobala/middleware_pipeline v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/motemen/go-nuts v0.0.0-20210915132349-615a782f2c69 // indirect
 	github.com/pegasus-kv/thrift v0.13.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect

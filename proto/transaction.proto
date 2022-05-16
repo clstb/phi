@@ -51,4 +51,5 @@ service TransactionGWService {
   rpc GetProviders (StringMessage) returns (stream ProviderMessage);
   rpc GetAccounts (StringMessage) returns (stream AccountMessage);
 
+
 }

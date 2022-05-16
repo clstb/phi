@@ -4,6 +4,7 @@ import (
 	pb "github.com/clstb/phi/proto"
 	"github.com/clstb/phi/tinkgw/internal/server"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	_ "github.com/motemen/go-loghttp/global"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

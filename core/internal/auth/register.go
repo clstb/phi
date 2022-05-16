@@ -4,7 +4,7 @@ import (
 	ory "github.com/ory/kratos-client-go"
 )
 
-func (c *AuthClient) Register(username string, password string, tinkId string) (Session, error) {
+func (c *Client) Register(username string, password string, tinkId string) (Session, error) {
 	flow, _, err := c.OryClient.V0alpha2Api.InitializeSelfServiceRegistrationFlowWithoutBrowser(c.ctx).Execute()
 	if err != nil {
 		return Session{}, err

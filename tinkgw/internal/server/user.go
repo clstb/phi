@@ -11,6 +11,10 @@ import (
 	"os"
 )
 
+func (s *Server) ProvisionTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.ProvisionTinkUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "Tink Admin account needed!")
+}
+
 func buildLink(clientId string, test bool) string {
 	link := fmt.Sprintf(
 		"https://link.tink.com/1.0/transactions/connect-accounts/?client_id=%s&redirect_uri=https",
@@ -40,7 +44,7 @@ func (s *Server) GetTestAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.By
 }
 
 func (s *Server) ExchangeAuthCodeToToken(ctx context.Context, in *pb.StringMessage) (*pb.StringMessage, error) {
-	res, err := s.tinkClient.ExchangeAccessCodeForToken(in.Value)
+	res, err := s.basicClient.ExchangeAccessCodeForToken(in.Value)
 	if err != nil {
 		s.Logger.Error(err)
 		return nil, status.Error(codes.FailedPrecondition, err.Error())

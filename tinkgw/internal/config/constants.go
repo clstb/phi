@@ -1,16 +1,14 @@
 package config
 
-const TinkUri = "https://api.tink.com"
-
-const TinkTokenUri = "https://api.tink.com/api/v1/oauth/token"
+const TinkApiUri = "https://api.tink.com"
 
 const TinkAdminRoles = "authorization:grant" //#,user:create"
 
-const GetAuthorizeGrantDelegateCodeRoles = "authorization:read,authorization:grant,credentials:refresh,credentials:read,credentials:write,providers:read,user:read"
+const DelegatedAuthorizationRoles = "authorization:read,authorization:grant,credentials:refresh,credentials:read,credentials:write,providers:read,user:read"
 
-const GetAuthorizeGrantCodeRoles = "transactions:read,accounts:read,provider-consents:read,user:read"
+const AuthorizeGrantRoles = "transactions:read,accounts:read,provider-consents:read,user:read"
 
-const UserCreateEndpoint = "/api/v1/user/create"
+const AuthorizationCodeGrantType = "authorization_code"
 
 const JsonMediaType = "application/json"
 
@@ -18,10 +16,14 @@ const DefaultMarket = "DE"
 
 const DefaultLocale = "de_DE"
 
-const DelegatedAuthorizationEndpoint = "/api/v1/oauth/authorization-grant/delegate"
+const DelegatedAuthorizationPath = "/api/v1/oauth/authorization-grant/delegate"
 
-const AuthorizationCodeGrantType = "authorization_code"
+const UserCreatePath = "/api/v1/user/create"
 
 const TransactionsPath = "/data/v2/transactions"
 
 const AccountsPath = "/data/v2/accounts"
+
+const ProvidersPath = "/api/v1/providers"
+
+const AccessTokenPath = "/api/v1/oauth/token"

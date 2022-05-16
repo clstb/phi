@@ -7,9 +7,65 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func (s *Server) GetAccounts(in *pb.StringMessage, server pb.TransactionGWService_GetAccountsServer) error {
+
+	authorizedClient := tink.NewAuthorizedClient(in.Value, s.Logger)
+	res, err := authorizedClient.GetAccounts()
+
+	if err != nil {
+		s.Logger.Error(err)
+		return status.Error(codes.Internal, err.Error())
+	}
+	for _, i := range res {
+		m := mapAccount(i)
+		err = server.Send(&m)
+		if err != nil {
+			s.Logger.Error(err)
+			return err
+		}
+	}
+	return nil
+}
+
+func mapAccount(acc tink.Account) pb.AccountMessage {
+	return pb.AccountMessage{
+		FinancialInstitutionId: acc.FinancialInstitutionID,
+		ID:                     acc.ID,
+		Name:                   acc.Name,
+	}
+}
+
+func (s *Server) GetProviders(in *pb.StringMessage, server pb.TransactionGWService_GetProvidersServer) error {
+
+	authorizedClient := tink.NewAuthorizedClient(in.Value, s.Logger)
+	res, err := authorizedClient.GetProviders()
+
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	for _, i := range res {
+		p := mapProvider(i)
+		err = server.Send(&p)
+		if err != nil {
+			return status.Error(codes.Aborted, err.Error())
+		}
+	}
+	return nil
+}
+
+func mapProvider(p tink.Provider) pb.ProviderMessage {
+	return pb.ProviderMessage{
+		FinancialInstitutionId: p.FinancialInstitutionID,
+		DisplayName:            p.DisplayName,
+	}
+}
+
 func (s *Server) GetTransactions(in *pb.StringMessage, server pb.TransactionGWService_GetTransactionsServer) error {
-	s.tinkClient.SetBearerToken(in.Value)
-	res, err := s.tinkClient.GetTransactions()
+
+	authorizedClient := tink.NewAuthorizedClient(in.Value, s.Logger)
+	res, err := authorizedClient.GetTransactions()
+
 	if err != nil {
 		s.Logger.Error(err)
 		return status.Error(codes.Internal, err.Error())

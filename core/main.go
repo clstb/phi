@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/clstb/phi/core/internal"
 	"github.com/clstb/phi/core/internal/auth"
+	server2 "github.com/clstb/phi/core/internal/server"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -31,8 +31,8 @@ func main() {
 
 func Serve(ctx *cli.Context) error {
 
-	authClient := auth.NewClient(ctx.String("oauthkeeper-uri"))
-	server := internal.NewServer(authClient)
+	authClient := auth.NewClient()
+	server := server2.NewServer(authClient)
 
 	router := gin.Default()
 	router.Use(CORSMiddleware())

@@ -54,7 +54,7 @@ type Transactions struct {
 
 func (c *Client) GetTransactions() ([]Transaction, error) {
 
-	res, err := c.httpClient.Get(c.url + config.TransactionsPath)
+	res, err := c.Get(config.TinkApiUri + config.TransactionsPath)
 
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf(res.Status)

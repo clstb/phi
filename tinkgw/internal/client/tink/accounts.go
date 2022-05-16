@@ -48,7 +48,7 @@ type Accounts struct {
 }
 
 func (c *Client) GetAccounts() ([]Account, error) {
-	res, err := c.httpClient.Get(c.url + config.AccountsPath)
+	res, err := c.Get(config.TinkApiUri + config.AccountsPath)
 
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf(res.Status)

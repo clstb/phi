@@ -1,17 +1,10 @@
 package server
 
 import (
-	"context"
-	"fmt"
+	"github.com/clstb/phi/pkg"
 	pb "github.com/clstb/phi/proto"
-	tink2 "github.com/clstb/phi/tinkgw/internal/client/tink"
-	"github.com/clstb/phi/tinkgw/internal/config"
+	"github.com/clstb/phi/tinkgw/internal/client/tink"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
-	"log"
-	"time"
 )
 
 type Server struct {
@@ -20,66 +13,44 @@ type Server struct {
 	Logger           *zap.SugaredLogger
 	tinkClientId     string
 	tinkClientSecret string
-	tinkClient       *tink2.Client
 	callbackURL      string
+	basicClient      *tink.Client
 }
-
-var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
-	loggerConfig := zap.NewProductionConfig()
-	loggerConfig.EncoderConfig.TimeKey = "timestamp"
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
-
-	_logger, err := loggerConfig.Build()
-	if err != nil {
-		log.Fatal(err)
-	}
-	_sugar := _logger.Sugar()
-	return _logger, _sugar
-}()
 
 func NewServer(tinkClientId, tinkClientSecret, callbackURL string) *Server {
 
-	oauthConfig := &clientcredentials.Config{
-		ClientID:     tinkClientId,
-		ClientSecret: tinkClientSecret,
-		TokenURL:     config.TinkTokenUri,
-		Scopes:       []string{config.TinkAdminRoles},
-		AuthStyle:    oauth2.AuthStyleInParams,
-	}
-
-	ctx := context.Background()
-
-	tinkClient := tink2.NewClient(config.TinkUri, tink2.WithHTTPClient(oauthConfig.Client(ctx)))
-
+	log := pkg.CreateLogger()
 	s := &Server{
-		Logger:           sugar.Named("tinkGW"),
+		Logger:           log.Named("tinkGW"),
 		tinkClientId:     tinkClientId,
 		tinkClientSecret: tinkClientSecret,
-		tinkClient:       tinkClient,
 		callbackURL:      callbackURL,
+		basicClient:      tink.NewClient(log),
 	}
-
 	return s
 }
 
-func (s *Server) getUser(id string) (tink2.User, error) {
+/*
+func (s *Server) getUser(id string) (tink.User, error) {
 	token, err := s.getToken(id)
 	if err != nil {
-		return tink2.User{}, err
+		return tink.User{}, err
 	}
-	client := tink2.NewClient(config.TinkUri)
+	client := tink.NewClient(config.TinkUri)
 	client.SetBearerToken(token.AccessToken)
 	return client.GetUser()
 }
+*/
 
-func (s *Server) getToken(id string) (tink2.Token, error) {
+/*
+func (s *Server) getToken(id string) (tink.Token, error) {
 	code, err := s.tinkClient.GetAuthorizeGrantCode(
 		"",
 		id,
 		config.GetAuthorizeGrantCodeRoles,
 	)
 	if err != nil {
-		return tink2.Token{}, fmt.Errorf("tink: authorize grant: %w", err)
+		return tink.Token{}, fmt.Errorf("tink: authorize grant: %w", err)
 	}
 	token, err := s.tinkClient.GetToken(
 		code,
@@ -90,7 +61,8 @@ func (s *Server) getToken(id string) (tink2.Token, error) {
 		config.GetAuthorizeGrantCodeRoles,
 	)
 	if err != nil {
-		return tink2.Token{}, fmt.Errorf("tink: oauth token: %w", err)
+		return tink.Token{}, fmt.Errorf("tink: oauth token: %w", err)
 	}
 	return token, nil
 }
+*/

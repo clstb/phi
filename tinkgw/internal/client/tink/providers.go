@@ -3,6 +3,7 @@ package tink
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/clstb/phi/tinkgw/internal/config"
 	"net/http"
 )
 
@@ -68,8 +69,8 @@ type Provider struct {
 	Type              string   `json:"type"`
 }
 
-func (c *Client) GetProviders(country string) ([]Provider, error) {
-	res, err := http.Get("https://api.tink.com/api/v1/providers/" + country)
+func (c *Client) GetProviders() ([]Provider, error) {
+	res, err := c.Get(config.TinkApiUri + config.ProvidersPath)
 	if err != nil {
 		return nil, err
 	}

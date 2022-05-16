@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/clstb/phi/tinkgw/internal/config"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,14 +18,7 @@ type Token struct {
 	Scope        string `json:"scope"`
 }
 
-func (c *Client) GetToken(
-	code,
-	refreshToken,
-	clientId,
-	clientSecret,
-	grantType,
-	scope string,
-) (token Token, err error) {
+func (c *Client) GetToken(code, refreshToken, clientId, clientSecret, grantType, scope string) (token Token, err error) {
 	form := url.Values{
 		"client_id":     {clientId},
 		"client_secret": {clientSecret},
@@ -38,7 +32,7 @@ func (c *Client) GetToken(
 		form.Add("code", code)
 	}
 
-	res, err := c.httpClient.httpClient.PostForm(c.url+"/api/v1/oauth/token", form)
+	res, err := c.PostForm(config.TinkApiUri+config.AccessTokenPath, form)
 	if err != nil {
 		return token, err
 	}
@@ -71,12 +65,17 @@ func (c *Client) ExchangeAccessCodeForToken(code string) (string, error) {
 		"grant_type":    {config.AuthorizationCodeGrantType},
 	}
 
-	res, err := c.httpClient.PostForm(config.TinkTokenUri, data)
+	res, err := c.PostForm(config.TinkApiUri+config.AccessTokenPath, data)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}
 
 	var respBody TokenResponse
-	err = json.Unmarshal(res, &respBody)
+	err = json.Unmarshal(body, &respBody)
 	return respBody.AccessToken, nil
 }

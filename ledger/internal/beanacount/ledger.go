@@ -33,12 +33,12 @@ func (l Ledger) Opens() Opens {
 	return opens
 }
 
-func GetFilePath(username string) string {
-	return fmt.Sprintf("%s/%s.beancount", config.DataDirPath, username)
+func GetFilePath(username string, path string) string {
+	return fmt.Sprintf("%s/%s.beancount", path, username)
 }
-func (l *Ledger) PersistLedger(username string) error {
+func (l *Ledger) PersistLedger(username string, path string) error {
 	// create file if not exists
-	filePath := GetFilePath(username)
+	filePath := GetFilePath(username, path)
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err

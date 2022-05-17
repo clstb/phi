@@ -1,8 +1,8 @@
 package config
 
-const DataDirPath = "ledger/.data"
+const DefDataDirPath = "ledger/.data"
 
-const TinkGwAddr = "localhost:8080"
+const DefTinkGwAddr = "localhost:8080"
 
 const UnassignedExpensesAccount = "2000-01-01 open Expenses:Unassigned\n\n"
 

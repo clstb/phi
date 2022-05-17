@@ -3,20 +3,25 @@ kind: Config
 metadata:
   name: phi
 build:
+  tagPolicy:
+    gitCommit:
+      ignoreChanges: true
+  insecureRegistries:
+    - docker.io
   local:
     useBuildkit: true
     concurrency: 0
+    push: false
   artifacts:
-  - image: ghcr.io/clstb/phi-tinkgw
+  - image: goofygoof/phi-tinkgw
     ko:
-      main: ./go/cmd/tinkgw
-  - image: ghcr.io/clstb/phi-core
+      main: ./tinkgw
+  - image: goofygoof/phi-core
     ko:
-      main: ./go/cmd/core
-  - image: ghcr.io/clstb/phi-oathkeeper
-    context: ./oathkeeper/
-  - image: ghcr.io/clstb/phi-ui
-    context: ./ui
+      main: ./core
+  - image: goofygoof/phi-ledger
+    ko:
+      main: ./ledger
 
 deploy:
   kustomize:

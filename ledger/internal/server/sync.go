@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"github.com/clstb/phi/ledger/internal/beanacount"
-	"github.com/clstb/phi/ledger/internal/config"
 	pb "github.com/clstb/phi/proto"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
@@ -21,7 +20,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
-	err = userLedger.PersistLedger(in.Username)
+	err = userLedger.PersistLedger(in.Username, s.DataDirPath)
 	if err != nil {
 		s.Logger.Error(err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -30,7 +29,7 @@ func (s *LedgerServer) SyncLedger(ctx context.Context, in *pb.SyncMessage) (*emp
 }
 
 func (s *LedgerServer) Sync(ledger *beanacount.Ledger, token string) error {
-	connection, err := grpc.Dial(config.TinkGwAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+	connection, err := grpc.Dial(s.TinkGwUri, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
 	if err != nil {

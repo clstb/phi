@@ -6,8 +6,17 @@ import (
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/v2/cache"
 	"github.com/eko/gocache/v2/store"
+	"go.uber.org/zap"
 	"time"
 )
+
+type CoreServer struct {
+	AuthClient *auth.Client
+	Logger     *zap.SugaredLogger
+	LedgerUri  string
+	TinkGwUri  string
+	//UserTokenCache *cache.Cache
+}
 
 func createCache() *cache.Cache {
 	ristrettoCache, err := ristretto.NewCache(&ristretto.Config{
@@ -41,11 +50,13 @@ func (s *CoreServer) getUserFromCache(sessId string) (*UserDetails, error) {
 }
 */
 
-func NewServer(authClient *auth.Client) *CoreServer {
+func NewServer(oryUri string, tinkGwUri string, ledgerUri string) *CoreServer {
 	log := pkg.CreateLogger()
 	return &CoreServer{
-		AuthClient: authClient,
+		AuthClient: auth.NewClient(oryUri),
 		Logger:     log.Named("CORE"),
+		TinkGwUri:  tinkGwUri,
+		LedgerUri:  ledgerUri,
 		//UserTokenCache: createCache(),
 	}
 }

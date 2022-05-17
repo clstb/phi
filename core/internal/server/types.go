@@ -1,16 +1,5 @@
 package server
 
-import (
-	"github.com/clstb/phi/core/internal/auth"
-	"go.uber.org/zap"
-)
-
-type CoreServer struct {
-	AuthClient *auth.Client
-	Logger     *zap.SugaredLogger
-	//UserTokenCache *cache.Cache
-}
-
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

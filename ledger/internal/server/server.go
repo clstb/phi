@@ -10,7 +10,9 @@ import (
 
 type LedgerServer struct {
 	pb.BeanAccountServiceServer
-	Logger *zap.SugaredLogger
+	Logger      *zap.SugaredLogger
+	TinkGwUri   string
+	DataDirPath string
 }
 
 var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
@@ -26,7 +28,11 @@ var _, sugar = func() (*zap.Logger, *zap.SugaredLogger) {
 	return _logger, _sugar
 }()
 
-func NewServer() *LedgerServer {
-	s := &LedgerServer{Logger: sugar.Named("Ledger")}
+func NewServer(tinkGwUri string, dataDirPath string) *LedgerServer {
+	s := &LedgerServer{
+		Logger:      sugar.Named("Ledger"),
+		TinkGwUri:   tinkGwUri,
+		DataDirPath: dataDirPath,
+	}
 	return s
 }

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/clstb/phi/core/internal/config"
 	proto2 "github.com/clstb/phi/proto"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -64,7 +63,7 @@ func (s *CoreServer) provisionMockTinkUser() (string, error) {
 
 // Doesn't work with TINK admin account :(
 func (s *CoreServer) provisionTinkUser() (string, error) {
-	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connection, err := grpc.Dial(s.TinkGwUri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		return "", err

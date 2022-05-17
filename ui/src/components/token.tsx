@@ -82,7 +82,8 @@ export function TokenPage() {
       .then(
         res => {
           console.log(res.data)
-          window.open(FAVA_URI)
+          const uri = `${FAVA_URI}?uname=${uname}`
+          window.open(uri)
         }
       )
       .catch(setError)

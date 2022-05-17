@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/clstb/phi/core/internal/config"
 	pb "github.com/clstb/phi/proto"
 	"github.com/gin-gonic/gin"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -21,7 +20,7 @@ func (s *CoreServer) AuthCodeLink(ctx *gin.Context) {
 		return
 	}
 
-	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+	connection, err := grpc.Dial(s.TinkGwUri, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
 	defer connection.Close()
@@ -59,7 +58,7 @@ func (s *CoreServer) ExchangeToToken(ctx *gin.Context) {
 		return
 	}
 
-	connection, err := grpc.Dial(config.TinkGWAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+	connection, err := grpc.Dial(s.TinkGwUri, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
 	defer connection.Close()

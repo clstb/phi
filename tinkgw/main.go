@@ -17,23 +17,19 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "tink-auth-id",
+				Name:     "TINK_CLIENT_ID",
 				EnvVars:  []string{"TINK_CLIENT_ID"},
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:     "tink-auth-secret",
+				Name:     "TINK_CLIENT_SECRET",
 				EnvVars:  []string{"TINK_CLIENT_SECRET"},
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:     "callback-url",
-				EnvVars:  []string{"CALLBACK_URL"},
-				Required: true,
-			},
-			&cli.IntFlag{
-				Name:  "port",
-				Value: 8080,
+				Name:    "CALLBACK_URL",
+				EnvVars: []string{"CALLBACK_URL"},
+				Value:   "http://localhost:9000/callback",
 			},
 		},
 		Action: run,
@@ -45,16 +41,16 @@ func main() {
 }
 
 func run(ctx *cli.Context) error {
-	addr := "0.0.0.0:" + ctx.String("port")
+	addr := "0.0.0.0:8080"
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
 
 	s := server.NewServer(
-		ctx.String("tink-auth-id"),
-		ctx.String("tink-auth-secret"),
-		ctx.String("callback-url"))
+		ctx.String("TINK_CLIENT_ID"),
+		ctx.String("TINK_CLIENT_SECRET"),
+		ctx.String("CALLBACK_URL"))
 
 	s.Logger.Info("----> GRPC listeninng on %s", addr)
 

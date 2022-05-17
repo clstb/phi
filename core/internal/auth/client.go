@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"github.com/clstb/phi/core/internal/config"
 	"github.com/clstb/phi/pkg"
 	"github.com/jobala/middleware_pipeline/pipeline"
 	ory "github.com/ory/kratos-client-go"
@@ -21,7 +20,7 @@ type Session struct {
 	Token string
 }
 
-func NewClient() *Client {
+func NewClient(oryUri string) *Client {
 
 	transport := pipeline.NewCustomTransport(&pkg.LoggingMiddleware{})
 	transport.ForceAttemptHTTP2 = true
@@ -34,7 +33,7 @@ func NewClient() *Client {
 	oryConf := ory.NewConfiguration()
 	oryConf.Debug = true
 	oryConf.HTTPClient = httpClient
-	oryConf.Servers = []ory.ServerConfiguration{{URL: config.OryUri}}
+	oryConf.Servers = []ory.ServerConfiguration{{URL: oryUri}}
 	oryClient := ory.NewAPIClient(oryConf)
 
 	return &Client{

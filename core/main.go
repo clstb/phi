@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/clstb/phi/core/internal/auth"
+	"fmt"
+	"github.com/clstb/phi/core/internal/config"
 	server2 "github.com/clstb/phi/core/internal/server"
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
@@ -13,6 +14,23 @@ import (
 
 func main() {
 	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "TINK_GW_URI",
+				EnvVars: []string{"TINK_GW_URI"},
+				Value:   config.DefTinkGWAddr,
+			},
+			&cli.StringFlag{
+				Name:    "LEDGER_URI",
+				EnvVars: []string{"LEDGER_URI"},
+				Value:   config.DefLedgerAddr,
+			},
+			&cli.StringFlag{
+				Name:    "ORY_URI",
+				EnvVars: []string{"ORY_URI"},
+				Value:   config.DefOryUri,
+			},
+		},
 		Action: Serve,
 	}
 
@@ -24,10 +42,15 @@ func main() {
 
 func Serve(ctx *cli.Context) error {
 
-	authClient := auth.NewClient()
-	server := server2.NewServer(authClient)
+	fmt.Println("------------------------")
+	fmt.Printf("TINK_GW_URI => %s\n", ctx.String("TINK_GW_URI"))
+	fmt.Printf("LEDGER_URI  => %s\n", ctx.String("LEDGER_URI"))
+	fmt.Printf("ORY_URI     => %s\n", ctx.String("ORY_URI"))
+	fmt.Println("------------------------")
 
+	server := server2.NewServer(ctx.String("ORY_URI"), ctx.String("TINK_GW_URI"), ctx.String("LEDGER_URI"))
 	router := gin.Default()
+
 	router.Use(CORSMiddleware())
 	router.POST("/api/login", server.DoLogin)
 	router.POST("/api/register", server.DoRegister)

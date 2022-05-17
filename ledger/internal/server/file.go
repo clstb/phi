@@ -11,7 +11,7 @@ import (
 
 func (s *LedgerServer) DownLoadBeanAccountFile(in *pb.StringMessage, stream pb.BeanAccountService_DownLoadBeanAccountFileServer) error {
 	bufferSize := config.DownloadBufferSize
-	filePath := beanacount.GetFilePath(in.Value)
+	filePath := beanacount.GetFilePath(in.Value, s.DataDirPath)
 	file, err := os.Open(filePath)
 	if err != nil {
 		s.Logger.Error(err)

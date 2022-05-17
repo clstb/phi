@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/clstb/phi/ledger/internal/config"
 	"github.com/clstb/phi/ledger/internal/server"
 	pb "github.com/clstb/phi/proto"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -15,9 +17,15 @@ import (
 func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
-			&cli.IntFlag{
-				Name:  "port",
-				Value: 8082,
+			&cli.StringFlag{
+				Name:    "TINK_GW_URI",
+				EnvVars: []string{"TINK_GW_URI"},
+				Value:   config.DefTinkGwAddr,
+			},
+			&cli.StringFlag{
+				Name:    "DATA_DIR_PATH",
+				EnvVars: []string{"DATA_DIR_PATH"},
+				Value:   config.DefDataDirPath,
 			},
 		},
 		Action: run,
@@ -29,15 +37,19 @@ func main() {
 }
 
 func run(ctx *cli.Context) error {
-	addr := "0.0.0.0:" + ctx.String("port")
-	listener, err := net.Listen("tcp", addr)
+
+	fmt.Println("------------------------")
+	fmt.Printf("TINK_GW_URI => %s\n", ctx.String("TINK_GW_URI"))
+	fmt.Printf("LEDGER_URI  => %s\n", ctx.String("DATA_DIR_PATH"))
+	fmt.Println("------------------------")
+
+	listener, err := net.Listen("tcp", "0.0.0.0:8082")
 	if err != nil {
 		return err
 	}
 
-	s := server.NewServer()
-
-	s.Logger.Info("----> GRPC listeninng on %s", addr)
+	s := server.NewServer(ctx.String("TINK_GW_URI"), ctx.String("DATA_DIR_PATH"))
+	s.Logger.Info("----> GRPC listeninng on %s", "0.0.0.0:8082")
 
 	_server := grpc.NewServer(
 		grpc.StreamInterceptor(

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/clstb/phi/core/internal/config"
 	proto2 "github.com/clstb/phi/proto"
 	"github.com/gin-gonic/gin"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -38,7 +37,7 @@ func (s *CoreServer) SyncLedger(ctx *gin.Context) {
 }
 
 func (s *CoreServer) doSyncRPC(username string, token string) error {
-	connection, err := grpc.Dial(config.LedgerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+	connection, err := grpc.Dial(s.LedgerUri, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(grpczap.StreamClientInterceptor(s.Logger.Desugar())),
 	)
 	if err != nil {

@@ -10,15 +10,14 @@
 - Nuff said
 
 ### User authentication is handled by [ORY](https://console.ory.sh/)
-- Proxy to actual ORY cloud project
 
 ### Ledger microservice
-- Provisions FS for user
 - Fills FS with users bean account data
+- Serves bean account file to Fava
 
 ### FAVA microservice
-- UI to visualize bean account data
-- hosted in separate repo [FAVA](https://github.com/Goofy-Goof/fava)
+- UI to visualize data from bean account file
+- hosted in separate repo [Fava](https://github.com/Goofy-Goof/fava)
 
 ### Compile stubs
     make clean
@@ -33,4 +32,9 @@
 ### Do not work, unless TINK admin account used
     rpc ProvisionTinkUser
     rpc GetProviders
+
+### deploy to local k8s cluster
+    make proto
+    skaffold run --tail
+- UI is available on [http://localhost:30002/](http://localhost:30002/)
 

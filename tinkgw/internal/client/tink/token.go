@@ -56,11 +56,12 @@ type TokenResponse struct {
 	IdHint       string `json:"id_hint"`
 }
 
-func (c *Client) ExchangeAccessCodeForToken(code string, clientId string) (string, error) {
+func (c *Client) ExchangeAccessCodeForToken(code string, clientId string, clientSecret string) (string, error) {
 	data := url.Values{
-		"code":       {code},
-		"client_id":  {clientId},
-		"grant_type": {config.AuthorizationCodeGrantType},
+		"code":          {code},
+		"client_id":     {clientId},
+		"client_secret": {clientSecret},
+		"grant_type":    {config.AuthorizationCodeGrantType},
 	}
 
 	res, err := c.PostForm(config.TinkApiUri+config.AccessTokenPath, data)

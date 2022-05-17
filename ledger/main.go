@@ -38,9 +38,15 @@ func main() {
 
 func run(ctx *cli.Context) error {
 
+	err := os.Mkdir(ctx.String("DATA_DIR_PATH"), config.DefFilePermissions)
+
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("------------------------")
 	fmt.Printf("TINK_GW_URI => %s\n", ctx.String("TINK_GW_URI"))
-	fmt.Printf("LEDGER_URI  => %s\n", ctx.String("DATA_DIR_PATH"))
+	fmt.Printf("DATA_DIR_PATH  => %s\n", ctx.String("DATA_DIR_PATH"))
 	fmt.Println("------------------------")
 
 	addr := "0.0.0.0:8082"

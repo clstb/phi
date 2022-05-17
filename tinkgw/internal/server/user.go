@@ -32,7 +32,7 @@ func (s *Server) GetTinkAuthLink(ctx context.Context, in *pb.BooleanFlagMessage)
 }
 
 func (s *Server) ExchangeAuthCodeToToken(ctx context.Context, in *pb.StringMessage) (*pb.StringMessage, error) {
-	res, err := s.basicClient.ExchangeAccessCodeForToken(in.Value, s.tinkClientSecret)
+	res, err := s.basicClient.ExchangeAccessCodeForToken(in.Value, s.tinkClientId, s.tinkClientSecret)
 	if err != nil {
 		s.Logger.Error(err)
 		return nil, status.Error(codes.FailedPrecondition, err.Error())

@@ -39,7 +39,7 @@ func GetFilePath(username string, path string) string {
 func (l *Ledger) PersistLedger(username string, path string) error {
 	// create file if not exists
 	filePath := GetFilePath(username, path)
-	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, config.DefFilePermissions)
 	if err != nil {
 		return err
 	}

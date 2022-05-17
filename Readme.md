@@ -5,6 +5,7 @@
 - Registration
 - Login
 - REST API for UI
+- Coordination of users actions
 
 ### UI microservice
 - Nuff said
@@ -33,8 +34,18 @@
     rpc ProvisionTinkUser
     rpc GetProviders
 
-### deploy to local k8s cluster
+### Deploy to local k8s cluster
     make proto
     skaffold run --tail
 - UI is available on [http://localhost:30002/](http://localhost:30002/)
-
+- TinkGW requires TINK_CLIENT_ID and TINK_CLIENT_SECRET
+#### Define k8s secret similar to
+    apiVersion: v1
+      kind: Secret
+      metadata:
+      name: tinkgw-secret
+      data:
+      client-id: xxx
+      client-secret: xxx
+- client-id and client-secret: must be base64 encoded
+- apply with `kubectl apply -f k8s/secret.yaml`

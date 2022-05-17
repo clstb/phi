@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-core
+spec:
+  selector:
+    matchLabels:
+      app: phi-core-app
+  template:
+    metadata:
+      labels:
+        app: phi-core-app
+    spec:
+      containers:
+        - image: goofygoof/phi-core
+          name: phi-tinkgw
+          ports:
+            - containerPort: 8081
+          env:
+            - name: TINK_GW_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: phi-configmap
+                  key: TINK_GW_URI
+            - name: LEDGER_URI
+              value: phi-ledger.default.svc.cluster.local:8082

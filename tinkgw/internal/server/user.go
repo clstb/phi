@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"os"
 )
 
 func (s *Server) ProvisionTinkUser(ctx context.Context, in *emptypb.Empty) (*pb.ProvisionTinkUserResponse, error) {
@@ -25,26 +24,15 @@ func buildLink(clientId string, test bool) string {
 	}
 	return link + "&test=true"
 }
-func (s *Server) GetTinkAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.BytesMessage, error) {
-
-	clientId := os.Getenv("TINK_CLIENT_ID")
-	link := buildLink(clientId, false)
-	s.Logger.Info(link)
-	return &pb.BytesMessage{Arr: []byte(link)}, nil
-
-}
-
-func (s *Server) GetTestAuthLink(ctx context.Context, in *emptypb.Empty) (*pb.BytesMessage, error) {
-
-	clientId := os.Getenv("TINK_CLIENT_ID")
-	link := buildLink(clientId, true)
+func (s *Server) GetTinkAuthLink(ctx context.Context, in *pb.BooleanFlagMessage) (*pb.BytesMessage, error) {
+	link := buildLink(s.tinkClientId, in.Value)
 	s.Logger.Info(link)
 	return &pb.BytesMessage{Arr: []byte(link)}, nil
 
 }
 
 func (s *Server) ExchangeAuthCodeToToken(ctx context.Context, in *pb.StringMessage) (*pb.StringMessage, error) {
-	res, err := s.basicClient.ExchangeAccessCodeForToken(in.Value)
+	res, err := s.basicClient.ExchangeAccessCodeForToken(in.Value, s.tinkClientSecret)
 	if err != nil {
 		s.Logger.Error(err)
 		return nil, status.Error(codes.FailedPrecondition, err.Error())

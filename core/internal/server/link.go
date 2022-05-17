@@ -7,7 +7,6 @@ import (
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"
 )
 
@@ -32,11 +31,7 @@ func (s *CoreServer) AuthCodeLink(ctx *gin.Context) {
 	gwServiceClient := pb.NewTinkGWServiceClient(connection)
 
 	var res *pb.BytesMessage
-	if json.Test {
-		res, err = gwServiceClient.GetTestAuthLink(context.Background(), &emptypb.Empty{})
-	} else {
-		res, err = gwServiceClient.GetTestAuthLink(context.Background(), &emptypb.Empty{})
-	}
+	res, err = gwServiceClient.GetTinkAuthLink(context.Background(), &pb.BooleanFlagMessage{Value: json.Test})
 	if err != nil {
 		ctx.AbortWithError(s.mapErrorToHttpCode(err), err)
 		return

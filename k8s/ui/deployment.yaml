@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-ui
+spec:
+  selector:
+    matchLabels:
+      app: phi-ui-app
+  template:
+    metadata:
+      labels:
+        app: phi-ui-app
+    spec:
+      containers:
+        - image: goofygoof/phi-ui
+          name: phi-ui
+          ports:
+            - containerPort: 3000

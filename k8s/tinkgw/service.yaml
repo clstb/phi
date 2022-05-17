@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: phi-tinkgw
 spec:
+  selector:
+    app: phi-tinkgw-app
   ports:
-  - name: grpc
-    port: 9000
+    - port: 8080
+      targetPort: 8080

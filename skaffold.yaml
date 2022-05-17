@@ -11,24 +11,32 @@ build:
   local:
     useBuildkit: true
     concurrency: 0
-    push: false
   artifacts:
   - image: goofygoof/phi-tinkgw
     ko:
       main: ./tinkgw
+      dependencies:
+        paths: [ "proto/*.go" ]
   - image: goofygoof/phi-core
     ko:
       main: ./core
+      dependencies:
+        paths: [ "proto/*.go" ]
   - image: goofygoof/phi-ledger
     ko:
       main: ./ledger
+      dependencies:
+        paths: [ "proto/*.go" ]
+  - image: goofygoof/phi-ui
+    context: ./ui
 
 deploy:
   kustomize:
     paths:
-    - k8s/local
-portForward:
-- resourceType: deployment
-  resourceName: phi-tinkgw
-  namespace: default
-  port: 8080
+    - k8s/tinkgw
+    - k8s/core
+    - k8s/ledger
+    - k8s/ui
+  kubectl:
+    manifests:
+    - k8s/configmap.yaml

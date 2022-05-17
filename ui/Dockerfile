@@ -1,16 +1,11 @@
-FROM node:17
-
-
+FROM goofygoof/phi-pnpm
 
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install --force
-# RUN npm ci --only=production
-
-# Bundle app source
 COPY . .
 
+RUN pnpm install --force; exit 0
+
 EXPOSE 3000
-CMD [ "npm", "start" ]
+CMD ["pnpm", "start" ]
+

@@ -43,13 +43,14 @@ func run(ctx *cli.Context) error {
 	fmt.Printf("LEDGER_URI  => %s\n", ctx.String("DATA_DIR_PATH"))
 	fmt.Println("------------------------")
 
-	listener, err := net.Listen("tcp", "0.0.0.0:8082")
+	addr := "0.0.0.0:8082"
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
 
 	s := server.NewServer(ctx.String("TINK_GW_URI"), ctx.String("DATA_DIR_PATH"))
-	s.Logger.Info("----> GRPC listeninng on %s", "0.0.0.0:8082")
+	s.Logger.Info("----> GRPC listeninng on ", addr)
 
 	_server := grpc.NewServer(
 		grpc.StreamInterceptor(

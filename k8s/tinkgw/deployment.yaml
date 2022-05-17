@@ -5,34 +5,25 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: phi-tinkgw-deploy
-  minReadySeconds: 10
-  replicas: 1
-  revisionHistoryLimit: 10
+      app: phi-tinkgw-app
   template:
     metadata:
       labels:
-        app: phi-tinkgw-deploy
+        app: phi-tinkgw-app
     spec:
-      initContainers:
-        - name: wait-postgres
-          image: busybox:1.28
-          command: ['sh', '-c', "until nc -w 2 phi-tinkgw-db.default.svc.cluster.local 5432; do echo waiting for postgres; sleep 2; done"]
-        - image: ghcr.io/clstb/phi-tinkgw
-          name: phi-tinkgw-migrate
-          args: ["migrate"]
-          envFrom:
-            - secretRef:
-                name: phi-tinkgw
-                optional: false
       containers:
-        - image: ghcr.io/clstb/phi-tinkgw
+        - image: goofygoof/phi-tinkgw
           name: phi-tinkgw
-          args: ["server"]
-          envFrom:
-            - secretRef:
-                name: phi-tinkgw
-                optional: false
+          env:
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: tinkgw-secret
+                  key: client-id
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tinkgw-secret
+                  key: client-secret
           ports:
-            - containerPort: 9000
-              name: grpc
+            - containerPort: 8080

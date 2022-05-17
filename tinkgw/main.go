@@ -17,13 +17,13 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "TINK_CLIENT_ID",
-				EnvVars:  []string{"TINK_CLIENT_ID"},
+				Name:     "CLIENT_ID",
+				EnvVars:  []string{"CLIENT_ID"},
 				Required: true,
 			},
 			&cli.StringFlag{
-				Name:     "TINK_CLIENT_SECRET",
-				EnvVars:  []string{"TINK_CLIENT_SECRET"},
+				Name:     "CLIENT_SECRET",
+				EnvVars:  []string{"CLIENT_SECRET"},
 				Required: true,
 			},
 			&cli.StringFlag{
@@ -47,12 +47,8 @@ func run(ctx *cli.Context) error {
 		return err
 	}
 
-	s := server.NewServer(
-		ctx.String("TINK_CLIENT_ID"),
-		ctx.String("TINK_CLIENT_SECRET"),
-		ctx.String("CALLBACK_URL"))
-
-	s.Logger.Info("----> GRPC listeninng on %s", addr)
+	s := server.NewServer(ctx.String("CLIENT_ID"), ctx.String("CLIENT_SECRET"), ctx.String("CALLBACK_URL"))
+	s.Logger.Info("----> GRPC listeninng on ", addr)
 
 	_server := grpc.NewServer(
 		grpc.StreamInterceptor(grpczap.StreamServerInterceptor(s.Logger.Desugar())),

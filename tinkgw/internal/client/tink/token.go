@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 type Token struct {
@@ -57,17 +56,20 @@ type TokenResponse struct {
 	IdHint       string `json:"id_hint"`
 }
 
-func (c *Client) ExchangeAccessCodeForToken(code string) (string, error) {
+func (c *Client) ExchangeAccessCodeForToken(code string, clientId string) (string, error) {
 	data := url.Values{
-		"code":          {code},
-		"client_id":     {os.Getenv("TINK_CLIENT_ID")},
-		"client_secret": {os.Getenv("TINK_CLIENT_SECRET")},
-		"grant_type":    {config.AuthorizationCodeGrantType},
+		"code":       {code},
+		"client_id":  {clientId},
+		"grant_type": {config.AuthorizationCodeGrantType},
 	}
 
 	res, err := c.PostForm(config.TinkApiUri+config.AccessTokenPath, data)
 	if err != nil {
 		return "", err
+	}
+
+	if res.StatusCode != 200 {
+		return "", fmt.Errorf("TINK API returned %d\n", res.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(res.Body)

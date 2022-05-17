@@ -14,4 +14,6 @@ proto:
 	${PROTO_DIR}/*.proto
 
 clean:
-		rm -f ${PROTO_DIR}/*.go
+		rm -f ${PROTO_DIR}/*.go; \
+		rm -r -f ui/node_modules; \
+		rm -f  ui/pnpm-lock.yaml

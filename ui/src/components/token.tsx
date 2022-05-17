@@ -9,7 +9,7 @@ import {
   FAVA_URI,
   LINK_PATH,
   SYNC_PATH,
-  TOKEN_PATH,
+  TOKEN_PATH, USE_ONLY_TEST_BANKS,
   USERNAME
 } from "../constants";
 import {useInput} from "./util";
@@ -34,7 +34,7 @@ export function TokenPage() {
       `${CORE_URI}${LINK_PATH}`,
       {
         headers: DEFAULT_HEADERS,
-        test: true
+        test: USE_ONLY_TEST_BANKS
       })
       .then(
         res => {

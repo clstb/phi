@@ -3,9 +3,9 @@ export const DEFAULT_HEADERS = {
   'content-type': 'application/json'
 }
 
-export const CORE_URI = process.env.CORE_URI || "http://localhost:8081/api"
+export const CORE_URI = "http://localhost:30001/api"
 
-export const FAVA_URI = process.env.FAVA_URI || "http://localhost:5000"
+export const FAVA_URI = "http://localhost:30000"
 
 export const LOGIN_PATH = '/login'
 
@@ -22,5 +22,13 @@ export const USERNAME = 'username'
 export const TOKEN_PATH = "/auth/token"
 
 export const ACCESS_TOKEN = 'access_token'
+
+export const USE_ONLY_TEST_BANKS = true
+
+
+console.log('------------------------------')
+console.log('CORE_URI = ' + CORE_URI)
+console.log('FAVA_URI = ' + FAVA_URI)
+console.log('------------------------------')
 
 

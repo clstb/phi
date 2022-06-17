@@ -1,0 +1,28 @@
+syntax = 'proto3';
+
+package proto;
+
+option go_package = "github.com/aaarrti/2048-grpc/proto";
+
+enum MoveEnum {
+  UP = 0;
+  DOWN = 1;
+  LEFT = 2;
+  RIGHT = 3;
+}
+
+message MoveMessage {
+  MoveEnum value = 1;
+}
+
+message GameState {
+  repeated int32 value = 1;
+}
+
+service GameService {
+
+  rpc doMove (MoveMessage) returns (GameState);
+
+}
+
+

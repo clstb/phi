@@ -1,0 +1,9 @@
+.data
+.run
+k8s
+.editorconfig
+.gitignore
+.git
+.prettierignore
+.prettierrc.json
+Readme.md

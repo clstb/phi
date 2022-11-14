@@ -1,0 +1,7 @@
+{% import '_tree_table.html' as tree_table with context %}
+
+{% for base_account in ['expenses', 'income', 'assets', 'equity', 'liabilities'] %}
+{{ charts.hierarchy(ledger.options['name_{}'.format(base_account)]) }}
+{% endfor %}
+
+{{ tree_table.tree(ledger.root_tree.get('')) }}

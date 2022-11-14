@@ -1,0 +1,92 @@
+{% import 'macros/_account_macros.html' as account_macros %}
+{% import 'macros/_commodity_macros.html' as commodity_macros %}
+{% import '_query_table.html' as querytable %}
+
+{% macro copy_balance_directives_text() -%}
+{% for account in ledger.attributes.accounts -%}
+{% if ledger.accounts[account].meta.get('fava-uptodate-indication') %}
+{%- if ledger.account_uptodate_status(account) != "green" -%}
+{{- account_macros.balance_directive(ledger, account) }}
+{%- endif -%}
+{% endif %}
+{%- endfor -%}
+{%- endmacro %}
+
+<div class="left">
+  {% set postings_per_account = 'SELECT account, count(account) ORDER BY account' %}
+  <h3>
+    {{ _('Postings per Account') }}
+    (<a href="{{ url_for('report', report_name='query', query_string=postings_per_account) }}">Query</a>)
+  </h3>
+  {% set contents, result_types, result_rows = ledger.query_shell.execute_query(postings_per_account) %}
+  {{ querytable.querytable(ledger, contents, result_types, result_rows) }}
+</div>
+
+{% set status_sortorder = { 'red': 5, 'yellow': 4, 'green': 3, '': 2 } %}
+<div class="left">
+  <h3>{{ _('Update Activity') }}<copyable-text class="button right" title="
+  {{- _('Click to copy balance directives for accounts (except green ones) to the clipboard.') -}}
+  " data-clipboard-text="{{ copy_balance_directives_text() }}">{{ _('Copy balance directives') }}</copyable-text></h3>
+  <table is="sortable-table" class="statistics-update-activity">
+    <thead>
+      <tr>
+        <th data-sort="string" data-order="asc">{{ _('Account') }}</th>
+        <th class="indicator-header" data-sort="num" data-sort-default="desc"></th>
+        <th class="indicator-header" data-sort="num" data-sort-default="desc"></th>
+        <th data-sort="string">{{ _('Last Entry') }}</th>
+        <th>{{ _('Balance') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for account in ledger.attributes.accounts %}
+      {% if account.startswith(ledger.options['name_assets']) or account.startswith(ledger.options['name_liabilities']) %}
+      {% set last_entry = ledger.last_entry(account) %}
+      {% if last_entry %}
+      <tr>
+        <td class="account"><a href="{{ url_for('account', name=account) }}">{{ account }}</a></td>
+        {% if ledger.accounts[account].meta.get('fava-uptodate-indication') %}
+        <td data-sort-value="{{ status_sortorder[ledger.account_uptodate_status(account) or ''] }}" class="uptodate-indicator">{{ account_macros.indicator(ledger, account) }}</td>
+        <td class="uptodate-indicator">{{ account_macros.last_account_activity(ledger, account) }}</td>
+        {% else %}
+        <td data-sort-value="0" class="uptodate-indicator"></td>
+        <td class="uptodate-indicator"></td>
+        {% endif %}
+        <td><a href="#context-{{ last_entry|hash_entry }}">{{ last_entry.date }}</a></td>
+        <td class="num">
+          {%- for position in (ledger.root_account|get_or_create(account)).balance|units -%}
+          {{ commodity_macros.render_amount(ledger, position.units) }}<br>
+          {% endfor -%}
+        </td>
+      </tr>
+      {% endif %}
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="left">
+  <h3>{{ _('Entries per Type') }}</h3>
+  <table is="sortable-table">
+    <thead>
+      <tr>
+        <th data-sort="string">{{ _('Type') }}</th>
+        <th data-sort="num">{{ _('# Entries') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for type, entries in ledger.group_entries_by_type(ledger.entries) %}
+      <tr>
+        <td>{{ type }}</td>
+        <td class="num">{{ entries|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>{{ _('Total') }}</td>
+        <td class="num">{{ ledger.entries|length }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>

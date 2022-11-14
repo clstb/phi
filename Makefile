@@ -5,7 +5,20 @@ PACKAGE = $(shell head -1 go.mod | awk '{print $$2}')
 .PHONY: proto
 
 
-proto:
+proto: proto_go proto_py
+
+
+proto_py:
+	@python -m grpc_tools.protoc           				\
+	--python_out fava/src/fava/file/proto       		\
+	--grpc_python_out=fava/src/fava/file/proto 		 \
+	--proto_path src/fava/file/proto      				 \
+	proto/ledger.proto;								\
+	sed -i -e 's/import ledger_pb2 as ledger__pb2/from . import ledger_pb2 as ledger__pb2/g' src/fava/file/proto/ledger_pb2_grpc.py
+
+
+
+proto_go:
 	@protoc -I${PROTO_DIR} \
 	--go_opt=module=${PACKAGE} \
 	--go_out=. \
@@ -17,3 +30,24 @@ clean:
 		rm -f ${PROTO_DIR}/*.go; \
 		rm -r -f ui/node_modules; \
 		rm -f  ui/pnpm-lock.yaml
+
+
+
+
+frontend:
+	@cd frontend; \
+	npm i;        \
+	npm run build
+
+
+clean_front:
+	@rm -f src/fava/static/app.js;   \
+	rm -f src/fava/static/app.css;   \
+	rm -f src/fava/static/*.woff;    \
+	rm -r -f frontend/node_modules;  \
+	rm -f frontend/package-lock.json
+
+
+clean_proto:
+	@rm -f src/fava/file/proto/*.py; \
+	rm -f src/fava/file/proto/*.py-e; \

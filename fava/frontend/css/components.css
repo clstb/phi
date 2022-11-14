@@ -1,0 +1,53 @@
+details {
+  display: block;
+  min-width: 400px;
+  margin-bottom: 0.5em;
+  border: 1px solid var(--table-border);
+}
+
+details.inactive {
+  opacity: 50%;
+}
+
+details summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 5px 10px 5px 30px;
+  cursor: pointer;
+  background-color: var(--summary-background);
+}
+
+details summary::before {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  margin-right: 0.5em;
+  content: "";
+  border-top: 9px solid var(--treetable-expander);
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+  transform: translateY(-50%) rotate(270deg);
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details.error summary {
+  background-color: var(--error);
+}
+
+details[open] summary::before {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+details summary pre {
+  display: inline-block;
+  padding: 3px 6px;
+  margin: 0;
+}
+
+details > div {
+  padding: 0.5em;
+}

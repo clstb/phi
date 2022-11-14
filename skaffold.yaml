@@ -12,23 +12,26 @@ build:
     useBuildkit: true
     concurrency: 0
   artifacts:
-  - image: goofygoof/phi-tinkgw
+  - image: aaarti/phi-tinkgw
     ko:
       main: ./tinkgw
       dependencies:
         paths: [ "proto/*.go" ]
-  - image: goofygoof/phi-core
+  - image: aaarti/phi-core
     ko:
       main: ./core
       dependencies:
         paths: [ "proto/*.go" ]
-  - image: goofygoof/phi-ledger
+  - image: aaarti/phi-ledger
     ko:
       main: ./ledger
       dependencies:
         paths: [ "proto/*.go" ]
-  - image: goofygoof/phi-ui
+  - image: aaarti/phi-ui
     context: ./ui
+
+  - image: aaarrti/phi-fava
+    context: ./fava
 
 deploy:
   kustomize:
@@ -37,6 +40,7 @@ deploy:
     - k8s/core
     - k8s/ledger
     - k8s/ui
+    - k8s/fava
   kubectl:
     manifests:
     - k8s/configmap.yaml

@@ -1,0 +1,147 @@
+:root {
+  /* Fonts */
+  --font-family: "Fira Sans", sans-serif;
+  --font-family-alternative: "Source Serif Pro", sans-serif;
+  --font-family-monospaced: "Fira Mono", monospace;
+  --font-family-editor: "Source Code Pro", monospace;
+
+  /* Scale of z-index values */
+  --z-index-aside: 1;
+  --z-index-header: 2;
+  --z-index-floating-ui: 3;
+  --z-index-keyboard-overlays: 10;
+  --z-index-autocomplete: 8;
+  --z-index-overlay: 4;
+
+  /* Base colors */
+  --error: hsl(0deg 100% 30%);
+  --warning: hsl(52deg 84% 56%);
+  --red: var(--error);
+  --yellow: var(--warning);
+  --green: hsl(151deg 100% 25%);
+  --gray: #aaa;
+  --transparent-black: hsl(0deg 0% 0% / 50%);
+  --transparent-white: hsl(0deg 0% 100% / 50%);
+  --background: #fff;
+  --background-darker: hsl(0deg 0% 85%);
+  --text-color: hsl(0deg 0% 27%);
+  --text-color-lighter: hsl(0deg 0% 33%);
+  --text-color-lightest: hsl(0deg 0% 47%);
+  --link-color: hsl(203deg 100% 32%);
+  --link-hover-color: hsl(0deg 0% 33%);
+  --heading-color: #333;
+  --code-background: hsl(0deg 0% 97%);
+  --border: hsl(0deg 0% 85%);
+  --border-darker: hsl(0deg 0% 80%);
+
+  /* Buttons */
+  --button-color: #fff;
+  --button-background: hsl(203deg 100% 32%);
+  --button-muted-color: var(--text-color);
+  --button-muted-background: var(--background-darker);
+
+  /* Sidebar */
+  --sidebar-color: #444;
+  --sidebar-hover-color: var(--link-color);
+  --sidebar-background: hsl(0deg 0% 96%);
+  --sidebar-border: hsl(0deg 0% 87%);
+
+  /* Details */
+  --summary-background: hsl(0deg 0% 95%);
+  --summary-background-darker: hsl(0deg 0% 90%);
+
+  /* Header */
+  --header-color: #fff;
+  --header-background: hsl(203deg 100% 32%);
+  --header-placeholder-color: hsl(203deg 47% 66%);
+  --header-placeholder-background: hsl(203deg 56% 45%);
+
+  /* Tables */
+  --table-header-text: hsl(0deg 0% 40%);
+  --table-header-background: hsl(0deg 0% 90%);
+  --table-border: hsl(0deg 0% 90%);
+  --table-background-even: hsl(0deg 0% 95%);
+  --treetable-expander: #afc1d3;
+  --budget-negative: #af3d3d;
+  --budget-positive: #3daf46;
+  --budget-zero: #ffb900;
+
+  /* Editor */
+  --editor-comment: #998;
+  --editor-trailing-whitespace: rgb(255 199 199 / 50%);
+  --editor-directive: #333;
+  --editor-class: #b84;
+  --editor-date: #099;
+  --editor-constant: #008080;
+  --editor-account: var(--link-color);
+  --editor-invalid: #333;
+  --editor-activeline: #ffc;
+
+  /* Misc */
+  --notification-color: #fff;
+  --chart-axis: #999;
+  --autocomplete-match: #ffd27c;
+  --mobile-button-text: #000;
+  --placeholder-color: var(--text-color-lightest);
+  --placeholder-background: var(--background);
+  --dragover-background: hsl(203deg 100% 32% / 50%);
+  --overlay-wrapper-background: rgb(0 0 0 / 50%);
+
+  /* Help pages */
+  --help-sidebar-background: #f8f8f8;
+  --help-sidebar-border: #eaeaea;
+}
+
+.journal .balance {
+  --entry-background: #cfc;
+}
+
+.journal .close {
+  --entry-background: hsl(0deg 0% 70%);
+}
+
+.journal .custom {
+  --entry-background: #fff3ab;
+}
+
+.journal .document {
+  --entry-background: #ffc8ff;
+}
+
+.journal .note {
+  --entry-background: #aad0ff;
+}
+
+.journal .open {
+  --entry-background: hsl(0deg 0% 92%);
+}
+
+.journal .other {
+  --entry-background: #cff;
+}
+
+.journal .pad {
+  --entry-background: #8ff;
+}
+
+.journal .pending {
+  --entry-background: #f8a;
+}
+
+.journal .query {
+  --entry-background: #aad0ff;
+}
+
+.journal .budget {
+  --entry-background: #ffddae;
+}
+
+.journal {
+  --journal-postings: hsl(0deg 0% 92%);
+  --journal-metadata: hsl(210deg 44% 67%);
+  --journal-tag: hsl(210deg 61% 64%);
+  --journal-link: hsl(203deg 39% 85%);
+  --journal-posting-indicator: hsl(203deg 24% 80%);
+  --journal-metadata-indicator: hsl(203deg 24% 40%);
+  --journal-hover-highlight: #f5f5f59c;
+}

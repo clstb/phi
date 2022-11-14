@@ -1,0 +1,38 @@
+svg text {
+  font-family: var(--font-family);
+  fill: var(--text-color-lightest);
+}
+
+.tooltip {
+  position: absolute;
+  z-index: var(--z-index-floating-ui);
+  min-width: 5em;
+  padding: 0.5em;
+  font-family: var(--font-family-monospaced);
+  text-align: center;
+  pointer-events: none;
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 5px var(--border);
+  opacity: 0%;
+  transform: translate(-50%, -100%);
+}
+
+.tooltip::before {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -15px;
+  content: "";
+  border: 15px solid transparent;
+  border-top-color: var(--border);
+}
+
+.tooltip em {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-family);
+  color: var(--text-color-lightest);
+}

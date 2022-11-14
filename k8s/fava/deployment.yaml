@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phi-fava
+spec:
+  selector:
+    matchLabels:
+      app: phi-fava-deploy
+  template:
+    metadata:
+      labels:
+        app: phi-fava-deploy
+    spec:
+      containers:
+        - image: goofygoof/phi-fava:v2
+          name: phi-fava
+          env:
+            - name: LEDGER_URI
+              value: phi-ledger.default.svc.cluster.local:8082
+          ports:
+            - containerPort: 8083

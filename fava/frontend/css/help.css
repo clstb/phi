@@ -1,0 +1,49 @@
+/* Help Pages */
+
+.help {
+  --help-max-width: 600px;
+
+  max-width: calc(var(--help-max-width) + 160px);
+}
+
+.help-text {
+  max-width: var(--help-max-width);
+  font: 16px var(--font-family-alternative);
+}
+
+.help-text h2,
+.help-text h3,
+.help-text h4,
+.help-text h5 {
+  font-family: var(--font-family);
+}
+
+.help-text > div {
+  margin-bottom: 1em;
+}
+
+.help-text code {
+  font-size: 0.9em;
+}
+
+.help-text ul {
+  padding-left: 2em;
+}
+
+.help-text li {
+  list-style-type: disc;
+}
+
+.help-sidebar {
+  float: right;
+  padding: 10px 10px 0;
+  margin: 0 0 10px 10px;
+  font-size: 1.1em;
+  background-color: var(--help-sidebar-background);
+  border: 1px solid var(--help-sidebar-border);
+}
+
+.help-sidebar a:hover,
+.help-sidebar a.selected {
+  font-weight: 500;
+}

@@ -1,0 +1,240 @@
+/* stylelint-disable no-descending-specificity */
+
+.journal {
+  margin-top: 0.25rem;
+}
+
+.flex-table p,
+.flex-table li,
+.flex-table ul,
+.flex-table ol {
+  padding: 0;
+  margin: 0;
+}
+
+.flex-table p {
+  display: flex;
+}
+
+.flex-table p > span {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  margin: 0;
+}
+
+.flex-table .num {
+  font-family: var(--font-family-monospaced);
+  color: var(--text-color);
+  text-align: right;
+}
+
+.flex-table .number {
+  white-space: nowrap;
+}
+
+.flex-table .head p > span {
+  padding: 3px 4px;
+  color: var(--table-header-text);
+  background-color: var(--table-header-background);
+}
+
+.flex-table .head .num {
+  font-family: var(--font-family);
+  color: var(--table-header-text);
+  background-color: var(--table-header-background);
+}
+
+.journal p,
+.journal dl {
+  border-bottom: thin solid var(--table-border);
+}
+
+.journal .payee {
+  cursor: pointer;
+}
+
+.journal .postings {
+  font-size: 0.9em;
+  background-color: var(--journal-postings);
+  opacity: 80%;
+}
+
+.journal .postings .num {
+  overflow: hidden;
+  line-height: 16px;
+}
+
+.journal > li,
+.journal.show-custom .custom.budget,
+.journal.show-document .document.discovered,
+.journal.show-document .document.linked,
+.journal .metadata,
+.journal .postings {
+  display: none;
+}
+
+.journal .head,
+.journal.show-balance .balance,
+.journal.show-close .close,
+.journal.show-custom .custom,
+.journal.show-document .document,
+.journal.show-note .note,
+.journal.show-open .open,
+.journal.show-pad .pad,
+.journal.show-query .query,
+.journal.show-metadata .metadata,
+.journal.show-postings .postings,
+.transaction.show-postings .postings,
+.transaction.show-postings .metadata {
+  display: block;
+}
+
+.journal.show-transaction.show-cleared .transaction.cleared,
+.journal.show-transaction.show-pending .transaction.pending,
+.journal.show-transaction.show-other .transaction.other,
+.journal.show-document.show-discovered .document.discovered,
+.journal.show-document.show-linked .document.linked,
+.journal.show-custom.show-budget .custom.budget {
+  display: block;
+}
+
+.journal .transaction:hover {
+  background: var(--journal-hover-highlight);
+}
+
+/* Metadata */
+.journal .metadata {
+  padding: 2px 0;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.journal .metadata dt {
+  float: left;
+  width: auto;
+  min-width: 4rem;
+  margin-right: 6px;
+  margin-left: 9rem;
+  color: var(--journal-metadata);
+  cursor: pointer;
+}
+
+.journal .metadata dd {
+  margin-left: 15rem;
+  cursor: pointer;
+}
+
+.journal p > .num {
+  width: 9rem;
+  white-space: pre;
+  border-left: 1px solid var(--table-border);
+}
+
+.journal .datecell,
+.journal .flag {
+  text-align: center;
+  background-color: var(--entry-background);
+}
+
+.journal .datecell {
+  width: 5.5rem;
+  white-space: nowrap;
+}
+
+.journal .flag {
+  width: 3rem;
+}
+
+.journal .change {
+  font-weight: 500;
+}
+
+.journal .description {
+  flex: 1;
+  padding-left: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journal .show-postings .description {
+  white-space: normal;
+}
+
+.journal .description .separator::before {
+  padding: 2px;
+  margin: 0 6px;
+  font-weight: bold;
+  color: var(--text-color-lighter);
+  content: "•";
+}
+
+.journal .description .num {
+  margin: 0 5px;
+}
+
+.journal .tag,
+.journal .link {
+  margin-left: 8px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.journal .tag {
+  color: var(--journal-tag);
+}
+
+.journal .link {
+  color: var(--journal-link);
+}
+
+.journal .bal {
+  background-color: var(--entry-background);
+}
+
+.journal a:hover {
+  filter: brightness(80%);
+}
+
+.journal .filename,
+.journal .url {
+  font-family: var(--font-family-monospaced);
+  font-size: 0.9em;
+}
+
+.journal .document .filename {
+  margin-left: 1em;
+}
+
+.journal .indicators {
+  display: flex;
+  flex-shrink: 3;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+
+.journal .indicators span {
+  min-width: 6px;
+  height: 6px;
+  padding: 0;
+  margin-right: 4px;
+  background-color: var(--journal-posting-indicator);
+  border-radius: 3px;
+}
+
+.journal .indicators .pending,
+.journal .indicators .other {
+  background-color: var(--entry-background);
+}
+
+.journal .indicators .metadata-indicator {
+  height: 16px;
+  padding: 0 6px;
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--journal-metadata-indicator);
+  text-transform: lowercase;
+  border-radius: 20px;
+}

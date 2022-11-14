@@ -8,5 +8,8 @@ ledger/.data
 ui/node_modules
 ui/package-lock.json
 ui/pnpm-lock.yaml
-http
 k8s/secret.yaml
+
+fava/frontend/node_modules
+fava/frontend/package-lock.json
+fava/src/fava/static

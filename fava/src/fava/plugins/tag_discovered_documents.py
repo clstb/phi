@@ -24,8 +24,6 @@ def tag_discovered_documents(
 
     for index, entry in enumerate(entries):
         if isinstance(entry, Document) and entry.meta["lineno"] == 0:
-            entries[index] = entry._replace(
-                tags=add_to_set(entry.tags, "discovered")
-            )
+            entries[index] = entry._replace(tags=add_to_set(entry.tags, "discovered"))
 
     return entries, []

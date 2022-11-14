@@ -76,9 +76,7 @@ class Interval(enum.Enum):
             return Interval.MONTH
 
 
-def get_next_interval(
-    date: datetime.date, interval: Interval
-) -> datetime.date:
+def get_next_interval(date: datetime.date, interval: Interval) -> datetime.date:
     """Get the start date of the next interval.
 
     Args:
@@ -188,14 +186,10 @@ def substitute(string: str, fye: FiscalYearEnd | None = None) -> str:
             string = string.replace(complete_match, f"{year}-{month:02}")
         if interval == "week":
             delta = datetime.timedelta(plusminus * mod * 7)
-            string = string.replace(
-                complete_match, (today + delta).strftime("%Y-W%W")
-            )
+            string = string.replace(complete_match, (today + delta).strftime("%Y-W%W"))
         if interval == "day":
             delta = datetime.timedelta(plusminus * mod)
-            string = string.replace(
-                complete_match, (today + delta).isoformat()
-            )
+            string = string.replace(complete_match, (today + delta).isoformat())
     return string
 
 

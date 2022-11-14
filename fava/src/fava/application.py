@@ -119,9 +119,7 @@ def _load_file() -> None:
 
     This is run automatically on the first request.
     """
-    ledgers = [
-        FavaLedger(filepath) for filepath in app.config["BEANCOUNT_FILES"]
-    ]
+    ledgers = [FavaLedger(filepath) for filepath in app.config["BEANCOUNT_FILES"]]
     update_ledger_slugs(ledgers)
 
 
@@ -149,9 +147,7 @@ app.add_template_filter(serialise)
 
 @app.url_defaults
 def _inject_filters(endpoint: str, values: dict[str, str | None]) -> None:
-    if "bfile" not in values and app.url_map.is_endpoint_expecting(
-        endpoint, "bfile"
-    ):
+    if "bfile" not in values and app.url_map.is_endpoint_expecting(endpoint, "bfile"):
         values["bfile"] = g.beancount_file_slug
     if endpoint in ["static", "index"]:
         return
@@ -213,9 +209,7 @@ def _incognito(
     response: werkzeug.wrappers.Response,
 ) -> werkzeug.wrappers.Response:
     """Replace all numbers with 'X'."""
-    if app.config.get("INCOGNITO") and response.content_type.startswith(
-        "text/html"
-    ):
+    if app.config.get("INCOGNITO") and response.content_type.startswith("text/html"):
         is_editor = (
             request.endpoint == "report"
             and request.view_args is not None
@@ -230,9 +224,7 @@ def _incognito(
 @app.errorhandler(FavaAPIException)
 def fava_api_exception(error: FavaAPIException) -> str:
     """Handle API errors."""
-    return render_template(
-        "_layout.html", page_title="Error", content=error.message
-    )
+    return render_template("_layout.html", page_title="Error", content=error.message)
 
 
 @app.route("/")
@@ -253,9 +245,7 @@ def index() -> werkzeug.wrappers.Response:
 def account(name: str, subreport: str = "journal") -> str:
     """The account report."""
     if subreport in ["journal", "balances", "changes"]:
-        return render_template(
-            "account.html", account_name=name, subreport=subreport
-        )
+        return render_template("account.html", account_name=name, subreport=subreport)
     return abort(404)
 
 
@@ -303,9 +293,7 @@ def report(report_name: str) -> str:
 def extension_report(report_name: str) -> str:
     """Endpoint for extension reports."""
     try:
-        template, extension = g.ledger.extensions.template_and_extension(
-            report_name
-        )
+        template, extension = g.ledger.extensions.template_and_extension(report_name)
         content = render_template_string(template, extension=extension)
         return render_template(
             "_layout.html", content=content, page_title=extension.report_title
@@ -380,9 +368,7 @@ def jump() -> werkzeug.wrappers.Response:
         else:
             qs_dict.setlist(key, values)
 
-    redirect_url = url.replace(
-        query=werkzeug.urls.url_encode(qs_dict, sort=True)
-    )
+    redirect_url = url.replace(query=werkzeug.urls.url_encode(qs_dict, sort=True))
     return redirect(werkzeug.urls.url_unparse(redirect_url))
 
 
@@ -404,13 +390,13 @@ def _perform_global_filters() -> None:
 @app.url_value_preprocessor
 def _pull_beancount_file(_: str | None, values: dict[str, str] | None) -> None:
     uname = request.args.get("uname")
-    is_root_path = request.path == '/'
+    is_root_path = request.path == "/"
     if is_root_path:
         if not uname:
             abort(Response(ERROR_PAGE))
         else:
-           path = provision_file(username=uname)
-           app.config['BEANCOUNT_FILES'] = [path]
+            path = provision_file(username=uname)
+            app.config["BEANCOUNT_FILES"] = [path]
     g.beancount_file_slug = values.pop("bfile", None) if values else None
     with LOAD_FILE_LOCK:
         if not app.config.get("LEDGERS"):

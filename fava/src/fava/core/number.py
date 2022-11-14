@@ -72,9 +72,7 @@ class DecimalFormatModule(FavaModule):
         for currency, ccontext in dcontext.ccontexts.items():
             prec = ccontext.get_fractional(Precision.MOST_COMMON)
             if prec is not None:
-                self.formatters[currency] = get_locale_format(
-                    self.locale, prec
-                )
+                self.formatters[currency] = get_locale_format(self.locale, prec)
 
     def __call__(self, value: Decimal, currency: str | None = None) -> str:
         """Format a decimal to the right number of decimal digits with locale.

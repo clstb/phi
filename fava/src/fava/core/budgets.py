@@ -59,9 +59,7 @@ class BudgetModule(FavaModule):
         end_date: datetime.date,
     ) -> dict[str, Decimal]:
         """Calculate the budget for an account in an interval."""
-        return calculate_budget(
-            self.budget_entries, account, begin_date, end_date
-        )
+        return calculate_budget(self.budget_entries, account, begin_date, end_date)
 
     def calculate_children(
         self,
@@ -176,9 +174,7 @@ def calculate_budget(
     for single_day in days_in_daterange(date_from, date_to):
         matches = _matching_budgets(budgets, account, single_day)
         for budget in matches.values():
-            currency_dict[
-                budget.currency
-            ] += budget.number / number_of_days_in_period(
+            currency_dict[budget.currency] += budget.number / number_of_days_in_period(
                 budget.period, single_day
             )
     return currency_dict
@@ -206,7 +202,5 @@ def calculate_budget_children(
 
     for child in budgets.keys():
         if child.startswith(account):
-            currency_dict.update(
-                calculate_budget(budgets, child, date_from, date_to)
-            )
+            currency_dict.update(calculate_budget(budgets, child, date_from, date_to))
     return currency_dict

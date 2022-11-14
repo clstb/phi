@@ -142,9 +142,7 @@ class QueryShell(BQLShell, FavaModule):
                 print(query.name)
         else:
             try:
-                query = next(
-                    query for query in self.queries if query.name == name
-                )
+                query = next(query for query in self.queries if query.name == name)
             except StopIteration:
                 print(f"ERROR: Query '{name}' not found")
             else:
@@ -178,9 +176,7 @@ class QueryShell(BQLShell, FavaModule):
             name = statement.query_name
 
             try:
-                query = next(
-                    query for query in self.queries if query.name == name
-                )
+                query = next(query for query in self.queries if query.name == name)
             except StopIteration as exc:
                 raise FavaAPIException(f'Query "{name}" not found.') from exc
             query_string = query.query_string

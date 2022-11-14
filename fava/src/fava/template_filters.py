@@ -46,9 +46,7 @@ def remove_keys(
     return new
 
 
-def cost_or_value(
-    inventory: Inventory, date: datetime.date | None = None
-) -> Any:
+def cost_or_value(inventory: Inventory, date: datetime.date | None = None) -> Any:
     """Get the cost or value of an inventory."""
     return cost_or_value_without_context(
         inventory, g.conversion, g.ledger.price_map, date
@@ -122,19 +120,11 @@ def should_show(account: TreeNode) -> bool:
     if account.name not in ledger.accounts:
         return False
     fava_options = ledger.fava_options
-    if not fava_options.show_closed_accounts and ledger.account_is_closed(
-        account.name
-    ):
+    if not fava_options.show_closed_accounts and ledger.account_is_closed(account.name):
         return False
-    if (
-        not fava_options.show_accounts_with_zero_balance
-        and account.balance.is_empty()
-    ):
+    if not fava_options.show_accounts_with_zero_balance and account.balance.is_empty():
         return False
-    if (
-        not fava_options.show_accounts_with_zero_transactions
-        and not account.has_txns
-    ):
+    if not fava_options.show_accounts_with_zero_transactions and not account.has_txns:
         return False
     return True
 

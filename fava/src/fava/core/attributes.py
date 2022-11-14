@@ -30,9 +30,7 @@ def get_active_years(entries: Entries, fye: FiscalYearEnd) -> list[str]:
     """
 
     if fye == (12, 31):
-        return sorted(
-            map(str, getters_get_active_years(entries)), reverse=True
-        )
+        return sorted(map(str, getters_get_active_years(entries)), reverse=True)
     seen = set()
     month = fye.month
     day = fye.day
@@ -65,9 +63,7 @@ class AttributesModule(FavaModule):
             all_entries, self.ledger.fava_options.fiscal_year_end
         )
 
-        account_ranker = ExponentialDecayRanker(
-            sorted(self.ledger.accounts.keys())
-        )
+        account_ranker = ExponentialDecayRanker(sorted(self.ledger.accounts.keys()))
         currency_ranker = ExponentialDecayRanker()
         payee_ranker = ExponentialDecayRanker()
 
@@ -77,9 +73,7 @@ class AttributesModule(FavaModule):
                 payee_ranker.update(txn.payee, txn.date)
             for posting in txn.postings:
                 account_ranker.update(posting.account, txn.date)
-                currency_ranker.update(
-                    posting.units.currency, txn.date  # type: ignore
-                )
+                currency_ranker.update(posting.units.currency, txn.date)  # type: ignore
                 if posting.cost and posting.cost.currency is not None:
                     currency_ranker.update(posting.cost.currency, txn.date)
 

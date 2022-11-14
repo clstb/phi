@@ -33,9 +33,7 @@ def group_entries_by_type(entries: Entries) -> EntriesByType:
     Returns:
         A namedtuple containing the grouped lists of entries.
     """
-    entries_by_type = EntriesByType(
-        [], [], [], [], [], [], [], [], [], [], [], []
-    )
+    entries_by_type = EntriesByType([], [], [], [], [], [], [], [], [], [], [], [])
     for entry in entries:
         getattr(entries_by_type, entry.__class__.__name__).append(entry)
     return entries_by_type

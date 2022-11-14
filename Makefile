@@ -33,19 +33,18 @@ clean:
 
 
 
-
-frontend:
-	@cd frontend; \
+fava_frontend:
+	@cd fava/frontend; \
 	npm i;        \
 	npm run build
 
 
-clean_front:
-	@rm -f src/fava/static/app.js;   \
-	rm -f src/fava/static/app.css;   \
-	rm -f src/fava/static/*.woff;    \
-	rm -r -f frontend/node_modules;  \
-	rm -f frontend/package-lock.json
+clean_frontend:
+	@rm -f fava/src/fava/static/app.js;   \
+	rm -f fava/src/fava/static/app.css;   \
+	rm -f fava/src/fava/static/*.woff;    \
+	rm -r -f fava/frontend/node_modules;  \
+	rm -f fava/frontend/package-lock.json
 
 
 clean_proto:

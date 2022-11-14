@@ -153,14 +153,10 @@ class ChartModule(FavaModule):
                     if posting.account.startswith(accounts):
                         inventory.add_position(posting)
 
-            balance = cost_or_value(
-                inventory, conversion, price_map, end - ONE_DAY
-            )
+            balance = cost_or_value(inventory, conversion, price_map, end - ONE_DAY)
             budgets = {}
             if isinstance(accounts, str):
-                budgets = self.ledger.budgets.calculate_children(
-                    accounts, begin, end
-                )
+                budgets = self.ledger.budgets.calculate_children(accounts, begin, end)
 
             if invert:
                 # pylint: disable=invalid-unary-operand-type
@@ -188,9 +184,7 @@ class ChartModule(FavaModule):
             account has changed containing the balance (in units) of the
             account at that date.
         """
-        real_account = realization.get_or_create(
-            self.ledger.root_account, account_name
-        )
+        real_account = realization.get_or_create(self.ledger.root_account, account_name)
         postings = realization.get_postings(real_account)
         journal = realization.iterate_with_balance(postings)
 
@@ -205,9 +199,7 @@ class ChartModule(FavaModule):
                 continue
 
             balance = inv_to_dict(
-                cost_or_value(
-                    balance_inventory, conversion, price_map, entry.date
-                )
+                cost_or_value(balance_inventory, conversion, price_map, entry.date)
             )
 
             currencies = set(balance.keys())
@@ -236,10 +228,7 @@ class ChartModule(FavaModule):
         transactions = (
             entry
             for entry in self.ledger.entries
-            if (
-                isinstance(entry, Transaction)
-                and entry.flag != FLAG_UNREALIZED
-            )
+            if (isinstance(entry, Transaction) and entry.flag != FLAG_UNREALIZED)
         )
 
         types = (
@@ -259,9 +248,7 @@ class ChartModule(FavaModule):
                 txn = next(transactions, None)
             yield DateAndBalance(
                 end_date,
-                cost_or_value(
-                    inventory, conversion, price_map, end_date - ONE_DAY
-                ),
+                cost_or_value(inventory, conversion, price_map, end_date - ONE_DAY),
             )
 
     @staticmethod
@@ -272,14 +259,10 @@ class ChartModule(FavaModule):
             types: The list of types returned by the BQL query.
         """
         return (
-            len(types) == 2
-            and types[0][1] in {str, date}
-            and types[1][1] is Inventory
+            len(types) == 2 and types[0][1] in {str, date} and types[1][1] is Inventory
         )
 
-    def query(
-        self, types: list[tuple[str, Any]], rows: list[tuple[Any, ...]]
-    ) -> Any:
+    def query(self, types: list[tuple[str, Any]], rows: list[tuple[Any, ...]]) -> Any:
         """Chart for a query.
 
         Args:
@@ -290,7 +273,5 @@ class ChartModule(FavaModule):
         if not self.can_plot_query(types):
             raise FavaAPIException("Can not plot the given chart.")
         if types[0][1] is date:
-            return [
-                {"date": date, "balance": units(inv)} for date, inv in rows
-            ]
+            return [{"date": date, "balance": units(inv)} for date, inv in rows]
         return [{"group": group, "balance": units(inv)} for group, inv in rows]

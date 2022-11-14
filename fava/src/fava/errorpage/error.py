@@ -1,5 +1,4 @@
-ERROR_PAGE = \
-    """
+ERROR_PAGE = """
     <!doctype html>
     <html lang="en">
     <body>

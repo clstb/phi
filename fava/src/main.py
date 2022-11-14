@@ -6,23 +6,9 @@ from werkzeug.middleware.profiler import ProfilerMiddleware
 from fava.application import app
 
 
-@click.option(
-    "-env",
-    "--environment",
-    help="In which env to run flask app."
-)
-@click.option(
-    "-d",
-    "--debug",
-    is_flag=True,
-    help="Turn on debugging."
-)
-@click.option(
-    "--profile",
-    is_flag=True,
-    help="Turn on profiling. "
-         "Implies --debug."
-)
+@click.option("-env", "--environment", help="In which env to run flask app.")
+@click.option("-d", "--debug", is_flag=True, help="Turn on debugging.")
+@click.option("--profile", is_flag=True, help="Turn on profiling. " "Implies --debug.")
 @click.option(
     "--profile-dir",
     type=click.Path(),
@@ -30,7 +16,7 @@ from fava.application import app
 )
 @click.version_option(prog_name="fava")
 def main(env="development", debug=True, profile=False, profile_dir=None):
-    os.environ['FLASK_ENV'] = env
+    os.environ["FLASK_ENV"] = env
     if profile:
         app.config["PROFILE"] = True
     if profile:
@@ -40,10 +26,10 @@ def main(env="development", debug=True, profile=False, profile_dir=None):
             profile_dir=profile_dir if profile_dir else None,
         )
 
-    app.jinja_env.auto_reload = os.environ['FLASK_ENV'] == 'development'
-    app.run('0.0.0.0', 8083, debug=debug)
+    app.jinja_env.auto_reload = os.environ["FLASK_ENV"] == "development"
+    app.run("0.0.0.0", 8083, debug=debug)
 
 
 if __name__ == "__main__":
-    app.config['BEANCOUNT_FILES'] = []
+    app.config["BEANCOUNT_FILES"] = []
     main()

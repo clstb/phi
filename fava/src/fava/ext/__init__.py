@@ -53,9 +53,7 @@ class FavaExtensionBase:
     def after_insert_entry(self, entry: Directive) -> None:
         """Called after an `entry` has been inserted."""
 
-    def after_insert_metadata(
-        self, entry: Directive, key: str, value: str
-    ) -> None:
+    def after_insert_metadata(self, entry: Directive, key: str, value: str) -> None:
         """Called after metadata (key: value) was added to an entry."""
 
     def after_write_source(self, path: str, source: str) -> None:
@@ -81,9 +79,7 @@ def find_extensions(
     try:
         module = importlib.import_module(name)
     except ImportError:
-        error = FavaExtensionError(
-            None, f'Importing module "{name}" failed.', None
-        )
+        error = FavaExtensionError(None, f'Importing module "{name}" failed.', None)
         return (
             [],
             [error],

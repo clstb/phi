@@ -62,8 +62,7 @@ class TreeNode:
             end: A date to use for cost conversions.
         """
         children = [
-            child.serialise(conversion, price_map, end)
-            for child in self.children
+            child.serialise(conversion, price_map, end) for child in self.children
         ]
         return SerialisedTreeNode(
             self.name,
@@ -84,9 +83,9 @@ class Tree(Dict[str, TreeNode]):
         super().__init__(self)
         self.get("", insert=True)
         if entries:
-            account_balances: dict[
-                str, CounterInventory
-            ] = collections.defaultdict(CounterInventory)
+            account_balances: dict[str, CounterInventory] = collections.defaultdict(
+                CounterInventory
+            )
             for entry in entries:
                 if isinstance(entry, Open):
                     self.get(entry.account, insert=True)
@@ -147,9 +146,7 @@ class Tree(Dict[str, TreeNode]):
                 self[name] = node
             return node
 
-    def net_profit(
-        self, options: BeancountOptions, account_name: str
-    ) -> TreeNode:
+    def net_profit(self, options: BeancountOptions, account_name: str) -> TreeNode:
         """Calculate the net profit.
 
         Args:
@@ -186,14 +183,10 @@ class Tree(Dict[str, TreeNode]):
         )
 
         # Add conversions
-        self.insert(
-            equity + ":" + options["account_current_conversions"], conversions
-        )
+        self.insert(equity + ":" + options["account_current_conversions"], conversions)
 
         # Insert unrealized gains.
-        self.insert(
-            equity + ":" + unrealized_account, -self.get("").balance_children
-        )
+        self.insert(equity + ":" + unrealized_account, -self.get("").balance_children)
 
         # Transfer Income and Expenses
         self.insert(

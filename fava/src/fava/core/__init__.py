@@ -59,6 +59,7 @@ from .number import DecimalFormatModule
 from .query_shell import QueryShell
 from .tree import Tree
 from .watcher import Watcher
+
 # from ..helpers import BeancountError
 # from ..helpers import FavaAPIException
 from ..util import date
@@ -71,9 +72,7 @@ class Filters:
 
     __slots__ = ("account", "filter", "time")
 
-    def __init__(
-        self, options: BeancountOptions, fava_options: FavaOptions
-    ) -> None:
+    def __init__(self, options: BeancountOptions, fava_options: FavaOptions) -> None:
         self.account = AccountFilter(options, fava_options)
         self.filter = AdvancedFilter(options, fava_options)
         self.time = TimeFilter(options, fava_options)
@@ -246,9 +245,7 @@ class FavaLedger:
             if name:
                 self.commodity_names[commodity.currency] = name
 
-        self.fava_options, errors = parse_options(
-            self.all_entries_by_type.Custom
-        )
+        self.fava_options, errors = parse_options(self.all_entries_by_type.Custom)
         self.errors.extend(errors)
 
         if not self._is_encrypted:
@@ -277,9 +274,7 @@ class FavaLedger:
 
         self.entries = self.filters.apply(self.all_entries)
 
-        self.root_account = realization.realize(
-            self.entries, self.account_types
-        )
+        self.root_account = realization.realize(self.entries, self.account_types)
         self.root_tree = Tree(self.entries)
 
         self._date_first, self._date_last = get_min_max_dates(
@@ -337,9 +332,7 @@ class FavaLedger:
             self.load_file()
         return changed
 
-    def interval_ends(
-        self, interval: date.Interval
-    ) -> Iterable[datetime.date]:
+    def interval_ends(self, interval: date.Interval) -> Iterable[datetime.date]:
         """Generator yielding dates corresponding to interval boundaries."""
         if not self._date_first or not self._date_last:
             return []
@@ -390,9 +383,7 @@ class FavaLedger:
             if account.startswith(account_name)
         ]
 
-        interval_tuples = list(
-            reversed(list(pairwise(self.interval_ends(interval))))
-        )
+        interval_tuples = list(reversed(list(pairwise(self.interval_ends(interval)))))
 
         interval_balances = [
             realization.realize(
@@ -424,9 +415,7 @@ class FavaLedger:
             A list of tuples ``(entry, postings, change, balance)``.
             change and balance have already been reduced to units.
         """
-        real_account = realization.get_or_create(
-            self.root_account, account_name
-        )
+        real_account = realization.get_or_create(self.root_account, account_name)
 
         if with_journal_children:
             postings = realization.get_postings(real_account)
@@ -469,14 +458,10 @@ class FavaLedger:
         """
         try:
             return next(
-                entry
-                for entry in self.all_entries
-                if entry_hash == hash_entry(entry)
+                entry for entry in self.all_entries if entry_hash == hash_entry(entry)
             )
         except StopIteration as exc:
-            raise FavaAPIException(
-                f'No entry found for hash "{entry_hash}"'
-            ) from exc
+            raise FavaAPIException(f'No entry found for hash "{entry_hash}"') from exc
 
     def context(
         self, entry_hash: str
@@ -531,9 +516,7 @@ class FavaLedger:
                 bw_pairs.append((currency_b, currency_a))
         return sorted(fw_pairs + bw_pairs)
 
-    def prices(
-        self, base: str, quote: str
-    ) -> list[tuple[datetime.date, Decimal]]:
+    def prices(self, base: str, quote: str) -> list[tuple[datetime.date, Decimal]]:
         """List all prices."""
         all_prices = get_all_prices(self.price_map, (base, quote))
 
@@ -545,9 +528,7 @@ class FavaLedger:
             return [
                 (date, price)
                 for date, price in all_prices
-                if self.filters.time.begin_date
-                <= date
-                < self.filters.time.end_date
+                if self.filters.time.begin_date <= date < self.filters.time.end_date
             ]
         return all_prices
 
@@ -560,9 +541,7 @@ class FavaLedger:
         Returns:
             The last entry of the account if it is not a Close entry.
         """
-        account = realization.get_or_create(
-            self.all_root_account, account_name
-        )
+        account = realization.get_or_create(self.all_root_account, account_name)
 
         last = realization.find_last_active_posting(account.txn_postings)
 
@@ -601,9 +580,7 @@ class FavaLedger:
             - 'yellow': Not a balance check.
         """
 
-        real_account = realization.get_or_create(
-            self.all_root_account, account_name
-        )
+        real_account = realization.get_or_create(self.all_root_account, account_name)
 
         for txn_posting in reversed(real_account.txn_postings):
             if isinstance(txn_posting, Balance):

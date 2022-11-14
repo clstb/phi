@@ -33,9 +33,7 @@ class AccountDict(Dict[str, AccountData]):
     def __missing__(self, key: str) -> AccountData:
         return self.EMPTY
 
-    def setdefault(
-        self, key: str, _: AccountData | None = None
-    ) -> AccountData:
+    def setdefault(self, key: str, _: AccountData | None = None) -> AccountData:
         if key not in self:
             self[key] = AccountData()
         return self[key]

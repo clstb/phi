@@ -112,9 +112,7 @@ class FileModule(FavaModule):
 
             return sha256(contents).hexdigest()
 
-    def insert_metadata(
-        self, entry_hash: str, basekey: str, value: str
-    ) -> None:
+    def insert_metadata(self, entry_hash: str, basekey: str, value: str) -> None:
         """Insert metadata into a file at lineno.
 
         Also, prevent duplicate keys.
@@ -259,9 +257,7 @@ def get_entry_slice(entry: Directive) -> tuple[str, str]:
     return entry_source, sha256_str(entry_source)
 
 
-def save_entry_slice(
-    entry: Directive, source_slice: str, sha256sum: str
-) -> str:
+def save_entry_slice(entry: Directive, source_slice: str, sha256sum: str) -> str:
     """Save slice of the source file for an entry.
 
     Args:
@@ -316,9 +312,7 @@ def insert_entry(
     Returns:
         A list of updated insert options.
     """
-    filename, lineno = find_insert_position(
-        entry, insert_options, default_filename
-    )
+    filename, lineno = find_insert_position(entry, insert_options, default_filename)
     content = _format_entry(entry, currency_column, indent)
 
     with open(filename, encoding="utf-8") as file:
@@ -347,9 +341,7 @@ def insert_entry(
 
 def _format_entry(entry: Directive, currency_column: int, indent: int) -> str:
     """Wrapper that strips unnecessary whitespace from format_entry."""
-    meta = {
-        key: entry.meta[key] for key in entry.meta if not key.startswith("_")
-    }
+    meta = {key: entry.meta[key] for key in entry.meta if not key.startswith("_")}
     entry = entry._replace(meta=meta)
     string = align(format_entry(entry, prefix=" " * indent), currency_column)
     string = string.replace("<class 'beancount.core.number.MISSING'>", "")
@@ -378,9 +370,7 @@ def find_insert_position(
 
     # Make no assumptions about the order of insert_options entries and instead
     # sort them ourselves (by descending dates)
-    insert_options = sorted(
-        insert_options, key=attrgetter("date"), reverse=True
-    )
+    insert_options = sorted(insert_options, key=attrgetter("date"), reverse=True)
 
     for account in accounts:
         for insert_option in insert_options:

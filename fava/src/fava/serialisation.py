@@ -129,9 +129,7 @@ def _(posting: Posting) -> Any:
 def deserialise_posting(posting: Any) -> Posting:
     """Parse JSON to a Beancount Posting."""
     amount = posting.get("amount", "")
-    entries, errors, _ = parse_string(
-        f'2000-01-01 * "" ""\n Assets:Account {amount}'
-    )
+    entries, errors, _ = parse_string(f'2000-01-01 * "" ""\n Assets:Account {amount}')
     if errors:
         raise FavaAPIException(f"Invalid amount: {amount}")
     txn = entries[0]

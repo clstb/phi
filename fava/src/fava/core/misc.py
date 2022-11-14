@@ -64,8 +64,7 @@ def sidebar_links(custom_entries: list[Custom]) -> list[tuple[str, str]]:
         entry for entry in custom_entries if entry.type == "fava-sidebar-link"
     ]
     return [
-        (entry.values[0].value, entry.values[1].value)
-        for entry in sidebar_link_entries
+        (entry.values[0].value, entry.values[1].value) for entry in sidebar_link_entries
     ]
 
 
@@ -91,9 +90,7 @@ def upcoming_events(events: list[Event], max_delta: int) -> list[Event]:
     return upcoming
 
 
-ALIGN_RE = re.compile(
-    rf'([^";]*?)\s+([-+]?\s*[\d,]+(?:\.\d*)?)\s+({CURRENCY_RE}\b.*)'
-)
+ALIGN_RE = re.compile(rf'([^";]*?)\s+([-+]?\s*[\d,]+(?:\.\d*)?)\s+({CURRENCY_RE}\b.*)')
 
 
 def align(string: str, currency_column: int) -> str:

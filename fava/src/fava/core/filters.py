@@ -64,9 +64,7 @@ class FilterSyntaxLexer:
         ("STRING", r'\w[-\w]*|"[^"]*"|\'[^\']*\''),
     )
 
-    regex = re.compile(
-        "|".join((f"(?P<{name}>{rule})" for name, rule in RULES))
-    )
+    regex = re.compile("|".join((f"(?P<{name}>{rule})" for name, rule in RULES)))
 
     def LINK(self, token: str, value: str) -> tuple[str, str]:
         return token, value[1:]
@@ -114,9 +112,7 @@ class FilterSyntaxLexer:
                 pos += len(value)
                 token = match.lastgroup
                 assert token is not None, "Internal Error"
-                func: Callable[[str, str], tuple[str, str]] = getattr(
-                    self, token
-                )
+                func: Callable[[str, str], tuple[str, str]] = getattr(self, token)
                 ret = func(token, value)
                 yield Token(*ret)
             elif char in literals:
@@ -172,9 +168,7 @@ class FilterSyntaxParser:
         expr = p[2]
 
         def _match_postings(entry: Directive) -> bool:
-            return all(
-                expr(posting) for posting in getattr(entry, "postings", [])
-            )
+            return all(expr(posting) for posting in getattr(entry, "postings", []))
 
         p[0] = _match_postings
 
@@ -185,9 +179,7 @@ class FilterSyntaxParser:
         expr = p[2]
 
         def _match_postings(entry: Directive) -> bool:
-            return any(
-                expr(posting) for posting in getattr(entry, "postings", [])
-            )
+            return any(expr(posting) for posting in getattr(entry, "postings", []))
 
         p[0] = _match_postings
 
@@ -290,9 +282,7 @@ class FilterSyntaxParser:
 class EntryFilter:
     """Filters a list of entries."""
 
-    def __init__(
-        self, options: BeancountOptions, fava_options: FavaOptions
-    ) -> None:
+    def __init__(self, options: BeancountOptions, fava_options: FavaOptions) -> None:
         self.options = options
         self.fava_options = fava_options
         self.value: str | None = None
@@ -334,9 +324,7 @@ class EntryFilter:
 class TimeFilter(EntryFilter):  # pylint: disable=abstract-method
     """Filter by dates."""
 
-    def __init__(
-        self, options: BeancountOptions, fava_options: FavaOptions
-    ) -> None:
+    def __init__(self, options: BeancountOptions, fava_options: FavaOptions) -> None:
         super().__init__(options, fava_options)
         self.begin_date: date | None = None
         self.end_date: date | None = None
@@ -357,9 +345,7 @@ class TimeFilter(EntryFilter):  # pylint: disable=abstract-method
         return True
 
     def _filter(self, entries: Entries) -> Entries:
-        entries, _ = clamp_opt(
-            entries, self.begin_date, self.end_date, self.options
-        )
+        entries, _ = clamp_opt(entries, self.begin_date, self.end_date, self.options)
         return entries
 
 
@@ -375,9 +361,7 @@ PARSE = ply.yacc.yacc(
 class AdvancedFilter(EntryFilter):
     """Filter by tags and links and keys."""
 
-    def __init__(
-        self, options: BeancountOptions, fava_options: FavaOptions
-    ) -> None:
+    def __init__(self, options: BeancountOptions, fava_options: FavaOptions) -> None:
         super().__init__(options, fava_options)
         self._include = None
 
@@ -412,9 +396,7 @@ class AccountFilter(EntryFilter):
     The filter string can either a regular expression or a parent account.
     """
 
-    def __init__(
-        self, options: BeancountOptions, fava_options: FavaOptions
-    ) -> None:
+    def __init__(self, options: BeancountOptions, fava_options: FavaOptions) -> None:
         super().__init__(options, fava_options)
         self.match: Match | None = None
 

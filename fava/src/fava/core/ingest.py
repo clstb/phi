@@ -110,16 +110,12 @@ class IngestModule(FavaModule):
         self.hooks = [extract.find_duplicate_entries]
         if "HOOKS" in mod:
             hooks = mod["HOOKS"]
-            if not isinstance(hooks, list) or not all(
-                callable(fn) for fn in hooks
-            ):
+            if not isinstance(hooks, list) or not all(callable(fn) for fn in hooks):
                 message = "HOOKS is not a list of callables"
                 self._error(f"Error in importer '{module_path}': {message}")
             else:
                 self.hooks = hooks
-        self.importers = {
-            importer.name(): importer for importer in self.config
-        }
+        self.importers = {importer.name(): importer for importer in self.config}
 
     def import_data(self) -> list[FileImporters]:
         """Identify files and importers that can be imported.
@@ -137,10 +133,7 @@ class IngestModule(FavaModule):
             files = list(identify.find_imports(self.config, full_path))
             for (filename, importers) in files:
                 basename = path.basename(filename)
-                infos = [
-                    file_import_info(filename, importer)
-                    for importer in importers
-                ]
+                infos = [file_import_info(filename, importer) for importer in importers]
                 ret.append(FileImporters(filename, basename, infos))
 
         return ret
@@ -155,18 +148,10 @@ class IngestModule(FavaModule):
         Returns:
             A list of new imported entries.
         """
-        if (
-            not filename
-            or not importer_name
-            or not self.config
-            or not self.module_path
-        ):
+        if not filename or not importer_name or not self.config or not self.module_path:
             return []
 
-        if (
-            self.mtime is None
-            or os.stat(self.module_path).st_mtime_ns > self.mtime
-        ):
+        if self.mtime is None or os.stat(self.module_path).st_mtime_ns > self.mtime:
             self.load_file()
 
         new_entries = extract.extract_from_file(
@@ -177,8 +162,6 @@ class IngestModule(FavaModule):
 
         new_entries_list: list[tuple[str, Entries]] = [(filename, new_entries)]
         for hook_fn in self.hooks:
-            new_entries_list = hook_fn(
-                new_entries_list, self.ledger.all_entries
-            )
+            new_entries_list = hook_fn(new_entries_list, self.ledger.all_entries)
 
         return new_entries_list[0][1]

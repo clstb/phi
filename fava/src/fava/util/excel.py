@@ -17,9 +17,7 @@ except ImportError:  # pragma: no cover
     HAVE_EXCEL = False
 
 
-def to_excel(
-    types: Any, rows: Any, result_format: str, query_string: str
-) -> Any:
+def to_excel(types: Any, rows: Any, result_format: str, query_string: str) -> Any:
     """Save result to spreadsheet document.
 
     Args:

@@ -39,9 +39,7 @@ class ExtensionModule(FavaModule):
         for cls in all_extensions:
             module = cls.__module__
             ext_config = (
-                _extension_entries[module]
-                if (module in _extension_entries)
-                else None
+                _extension_entries[module] if (module in _extension_entries) else None
             )
             if cls not in self._instances:
                 self._instances[cls] = cls(self.ledger, ext_config)
@@ -60,9 +58,7 @@ class ExtensionModule(FavaModule):
             if getattr(base, hook) != getattr(FavaExtensionBase, hook)
         ]
 
-    def template_and_extension(
-        self, name: str
-    ) -> tuple[str, FavaExtensionBase]:
+    def template_and_extension(self, name: str) -> tuple[str, FavaExtensionBase]:
         """Provide data to render an extension report.
 
         Args:
@@ -94,9 +90,7 @@ class ExtensionModule(FavaModule):
         for ext in self.exts_for_hook("after_insert_entry"):
             ext.after_insert_entry(entry)
 
-    def after_insert_metadata(
-        self, entry: Directive, key: str, value: str
-    ) -> None:
+    def after_insert_metadata(self, entry: Directive, key: str, value: str) -> None:
         for ext in self.exts_for_hook("after_insert_metadata"):
             ext.after_insert_metadata(entry, key, value)
 

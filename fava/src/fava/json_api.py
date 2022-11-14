@@ -103,9 +103,7 @@ def validate_func_arguments(
             if val is None:
                 raise ValidationError(f"Parameter `{param}` is missing.")
             if not isinstance(val, type_):
-                raise ValidationError(
-                    f"Parameter `{param}` of incorrect type."
-                )
+                raise ValidationError(f"Parameter `{param}` of incorrect type.")
             args.append(val)
         return args
 
@@ -301,9 +299,7 @@ def put_add_document() -> str:
     upload.save(filepath)
 
     if request.form.get("hash"):
-        g.ledger.file.insert_metadata(
-            request.form["hash"], "document", filename
-        )
+        g.ledger.file.insert_metadata(request.form["hash"], "document", filename)
     return f"Uploaded to {filepath}"
 
 

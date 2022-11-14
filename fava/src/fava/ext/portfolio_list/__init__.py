@@ -53,9 +53,7 @@ class PortfolioList(FavaExtensionBase):  # pragma: no cover
         selected_accounts = []
         regexer = re.compile(pattern)
         for acct in tree.keys():
-            if (regexer.match(acct) is not None) and (
-                acct not in selected_accounts
-            ):
+            if (regexer.match(acct) is not None) and (acct not in selected_accounts):
                 selected_accounts.append(acct)
 
         selected_nodes = [tree[x] for x in selected_accounts]
@@ -74,11 +72,7 @@ class PortfolioList(FavaExtensionBase):  # pragma: no cover
             Data structured for use with a querytable - (types, rows).
         """
         title = (
-            "Accounts with '"
-            + metadata_key
-            + "' metadata matching: '"
-            + pattern
-            + "'"
+            "Accounts with '" + metadata_key + "' metadata matching: '" + pattern + "'"
         )
         selected_accounts = []
         regexer = re.compile(pattern)
@@ -122,8 +116,6 @@ class PortfolioList(FavaExtensionBase):  # pragma: no cover
 
         for row in rows:
             if "balance" in row:
-                row["allocation"] = round(
-                    (row["balance"] / portfolio_total) * 100, 2
-                )
+                row["allocation"] = round((row["balance"] / portfolio_total) * 100, 2)
 
         return types, rows

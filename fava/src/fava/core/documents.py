@@ -21,12 +21,8 @@ def is_document_or_import_file(filename: str, ledger: FavaLedger) -> bool:
     Returns:
         Whether this is one of the documents or a path in an import dir.
     """
-    filenames = [
-        document.filename for document in ledger.all_entries_by_type.Document
-    ]
-    import_directories = [
-        ledger.join_path(d) for d in ledger.fava_options.import_dirs
-    ]
+    filenames = [document.filename for document in ledger.all_entries_by_type.Document]
+    import_directories = [ledger.join_path(d) for d in ledger.fava_options.import_dirs]
     if filename in filenames:
         return True
     file_path = path.abspath(filename)

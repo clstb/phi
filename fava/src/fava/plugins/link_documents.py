@@ -30,9 +30,7 @@ class DocumentError(BeancountError):
 __plugins__ = ["link_documents"]
 
 
-def link_documents(
-    entries: Entries, _: Any
-) -> tuple[Entries, list[DocumentError]]:
+def link_documents(entries: Entries, _: Any) -> tuple[Entries, list[DocumentError]]:
     """Link entries to documents."""
 
     errors = []
@@ -49,9 +47,7 @@ def link_documents(
 
     for index, entry in enumerate(entries):
         disk_docs = [
-            value
-            for key, value in entry.meta.items()
-            if key.startswith("document")
+            value for key, value in entry.meta.items() if key.startswith("document")
         ]
 
         if not disk_docs:
@@ -65,9 +61,7 @@ def link_documents(
                 for j, document in by_basename[disk_doc]
                 if document.account in entry_accounts
             ]
-            disk_doc_path = normpath(
-                join(dirname(entry.meta["filename"]), disk_doc)
-            )
+            disk_doc_path = normpath(join(dirname(entry.meta["filename"]), disk_doc))
             if disk_doc_path in by_fullname:
                 documents.append(by_fullname[disk_doc_path])
 
@@ -93,8 +87,6 @@ def link_documents(
             # The other entry types do not support links, so only add links for
             # txns.
             if isinstance(entry, Transaction):
-                entries[index] = entry._replace(
-                    links=add_to_set(entry.links, hash_)
-                )
+                entries[index] = entry._replace(links=add_to_set(entry.links, hash_))
 
     return entries, errors

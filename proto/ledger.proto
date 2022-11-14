@@ -5,7 +5,8 @@ option go_package = "github.com/clstb/phi/proto";
 
 
 import "google/protobuf/empty.proto";
-import "gw.proto";
+import "shared.proto";
+
 
 
 message SyncMessage {

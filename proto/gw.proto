@@ -2,16 +2,14 @@ syntax = "proto3";
 
 package phi;
 option go_package = "github.com/clstb/phi/proto";
+
 import "google/protobuf/empty.proto";
+import "shared.proto";
 
 
 message ProvisionTinkUserResponse {
   string ExternalUserId = 1;
   string TinkId = 2;
-}
-
-message StringMessage {
-  string value = 1;
 }
 
 message BytesMessage {

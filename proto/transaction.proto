@@ -1,5 +1,5 @@
 syntax = "proto3";
-import "gw.proto";
+import "shared.proto";
 
 package phi;
 option go_package = "github.com/clstb/phi/proto";

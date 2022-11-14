@@ -9,12 +9,12 @@ proto: proto_go proto_py
 
 
 proto_py:
-	@python -m grpc_tools.protoc           				\
-	--python_out fava/src/fava/file/proto       		\
-	--grpc_python_out=fava/src/fava/file/proto 		 \
-	--proto_path src/fava/file/proto      				 \
-	proto/ledger.proto;								\
-	sed -i -e 's/import ledger_pb2 as ledger__pb2/from . import ledger_pb2 as ledger__pb2/g' src/fava/file/proto/ledger_pb2_grpc.py
+	@python -m grpc_tools.protoc --python_out=proto --grpc_python_out=proto --proto_path=proto proto/shared.proto
+	@python -m grpc_tools.protoc --python_out=proto --grpc_python_out=proto --proto_path=proto proto/ledger.proto
+	@sed -i -e 's/import ledger_pb2 as ledger__pb2/from . import ledger_pb2 as ledger__pb2/g' proto/ledger_pb2_grpc.py
+	@sed -i -e 's/import shared_pb2 as shared__pb2/from . import shared_pb2 as shared__pb2/g' proto/ledger_pb2_grpc.py
+	@sed -i -e 's/import shared_pb2 as shared__pb2/from . import shared_pb2 as shared__pb2/g' proto/ledger_pb2.py
+	@mv proto/*.py fava/src/fava/file
 
 
 
@@ -25,28 +25,3 @@ proto_go:
 	--go-grpc_opt=module=${PACKAGE} \
 	--go-grpc_out=. \
 	${PROTO_DIR}/*.proto
-
-clean:
-		rm -f ${PROTO_DIR}/*.go; \
-		rm -r -f ui/node_modules; \
-		rm -f  ui/pnpm-lock.yaml
-
-
-
-fava_frontend:
-	@cd fava/frontend; \
-	npm i;        \
-	npm run build
-
-
-clean_frontend:
-	@rm -f fava/src/fava/static/app.js;   \
-	rm -f fava/src/fava/static/app.css;   \
-	rm -f fava/src/fava/static/*.woff;    \
-	rm -r -f fava/frontend/node_modules;  \
-	rm -f fava/frontend/package-lock.json
-
-
-clean_proto:
-	@rm -f src/fava/file/proto/*.py; \
-	rm -f src/fava/file/proto/*.py-e; \

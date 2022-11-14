@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package phi;
+option go_package = "github.com/clstb/phi/proto";
+
+
+message StringMessage {
+  string value = 1;
+}

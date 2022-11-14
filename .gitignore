@@ -13,3 +13,6 @@ k8s/secret.yaml
 fava/frontend/node_modules
 fava/frontend/package-lock.json
 fava/src/fava/static
+
+proto/*.py
+proto/*.go

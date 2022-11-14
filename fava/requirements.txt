@@ -15,8 +15,8 @@ google-api-python-client==2.47.0
 google-auth==2.6.6
 google-auth-httplib2==0.1.0
 googleapis-common-protos==1.56.1
-grpcio==1.46.1
-grpcio-tools==1.46.1
+grpcio==1.50.0
+grpcio-tools==1.50.0
 httplib2==0.20.4
 idna==3.3
 iniconfig==1.1.1
@@ -28,7 +28,7 @@ MarkupSafe==2.1.1
 packaging==21.3
 pluggy==1.0.0
 ply==3.11
-protobuf==3.20.1
+protobuf==4.21.9
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8

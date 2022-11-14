@@ -1,8 +1,8 @@
 import logging
 
 import grpc
-from .proto.ledger_pb2 import StringMessage
-from .proto.ledger_pb2_grpc import BeanAccountServiceStub
+#from .shared_pb2 import StringMessage
+from .ledger_pb2_grpc import BeanAccountServiceStub
 import os
 
 LEDGER_URI = (

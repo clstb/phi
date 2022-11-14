@@ -15,6 +15,7 @@ proto_py:
 	@sed -i -e 's/import shared_pb2 as shared__pb2/from . import shared_pb2 as shared__pb2/g' proto/ledger_pb2_grpc.py
 	@sed -i -e 's/import shared_pb2 as shared__pb2/from . import shared_pb2 as shared__pb2/g' proto/ledger_pb2.py
 	@mv proto/*.py fava/src/fava/file
+	@rm proto/*.py-e
 
 
 
@@ -25,3 +26,4 @@ proto_go:
 	--go-grpc_opt=module=${PACKAGE} \
 	--go-grpc_out=. \
 	${PROTO_DIR}/*.proto
+	@mv proto/*.go go/proto/

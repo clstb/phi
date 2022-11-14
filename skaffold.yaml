@@ -14,22 +14,21 @@ build:
   artifacts:
   - image: aaarti/phi-tinkgw
     ko:
-      main: ./tinkgw
+      main: ./go/tinkgw
       dependencies:
-        paths: [ "proto/*.go" ]
+        paths: [ "./go/proto/*.go" ]
   - image: aaarti/phi-core
     ko:
-      main: ./core
+      main: ./go/core
       dependencies:
-        paths: [ "proto/*.go" ]
+        paths: [ "./go/proto/*.go" ]
   - image: aaarti/phi-ledger
     ko:
-      main: ./ledger
+      main: ./go/ledger
       dependencies:
-        paths: [ "proto/*.go" ]
+        paths: [ "./go/proto/*.go" ]
   - image: aaarti/phi-ui
     context: ./ui
-
   - image: aaarrti/phi-fava
     context: ./fava
 

@@ -1,22 +1,21 @@
-FROM python:3.10-slim
-
-ENV DEBIAN_FRONTEND="noninteractive"
-
-RUN apt-get update && apt-get install -y build-essential nodejs npm
+FROM node:19-slim as builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN cd frontend && npm i && npm run build
 
-RUN make frontend
 
-RUN make proto
+FROM python:3.10-slim
 
-EXPOSE 8083
+COPY --from=builder /app .
+
+RUN cd .. & pip install -r requirements.txt
 
 RUN mkdir .data
+
+EXPOSE 8083
 
 WORKDIR /app/src/
 

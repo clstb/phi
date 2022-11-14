@@ -1,9 +1,4 @@
-.data
-.run
-k8s
-.editorconfig
-.gitignore
-.git
-.prettierignore
-.prettierrc.json
-Readme.md
+src/.data
+src/fava/static
+frontend/node_modules
+frontend/package-lock.json
